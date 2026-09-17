@@ -6,7 +6,7 @@ export const Admin: React.FC = () => {
   const { t, adminOverrides, toggleAdminUserDayAccess } = useApp();
 
   const demoUsersList = [
-    { phone: '9999999999', name: 'Ananya Sharma (Demo User A)', plan: '11-Day Spiritual Session Plan', status: 'Active' },
+    { phone: '9999999999', name: 'Suryateja (Demo User A)', plan: '11-Day Spiritual Session Plan', status: 'Active' },
     { phone: '8888888888', name: 'Vikram Kumar (Demo User B)', plan: 'Restricted Access Plan', status: 'Restricted' }
   ];
 

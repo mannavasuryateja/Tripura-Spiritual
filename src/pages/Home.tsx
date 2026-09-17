@@ -1,380 +1,445 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Sparkles, Calendar, Video, Clock, ChevronRight, CheckCircle2, Star, Heart, Award, ArrowRight } from 'lucide-react';
+import { Calendar, CheckCircle2, ArrowRight, Star, BookOpen, Radio, Sparkles, Play } from 'lucide-react';
+import { SACRED_BOOKS } from '../data/bookLibraryData';
 
 interface HomeProps {
   setActiveTab: (tab: string) => void;
 }
 
 export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
-  const { t, openPaymentModal } = useApp();
+  const { t, openPaymentModal, openBookDrawer, openBookAudioPlayer, openVideoModal } = useApp();
+
+  const offerings = [
+    {
+      id: 'hanuman-kriya',
+      image: '/card3.jpg',
+      tag: t.offeringsGrid.card1.tag,
+      category: t.offeringsGrid.card1.category,
+      title: t.offeringsGrid.card1.title,
+      desc: t.offeringsGrid.card1.desc,
+      meta: t.offeringsGrid.card1.meta,
+      price: t.offeringsGrid.card1.price,
+      numPrice: 1111,
+      action: 'session-details'
+    },
+    {
+      id: 'recording-pack',
+      image: '/card2.jpg',
+      tag: t.offeringsGrid.card2.tag,
+      category: t.offeringsGrid.card2.category,
+      title: t.offeringsGrid.card2.title,
+      desc: t.offeringsGrid.card2.desc,
+      meta: t.offeringsGrid.card2.meta,
+      price: t.offeringsGrid.card2.price,
+      numPrice: 1500,
+      action: 'buy-recordings'
+    },
+    {
+      id: 'recording-extension',
+      image: '/hero.jpg',
+      tag: t.offeringsGrid.card3.tag,
+      category: t.offeringsGrid.card3.category,
+      title: t.offeringsGrid.card3.title,
+      desc: t.offeringsGrid.card3.desc,
+      meta: t.offeringsGrid.card3.meta,
+      price: t.offeringsGrid.card3.price,
+      numPrice: 555,
+      action: 'buy-extension'
+    },
+    {
+      id: 'free-orientation',
+      image: '/card4.jpg',
+      tag: t.offeringsGrid.card4.tag,
+      category: t.offeringsGrid.card4.category,
+      title: t.offeringsGrid.card4.title,
+      desc: t.offeringsGrid.card4.desc,
+      meta: t.offeringsGrid.card4.meta,
+      price: t.offeringsGrid.card4.price,
+      numPrice: 0,
+      action: 'demo'
+    }
+  ];
 
   return (
-    <div className="space-y-20 pb-16">
+    <div className="space-y-24 pb-20 bg-[#FAF7F0] text-[#2C2421]">
       
-      {/* 1. HERO SECTION */}
-      <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28 spiritual-gradient-hero border-b border-amber-100/60">
+      {/* HERO SECTION — Matching reference screenshot */}
+      <section className="relative min-h-[600px] lg:min-h-[680px] flex items-center overflow-hidden bg-stone-900">
         
-        {/* Soft Glowing Aura Orbs */}
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-amber-300/20 rounded-full blur-3xl pointer-events-none animate-pulse-slow"></div>
-        <div className="absolute top-1/3 left-10 w-72 h-72 bg-orange-300/20 rounded-full blur-2xl pointer-events-none"></div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
-            {/* Left Content */}
-            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100/90 border border-amber-300/80 text-amber-900 text-xs font-semibold tracking-wider uppercase shadow-xs">
-                <Sparkles className="w-3.5 h-3.5 text-amber-600 animate-spin" />
-                <span>TRIPURA SPIRITUAL • A CONSCIOUS PLATFORM</span>
-              </div>
-
-              <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-extrabold text-stone-900 leading-tight tracking-tight">
-                {t.hero.title}
-              </h1>
-
-              <p className="text-base sm:text-lg text-stone-600 leading-relaxed max-w-2xl mx-auto lg:mx-0 font-normal">
-                {t.hero.subtitle}
-              </p>
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-                <button
-                  onClick={() => setActiveTab('sessions')}
-                  className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 hover:from-amber-700 hover:to-orange-700 text-white font-bold text-base shadow-xl shadow-amber-600/25 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
-                >
-                  <span>{t.hero.exploreSessions}</span>
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('demo')}
-                  className="w-full sm:w-auto px-8 py-4 rounded-full bg-white/90 hover:bg-white text-stone-800 hover:text-amber-800 font-semibold text-base border border-amber-200 shadow-md transition flex items-center justify-center gap-2"
-                >
-                  <Video className="w-5 h-5 text-amber-600" />
-                  <span>{t.hero.watchDemo} (₹99)</span>
-                </button>
-              </div>
-
-              {/* Feature Highlights Pills */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 text-left">
-                {[
-                  { text: t.hero.liveSessions, icon: Calendar },
-                  { text: t.hero.recordedClasses, icon: Video },
-                  { text: t.hero.flexibleLearning, icon: Clock },
-                  { text: t.hero.personalGuidance, icon: Heart }
-                ].map((item, idx) => (
-                  <div key={idx} className="p-3 rounded-2xl bg-white/70 backdrop-blur-xs border border-amber-200/60 shadow-xs flex flex-col gap-1.5">
-                    <item.icon className="w-4 h-4 text-amber-600" />
-                    <span className="text-xs font-medium text-stone-800 leading-snug">{item.text}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Right Visual Artwork */}
-            <div className="lg:col-span-5 flex justify-center">
-              <div className="relative w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-gradient-to-tr from-amber-400 via-orange-300 to-amber-100 p-2 shadow-2xl animate-float">
-                <div className="w-full h-full rounded-full bg-amber-50/90 backdrop-blur-md flex flex-col items-center justify-center p-6 border-4 border-white/80 text-center relative overflow-hidden mandala-bg">
-                  <span className="text-7xl sm:text-8xl mb-3 animate-glow">🪷</span>
-                  <h3 className="font-serif font-bold text-xl text-stone-900 tracking-wider">
-                    TRIPURA SPIRITUAL
-                  </h3>
-                  <p className="text-xs text-amber-800 font-medium mt-1">
-                    English & Telugu Guided Immersion
-                  </p>
-                  <span className="absolute bottom-4 px-3 py-1 bg-amber-600 text-white text-[10px] font-bold uppercase rounded-full tracking-widest shadow-xs">
-                    Live Platform Demo
-                  </span>
-                </div>
-              </div>
-            </div>
-
-          </div>
+        {/* Background Landscape Photo */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-scale duration-1000 scale-105"
+          style={{ backgroundImage: `url('/hero.jpg')` }}
+        >
+          {/* Subtle Warm Overlay for Contrast & Readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/35"></div>
         </div>
-      </section>
 
-      {/* 2. ABOUT SECTION PREVIEW */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="glass-card rounded-3xl p-8 sm:p-12 border border-amber-200/80 shadow-spiritual relative overflow-hidden">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-            <div className="md:col-span-8 space-y-4">
-              <span className="text-xs font-bold uppercase tracking-widest text-amber-700">
-                {t.aboutSection.motto}
-              </span>
-              <h2 className="font-serif text-3xl font-bold text-stone-900">
-                {t.aboutSection.title}
-              </h2>
-              <p className="text-stone-600 text-base leading-relaxed">
-                {t.aboutSection.desc}
-              </p>
+        {/* Right Faint Sacred Geometric Mandala Overlay */}
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[650px] md:h-[650px] opacity-25 pointer-events-none text-amber-200">
+          <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth="0.5" className="w-full h-full">
+            <circle cx="100" cy="100" r="90" />
+            <circle cx="100" cy="100" r="70" />
+            <circle cx="100" cy="100" r="50" />
+            <circle cx="100" cy="100" r="30" />
+            <path d="M100 10 L100 190 M10 100 L190 100" />
+            <path d="M36 36 L164 164 M36 164 L164 36" />
+            <ellipse cx="100" cy="100" rx="90" ry="40" />
+            <ellipse cx="100" cy="100" rx="40" ry="90" />
+          </svg>
+        </div>
+
+        {/* Hero Main Content Box */}
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10 py-20">
+          <div className="max-w-2xl space-y-6 text-left">
+            
+            {/* Tagline */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-amber-200 text-xs font-semibold tracking-[0.2em] uppercase">
+              <Sparkles className="w-3 h-3 text-[#D1A559]" />
+              <span>{t.hero.tagline}</span>
+            </div>
+
+            {/* Main Headline */}
+            <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-light text-white leading-[1.1] tracking-tight">
+              {t.hero.title}
+            </h1>
+
+            {/* Description */}
+            <p className="text-base sm:text-lg text-stone-200 font-light leading-relaxed max-w-xl">
+              {t.hero.subtitle}
+            </p>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
               <button
-                onClick={() => setActiveTab('about')}
-                className="inline-flex items-center gap-2 font-semibold text-amber-700 hover:text-amber-800 text-sm group"
+                onClick={() => setActiveTab('sessions')}
+                className="px-8 py-4 rounded-full bg-[#D1A559] hover:bg-[#C29548] text-[#201812] font-semibold text-xs sm:text-sm tracking-[0.18em] uppercase shadow-lg transition duration-300 transform hover:scale-102 flex items-center justify-center gap-2"
               >
-                <span>{t.aboutSection.learnMore}</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <span>{t.hero.exploreSessions}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={() => setActiveTab('demo')}
+                className="px-8 py-4 rounded-full bg-transparent hover:bg-white/10 text-white font-semibold text-xs sm:text-sm tracking-[0.18em] uppercase border border-white/80 transition duration-300 flex items-center justify-center gap-2"
+              >
+                <Play className="w-4 h-4 text-[#D1A559] fill-[#D1A559]" />
+                <span>{t.hero.watchDemo}</span>
               </button>
             </div>
-            <div className="md:col-span-4 flex justify-center">
-              <div className="p-6 rounded-2xl bg-amber-100/60 border border-amber-300/60 text-center space-y-2">
-                <Award className="w-10 h-10 text-amber-700 mx-auto" />
-                <span className="block font-serif font-bold text-lg text-stone-900">Authentic Lineage</span>
-                <p className="text-xs text-stone-600">Rooted in classical wisdom tailored for modern practitioners.</p>
-              </div>
-            </div>
+
           </div>
         </div>
+
       </section>
 
-      {/* 3. UPCOMING SESSIONS HIGHLIGHT */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="text-center space-y-2">
-          <span className="text-xs font-bold uppercase tracking-widest text-amber-600">Featured Session</span>
-          <h2 className="font-serif text-3xl font-bold text-stone-900">{t.upcomingSessions.title}</h2>
-          <p className="text-stone-600 text-sm max-w-xl mx-auto">{t.upcomingSessions.subtitle}</p>
+      {/* 4 CARDS GRID — Masterclasses, Recordings & Free Orientation */}
+      <section className="max-w-7xl mx-auto px-6 sm:px-8 space-y-10">
+        
+        {/* Section Header */}
+        <div className="text-center space-y-2 max-w-2xl mx-auto">
+          <span className="text-xs font-semibold tracking-[0.25em] uppercase text-[#8B5E34]">
+            {t.offeringsGrid.sectionTag}
+          </span>
+          <h2 className="font-serif text-3xl sm:text-4xl font-normal text-[#2C2421]">
+            {t.offeringsGrid.sectionTitle}
+          </h2>
+          <p className="text-stone-600 text-sm sm:text-base font-light">
+            {t.offeringsGrid.sectionSubtitle}
+          </p>
         </div>
 
-        <div className="glass-panel rounded-3xl p-6 sm:p-10 border border-amber-200 shadow-xl relative">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-8 space-y-4">
-              <div className="inline-block px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-xs font-bold uppercase tracking-wider">
-                ● {t.upcomingSessions.statusLive}
+        {/* 4 Column Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          {offerings.map((item) => (
+            <div
+              key={item.id}
+              onClick={() => {
+                if (item.action === 'session-details') setActiveTab('session-details');
+                else if (item.action === 'demo') setActiveTab('demo');
+                else if (item.action === 'buy-recordings') {
+                  openPaymentModal({
+                    id: 'recordings-pack-11day',
+                    name: 'Full 11-Day Hanuman Kriya Recordings Pack',
+                    price: 1500,
+                    type: 'recordings-only'
+                  });
+                } else if (item.action === 'buy-extension') {
+                  openPaymentModal({
+                    id: 'hanuman-kriya-ext-21',
+                    name: '21-Day Live Session Recording Extension (49% OFF)',
+                    price: 555,
+                    type: 'recording-extension'
+                  });
+                }
+              }}
+              className="group bg-white rounded-2xl overflow-hidden border border-[#E6E0D2] shadow-xs hover:shadow-xl hover:-translate-y-2 transition-all duration-500 cursor-pointer flex flex-col justify-between"
+            >
+              <div>
+                {/* Image Container with Top Pill Overlay */}
+                <div className="relative aspect-square overflow-hidden bg-stone-100">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
+                  />
+
+                  {/* Top Left Floating Tag Pill */}
+                  <span className="absolute top-4 left-4 px-3.5 py-1 rounded-full bg-white/90 backdrop-blur-md text-[#2C2421] text-[10px] font-semibold tracking-widest uppercase shadow-xs">
+                    {item.tag}
+                  </span>
+                </div>
+
+                {/* Content Box */}
+                <div className="p-6 space-y-2">
+                  <span className="block text-[10px] font-semibold tracking-[0.2em] uppercase text-[#8B5E34]">
+                    {item.category}
+                  </span>
+                  <h3 className="font-serif text-xl font-normal text-[#2C2421] group-hover:text-[#8B5E34] transition-colors duration-300">
+                    {item.title}
+                  </h3>
+                  <p className="text-xs text-stone-600 font-light leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
               </div>
-              <h3 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">
+
+              {/* Bottom Meta & Pricing Footer Line */}
+              <div className="px-6 pb-6 pt-3 border-t border-[#F0EBE1] flex items-center justify-between text-[11px] font-semibold text-[#7A7067] tracking-wider uppercase">
+                <span>{item.meta}</span>
+                <span className="text-sm font-serif text-[#2C2421] font-bold">{item.price}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+      </section>
+
+      {/* FEATURED UPCOMING SESSION: HANUMAN KRIYA IMMERSION */}
+      <section className="max-w-6xl mx-auto px-6 sm:px-8 space-y-8">
+        <div className="text-center space-y-2 max-w-xl mx-auto">
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8B5E34]">
+            Featured Live Immersion
+          </span>
+          <h2 className="font-serif text-3xl font-normal text-[#2C2421]">
+            {t.upcomingSessions.title}
+          </h2>
+          <p className="text-stone-600 text-sm">{t.upcomingSessions.subtitle}</p>
+        </div>
+
+        <div className="bg-white rounded-3xl p-8 sm:p-12 border border-[#E6E0D2] shadow-sm">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <div className="lg:col-span-8 space-y-4">
+              <span className="inline-block px-3.5 py-1 rounded-full bg-[#F3EDE0] text-[#8B5E34] text-xs font-semibold tracking-wider uppercase">
+                {t.upcomingSessions.statusLive}
+              </span>
+              <h3 className="font-serif text-2xl sm:text-3xl font-normal text-[#2C2421]">
                 {t.upcomingSessions.session11Title}
               </h3>
-              <p className="text-amber-800 font-semibold text-sm flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-amber-600" />
+              <p className="text-[#8B5E34] font-medium text-sm flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
                 <span>{t.upcomingSessions.dates}</span>
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <div className="flex items-center gap-2 text-stone-700 text-sm">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-stone-700 text-sm font-light">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
                   <span>{t.upcomingSessions.liveGuidance}</span>
                 </div>
-                <div className="flex items-center gap-2 text-stone-700 text-sm">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
                   <span>{t.upcomingSessions.recordingsIncluded}</span>
                 </div>
-                <div className="flex items-center gap-2 text-stone-700 text-sm">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
                   <span>{t.upcomingSessions.languages}</span>
                 </div>
-                <div className="flex items-center gap-2 text-stone-700 text-sm">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>30-Day Recording Guarantee</span>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
+                  <span>WhatsApp Live Community Access</span>
                 </div>
               </div>
             </div>
 
-            <div className="lg:col-span-4 bg-white/90 p-6 rounded-2xl border border-amber-200 shadow-md text-center space-y-4">
-              <span className="text-xs text-stone-500 uppercase tracking-wider font-semibold">Special Immersion</span>
-              <div className="text-3xl font-bold font-sans text-stone-900">
-                ₹599 <span className="text-xs font-normal text-stone-500">/ 11 Days</span>
+            <div className="lg:col-span-4 bg-[#FAF7F0] p-6 rounded-2xl border border-[#E6E0D2] text-center space-y-4">
+              <span className="text-xs text-[#7A7067] uppercase tracking-wider font-semibold">11-Day Live Masterclass</span>
+              <div className="text-3xl font-serif text-[#2C2421]">
+                ₹1,111 <span className="text-xs font-sans text-stone-500">/ 11 Days</span>
               </div>
               <button
                 onClick={() => setActiveTab('session-details')}
-                className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-md transition"
+                className="w-full py-3.5 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-semibold text-xs tracking-[0.15em] uppercase shadow-sm transition duration-300"
               >
                 {t.upcomingSessions.viewDetails}
               </button>
             </div>
+
           </div>
         </div>
       </section>
 
-      {/* 4. DEMO CLASS BANNER */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-amber-950 text-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
-            <div className="md:col-span-8 space-y-4">
-              <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs font-bold uppercase tracking-wider">
-                {t.demoSection.title}
+      {/* SACRED BOOK LIBRARY & PODCAST SPOTLIGHT */}
+      <section className="max-w-6xl mx-auto px-6 sm:px-8">
+        <div className="bg-radial from-[#3B234A] to-[#201526] text-white rounded-3xl p-8 sm:p-12 shadow-lg relative overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <div className="lg:col-span-7 space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#D1A559] text-xs font-semibold tracking-widest uppercase">
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Sacred Discourses & Library</span>
+              </div>
+
+              <h2 className="font-serif text-3xl sm:text-4xl font-light">
+                {t.bookLibrary.title}
+              </h2>
+              
+              <p className="text-stone-300 text-sm sm:text-base font-light leading-relaxed">
+                {t.bookLibrary.subtitle}
+              </p>
+
+              <div className="flex flex-wrap gap-2 pt-2">
+                {SACRED_BOOKS.slice(0, 3).map((book) => (
+                  <button
+                    key={book.id}
+                    onClick={() => openBookDrawer(book)}
+                    className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 text-xs text-stone-200 transition flex items-center gap-1.5"
+                  >
+                    <Radio className="w-3 h-3 text-[#D1A559]" />
+                    <span>{book.title}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="lg:col-span-5 bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 text-center space-y-4">
+              <div className="w-12 h-12 mx-auto rounded-full bg-[#D1A559]/20 text-[#D1A559] flex items-center justify-center">
+                <Radio className="w-6 h-6 animate-pulse" />
+              </div>
+              <div>
+                <h3 className="font-serif text-xl text-white">Spiritual Radio Player</h3>
+                <p className="text-stone-300 text-xs mt-1">Audio commentaries and sacred chapters by Master Garu</p>
+              </div>
+              <div className="flex flex-col gap-2.5">
+                <button
+                  onClick={() => openBookAudioPlayer(SACRED_BOOKS[0])}
+                  className="w-full py-3 rounded-full bg-[#D1A559] hover:bg-[#C29548] text-[#201812] font-semibold text-xs tracking-widest uppercase shadow-md transition flex items-center justify-center gap-2"
+                >
+                  <Play className="w-3.5 h-3.5 fill-[#201812]" />
+                  <span>Listen to Tripura Rahasya</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('book-library')}
+                  className="w-full py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-xs tracking-widest uppercase transition"
+                >
+                  View All Curated Books
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 100% FREE ORIENTATION CLASS PREVIEW */}
+      <section className="max-w-6xl mx-auto px-6 sm:px-8">
+        <div className="bg-[#2C2421] text-white rounded-3xl p-8 sm:p-12 shadow-md relative overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+            <div className="md:col-span-8 space-y-3">
+              <span className="px-3 py-1 rounded-full bg-emerald-900/60 text-emerald-300 text-xs font-semibold tracking-widest uppercase border border-emerald-500/30">
+                100% Free • Open to All
               </span>
-              <h3 className="font-serif text-3xl font-bold">{t.demoSection.demoClassTitle}</h3>
-              <p className="text-stone-300 text-sm leading-relaxed">{t.demoSection.subtitle}</p>
-              <div className="flex items-center gap-4 text-xs text-amber-300 font-mono">
+              <h3 className="font-serif text-3xl font-light">{t.demoSection.demoClassTitle}</h3>
+              <p className="text-stone-200 text-sm font-light leading-relaxed">{t.demoSection.subtitle}</p>
+              <div className="flex items-center gap-4 text-xs text-amber-200 font-mono pt-1">
                 <span>⏱ {t.demoSection.duration}</span>
                 <span>•</span>
-                <span>🏷 Demo Price: {t.demoSection.price}</span>
+                <span className="text-emerald-400 font-semibold">{t.demoSection.price}</span>
               </div>
             </div>
             <div className="md:col-span-4 flex flex-col gap-3">
               <button
+                onClick={() => openVideoModal({
+                  day: 0,
+                  title: t.demoSection.demoClassTitle,
+                  duration: "45 mins",
+                  videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+                })}
+                className="w-full py-3.5 rounded-full bg-[#D1A559] hover:bg-[#C29548] text-[#201812] font-semibold text-xs tracking-widest uppercase shadow-md transition duration-300 flex items-center justify-center gap-2"
+              >
+                <Play className="w-4 h-4 fill-[#201812]" />
+                <span>{t.demoSection.watchPreview}</span>
+              </button>
+              <button
                 onClick={() => setActiveTab('demo')}
-                className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold text-sm shadow-lg transition"
+                className="w-full py-3.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold text-xs tracking-widest uppercase transition duration-300"
               >
-                {t.demoSection.watchPreview}
-              </button>
-              <button
-                onClick={() => openPaymentModal({ id: 'demo-class', name: t.demoSection.demoClassTitle, price: 99, type: 'demo' })}
-                className="w-full py-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-sm transition"
-              >
-                {t.demoSection.buyDemo}
+                Learn What's Covered
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 5. PLANS PREVIEW */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="flex flex-col sm:flex-row justify-between items-end gap-4">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-amber-600">Subscriptions</span>
-            <h2 className="font-serif text-3xl font-bold text-stone-900">{t.plansSection.title}</h2>
-          </div>
-          <button
-            onClick={() => setActiveTab('plans')}
-            className="text-amber-700 hover:text-amber-800 font-bold text-sm flex items-center gap-1"
-          >
-            <span>{t.plansSection.viewAll}</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
-          {/* Card 1: 11-Day Plan */}
-          <div className="glass-card rounded-3xl p-6 border border-amber-200 shadow-md hover:shadow-xl transition flex flex-col justify-between">
-            <div className="space-y-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-700">Starter Immersion</span>
-              <h3 className="font-serif text-xl font-bold text-stone-900">{t.plansSection.plan11.name}</h3>
-              <div className="text-3xl font-bold text-stone-900 font-sans">{t.plansSection.plan11.price}</div>
-              <ul className="space-y-2.5 text-xs text-stone-600">
-                {t.plansSection.plan11.features.map((feat, idx) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>{feat}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+      {/* ABOUT TRIPURA SPIRITUAL & MASTER */}
+      <section className="max-w-6xl mx-auto px-6 sm:px-8">
+        <div className="bg-[#FAF7F0] rounded-3xl p-8 sm:p-14 border border-[#E6E0D2] shadow-xs text-center max-w-3xl mx-auto space-y-6">
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8B5E34]">
+            {t.aboutSection.motto}
+          </span>
+          <h2 className="font-serif text-3xl sm:text-4xl font-normal text-[#2C2421]">
+            {t.aboutSection.title}
+          </h2>
+          <p className="text-stone-700 text-base sm:text-lg leading-relaxed font-light">
+            {t.aboutSection.desc}
+          </p>
+          <div className="pt-2">
             <button
-              onClick={() => openPaymentModal({ id: '11-day', name: t.plansSection.plan11.name, price: 599, type: 'plan' })}
-              className="mt-6 w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-md transition"
+              onClick={() => setActiveTab('about')}
+              className="inline-flex items-center gap-2 font-semibold text-xs tracking-[0.15em] uppercase text-[#8B5E34] hover:text-[#5C3D1E] group"
             >
-              {t.plansSection.choosePlan}
+              <span>{t.aboutSection.learnMore}</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
             </button>
-          </div>
-
-          {/* Card 2: 21-Day Plan (Featured) */}
-          <div className="glass-card rounded-3xl p-6 border-2 border-amber-500 shadow-xl relative flex flex-col justify-between bg-amber-50/40">
-            <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-amber-600 text-white text-[10px] font-bold uppercase tracking-widest shadow-md">
-              {t.plansSection.popular}
-            </span>
-            <div className="space-y-4 pt-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-700">Deep Practice</span>
-              <h3 className="font-serif text-xl font-bold text-stone-900">{t.plansSection.plan21.name}</h3>
-              <div className="text-3xl font-bold text-stone-900 font-sans">{t.plansSection.plan21.price}</div>
-              <ul className="space-y-2.5 text-xs text-stone-700 font-medium">
-                {t.plansSection.plan21.features.map((feat, idx) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                    <span>{feat}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <button
-              onClick={() => openPaymentModal({ id: '21-day', name: t.plansSection.plan21.name, price: 999, type: 'plan' })}
-              className="mt-6 w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold text-sm shadow-lg transition"
-            >
-              {t.plansSection.choosePlan}
-            </button>
-          </div>
-
-          {/* Card 3: Recording Access Plan */}
-          <div className="glass-card rounded-3xl p-6 border border-amber-200 shadow-md hover:shadow-xl transition flex flex-col justify-between">
-            <div className="space-y-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-700">On-Demand Archive</span>
-              <h3 className="font-serif text-xl font-bold text-stone-900">{t.plansSection.recordingPlan.name}</h3>
-              <div className="text-3xl font-bold text-stone-900 font-sans">{t.plansSection.recordingPlan.price}</div>
-              <ul className="space-y-2.5 text-xs text-stone-600">
-                {t.plansSection.recordingPlan.features.map((feat, idx) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>{feat}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <button
-              onClick={() => openPaymentModal({ id: 'recording', name: t.plansSection.recordingPlan.name, price: 599, type: 'plan' })}
-              className="mt-6 w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-md transition"
-            >
-              {t.plansSection.choosePlan}
-            </button>
-          </div>
-
-        </div>
-      </section>
-
-      {/* 6. ONE-TO-ONE GUIDANCE PREVIEW */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="glass-panel rounded-3xl p-8 sm:p-12 border border-amber-200 shadow-lg">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-8 space-y-3">
-              <span className="text-xs font-bold uppercase tracking-widest text-amber-600">Private Mentorship</span>
-              <h3 className="font-serif text-3xl font-bold text-stone-900">{t.oneToOne.title}</h3>
-              <p className="text-stone-600 text-sm leading-relaxed">{t.oneToOne.subtitle}</p>
-              <div className="flex flex-wrap gap-4 pt-2 text-xs font-semibold text-stone-800">
-                <span className="px-3 py-1.5 bg-amber-100/80 rounded-lg">30 Mins — ₹499</span>
-                <span className="px-3 py-1.5 bg-amber-100/80 rounded-lg">60 Mins — ₹899</span>
-              </div>
-            </div>
-            <div className="lg:col-span-4 flex justify-center">
-              <button
-                onClick={() => setActiveTab('onetoone')}
-                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-md transition"
-              >
-                {t.oneToOne.bookSession}
-              </button>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* 7. TESTIMONIALS (SAMPLE DEMO CONTENT) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      {/* TESTIMONIALS */}
+      <section className="max-w-6xl mx-auto px-6 sm:px-8 space-y-6">
         <div className="text-center space-y-2">
-          <span className="text-xs font-bold uppercase tracking-widest text-amber-600">Seeker Experiences</span>
-          <h2 className="font-serif text-3xl font-bold text-stone-900">Transformative Stories</h2>
-          <p className="text-stone-500 text-xs uppercase tracking-wider">(Sample Demonstration Testimonials)</p>
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8B5E34]">Seeker Stories</span>
+          <h2 className="font-serif text-3xl font-normal text-[#2C2421]">Voices of Peace</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             {
-              name: "Sowmya Reddy",
+              name: "Sowmya R.",
               city: "Hyderabad",
-              text: "The 11-day session brought profound stillness to my hectic work routine. Having recordings available in Telugu was deeply personal.",
-              rating: 5
+              text: "The sessions brought deep calmness to my daily routine. The simple Telugu audio instructions made it very comfortable to follow."
             },
             {
               name: "Rajesh Varma",
               city: "Bengaluru",
-              text: "The structured daily meditation and recordings allowed me to practice whenever I found time. Truly authentic spiritual guidance.",
-              rating: 5
+              text: "Very clear and simple website. I can easily watch the daily video recordings at my own pace after work."
             },
             {
               name: "Priyanka N.",
               city: "Visakhapatnam",
-              text: "Booking a 1-on-1 session helped clarify many meditation questions I carried for years. Grateful for Tripura Spiritual.",
-              rating: 5
+              text: "Wonderful, peaceful platform. The 1-on-1 session helped me resolve many personal questions with real guidance."
             }
           ].map((item, idx) => (
-            <div key={idx} className="glass-card rounded-2xl p-6 border border-amber-100 shadow-sm space-y-3">
-              <div className="flex gap-1 text-amber-500">
-                {[...Array(item.rating)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-400" />
+            <div key={idx} className="bg-white rounded-2xl p-6 border border-[#E6E0D2] shadow-xs space-y-3 hover:shadow-md transition duration-300">
+              <div className="flex gap-1 text-[#D1A559]">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-3.5 h-3.5 fill-[#D1A559]" />
                 ))}
               </div>
-              <p className="text-stone-700 text-sm italic">"{item.text}"</p>
-              <div className="pt-2 border-t border-amber-100">
-                <span className="block font-serif font-bold text-stone-900 text-sm">{item.name}</span>
+              <p className="text-stone-700 text-sm font-light leading-relaxed italic">"{item.text}"</p>
+              <div className="pt-2 border-t border-[#E6E0D2]">
+                <span className="block font-serif text-[#2C2421] text-sm font-normal">{item.name}</span>
                 <span className="text-xs text-stone-500">{item.city}</span>
               </div>
             </div>

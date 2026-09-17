@@ -5,6 +5,9 @@ import { Footer } from './components/Footer';
 import { AuthModal } from './components/AuthModal';
 import { PaymentModal } from './components/PaymentModal';
 import { VideoPlayerModal } from './components/VideoPlayerModal';
+import { BookLibraryDrawer } from './components/BookLibraryDrawer';
+import { BookAudioPlayerModal } from './components/BookAudioPlayerModal';
+import { FloatingBookButton } from './components/FloatingBookButton';
 import { DemoUserSelector } from './components/DemoUserSelector';
 
 import { Home } from './pages/Home';
@@ -14,6 +17,7 @@ import { SessionDetails } from './pages/SessionDetails';
 import { DemoClass } from './pages/DemoClass';
 import { Plans } from './pages/Plans';
 import { OneToOne } from './pages/OneToOne';
+import { BookLibrary } from './pages/BookLibrary';
 import { Dashboard } from './pages/Dashboard';
 import { Profile } from './pages/Profile';
 import { Admin } from './pages/Admin';
@@ -34,6 +38,7 @@ const MainContent: React.FC = () => {
         {activeTab === 'sessions' && <Sessions setActiveTab={setActiveTab} />}
         {activeTab === 'session-details' && <SessionDetails setActiveTab={setActiveTab} />}
         {activeTab === 'demo' && <DemoClass />}
+        {activeTab === 'book-library' && <BookLibrary />}
         {activeTab === 'plans' && <Plans />}
         {activeTab === 'onetoone' && <OneToOne />}
         {activeTab === 'dashboard' && <Dashboard setActiveTab={setActiveTab} />}
@@ -45,6 +50,11 @@ const MainContent: React.FC = () => {
       <AuthModal onSuccessRedirect={() => setActiveTab('dashboard')} />
       <PaymentModal onSuccessNavigate={() => setActiveTab('dashboard')} />
       <VideoPlayerModal />
+      <BookLibraryDrawer onNavigateToFullPage={() => setActiveTab('book-library')} />
+      <BookAudioPlayerModal />
+
+      {/* Floating Right Side Sacred Books & Podcasts Button */}
+      <FloatingBookButton />
 
       {/* Quick Demo Users Floating Toolbar */}
       <DemoUserSelector />
