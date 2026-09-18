@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #faf8f5;
+    color: #292524;
+    font-family: 'Outfit', 'Noto Sans Telugu', sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #faf8f5;
+}
+::-webkit-scrollbar-thumb {
+  background: #eab875;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d1762c;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(255, 253, 249, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(251, 243, 227, 0.9);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(243, 217, 170, 0.5);
+}
+
+.spiritual-gradient-hero {
+  background: radial-gradient(circle at 50% 20%, rgba(254, 243, 199, 0.6) 0%, rgba(255, 251, 235, 0.3) 40%, rgba(250, 248, 245, 1) 80%);
+}
+
+.mandala-bg {
+  background-image: radial-gradient(rgba(217, 119, 6, 0.1) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Smooth active focus states */
+button:focus-visible, a:focus-visible, input:focus-visible {
+  outline: 2px solid #d97706;
+  outline-offset: 2px;
+}
