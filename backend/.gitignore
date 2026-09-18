@@ -1,0 +1,30 @@
+# Maven & Java Build Outputs
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+
+# Spring Boot Logs & Database
+logs/
+*.log
+*.h2.db
+
+# IDE Files
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+
+# Environment Configurations & Secrets
+.env
+application-local.yml
+application-secret.yml
+
+# OS Junk
+.DS_Store
+Thumbs.db
