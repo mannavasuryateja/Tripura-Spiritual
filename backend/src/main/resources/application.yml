@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: tripura-backend
+
+  # JPA & Hibernate Configuration for PostgreSQL
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # PostgreSQL Database Connection
+  datasource:
+    url: jdbc:postgresql://localhost:5432/Tripura-Spiritual
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: Srinivasnani@123
+
+server:
+  port: 8080
+
+# Application Configuration
+app:
+  jwt:
+    secret: 9a6f8b12c4e5d6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1
+    expiration-ms: 86400000 # 24 Hours
+
+  # Bunny Stream Configuration (Bunny.net Video Delivery)
+  bunny:
+    library-id: "354129"
+    api-key: "b3f9104a-mock-key-bunny-stream-api-key"
+    token-security-key: "tripura-bunny-stream-token-security-key"
+    embed-base-url: "https://iframe.mediadelivery.net/embed"
+    hls-cdn-base-url: "https://vz-354129.b-cdn.net"
+
+  # WhatsApp Community & Razorpay Credentials
+  whatsapp:
+    community-invite-url: "https://chat.whatsapp.com/TripuraSpiritualCommunityLive2026"
+
+  razorpay:
+    key-id: "rzp_test_mock_tripura_key"
+    key-secret: "mock_tripura_razorpay_secret"
+
+  zoom:
+    webhook-verification-token: "zoom_webhook_secret_verification_token"
