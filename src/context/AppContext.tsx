@@ -17,6 +17,7 @@ export interface UserSubscription {
 export interface UserProfile {
   isLoggedIn: boolean;
   phone: string;
+  email?: string;
   name: string;
   subscription: UserSubscription;
 }
@@ -60,6 +61,8 @@ interface AppContextType {
   t: typeof en;
   user: UserProfile;
   login: (phone: string, name?: string) => void;
+  loginWithEmailPassword: (email: string, password: string, rememberMe?: boolean) => Promise<boolean>;
+  signUpWithEmailPassword: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
   switchDemoUser: (phone: string) => void;
   
@@ -101,6 +104,11 @@ interface AppContextType {
   toggleMusicPlay: () => void;
   toggleMusicMute: () => void;
   setMusicVolume: (vol: number) => void;
+
+  // Login Success Transition State
+  isLoginTransitionActive: boolean;
+  triggerLoginSuccessTransition: () => void;
+  completeLoginSuccessTransition: () => void;
 
   // Admin Overrides
   adminOverrides: Record<string, number[]>;
@@ -175,9 +183,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [user, setUser] = useState<UserProfile>(() => {
     const saved = localStorage.getItem('tripura_user');
     if (saved) {
-      try { return JSON.parse(saved); } catch {}
+      try {
+        const parsed = JSON.parse(saved);
+        // Clear legacy default user cache so new sessions start in Guest Mode
+        if (parsed.phone === '9999999999' && !parsed.email) {
+          localStorage.removeItem('tripura_user');
+          return defaultGuestUser;
+        }
+        return parsed;
+      } catch {}
     }
-    return defaultSubscribedUser; // Default to Subscribed demo user for rich immediate view
+    return defaultGuestUser;
   });
 
   useEffect(() => {
@@ -214,6 +230,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [adminOverrides, user.phone]);
 
+  // Login Transition State
+  const [isLoginTransitionActive, setIsLoginTransitionActive] = useState(false);
+  const triggerLoginSuccessTransition = () => setIsLoginTransitionActive(true);
+  const completeLoginSuccessTransition = () => setIsLoginTransitionActive(false);
+
   // Authentication Handlers
   const login = (phone: string, name?: string) => {
     if (phone === SUBSCRIBED_USER_PHONE) {
@@ -242,14 +263,195 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           planId: null,
           planName: "No Active Subscription",
           validUntil: "Orientation Unlocked",
-          unlockedDays: []
+          unlockedDays: [1, 2]
         }
       });
     }
     setIsAuthOpen(false);
   };
 
+  const loginWithEmailPassword = async (email: string, password: string, rememberMe?: boolean): Promise<boolean> => {
+    let networkError = false;
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, rememberMe: !!rememberMe })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.token) {
+          localStorage.setItem('tripura_jwt_token', data.token);
+        }
+        setUser({
+          isLoggedIn: true,
+          email: data.email || email,
+          phone: data.phone || '9999999999',
+          name: data.name || email.split('@')[0],
+          subscription: {
+            hasActivePlan: data.hasActivePlan ?? true,
+            planId: data.hasActivePlan ? 'hanuman-kriya-live' : null,
+            planName: data.planName || (data.hasActivePlan ? "Hanuman Kriya Live Masterclass" : "Free Orientation Mode"),
+            planType: 'live',
+            validUntil: "October 13, 2026",
+            unlockedDays: data.hasActivePlan ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] : [1, 2],
+            whatsappLink: TRIPURA_WHATSAPP_COMMUNITY_URL
+          }
+        });
+        return true;
+      } else {
+        const errorData = await response.json().catch(() => null);
+        const errorMsg = errorData?.message || 'Invalid email or password. Please try again.';
+        throw new Error(errorMsg);
+      }
+    } catch (err: any) {
+      if (err.message && err.message !== 'Failed to fetch' && !err.message.includes('fetch') && !err.message.includes('NetworkError')) {
+        throw err;
+      }
+      networkError = true;
+    }
+
+    // Only if backend network fetch is completely offline (development / local fallback mode)
+    if (networkError) {
+      const registeredAccounts = JSON.parse(localStorage.getItem('tripura_registered_accounts') || '[]');
+      
+      const defaultAccounts = [
+        { email: 'suryateja@tripura.org', password: 'Password123!', name: 'Suryateja', phone: '9999999999', hasActivePlan: true },
+        { email: 'google.seeker@tripura.org', password: 'GoogleAuth2026!', name: 'Google Seeker', phone: '9999999999', hasActivePlan: true },
+        { email: 'demo@tripura.org', password: 'Password123!', name: 'Demo Seeker', phone: '8888888888', hasActivePlan: false }
+      ];
+
+      const allAccounts = [...defaultAccounts, ...registeredAccounts];
+      const normalizedEmail = email.trim().toLowerCase();
+
+      const matchedUser = allAccounts.find(
+        acc => acc.email.toLowerCase() === normalizedEmail && acc.password === password
+      );
+
+      if (matchedUser) {
+        const token = 'demo_jwt_token_' + Math.random().toString(36).substring(2);
+        localStorage.setItem('tripura_jwt_token', token);
+
+        setUser({
+          isLoggedIn: true,
+          email: matchedUser.email,
+          phone: matchedUser.phone || '9999999999',
+          name: matchedUser.name,
+          subscription: {
+            hasActivePlan: matchedUser.hasActivePlan ?? false,
+            planId: matchedUser.hasActivePlan ? 'hanuman-kriya-live' : null,
+            planName: matchedUser.hasActivePlan ? "Hanuman Kriya 11-Day Live Masterclass" : "Free Orientation Mode",
+            planType: 'live',
+            validUntil: "October 13, 2026",
+            unlockedDays: matchedUser.hasActivePlan ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] : [1, 2],
+            whatsappLink: TRIPURA_WHATSAPP_COMMUNITY_URL
+          }
+        });
+        return true;
+      } else {
+        const emailExists = allAccounts.some(acc => acc.email.toLowerCase() === normalizedEmail);
+        if (emailExists) {
+          throw new Error('Incorrect password. Please check your password and try again.');
+        } else {
+          throw new Error('No account found with this email. Please sign up for an account first.');
+        }
+      }
+    }
+
+    return false;
+  };
+
+  const signUpWithEmailPassword = async (name: string, email: string, password: string): Promise<boolean> => {
+    let networkError = false;
+
+    try {
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.token) {
+          localStorage.setItem('tripura_jwt_token', data.token);
+        }
+        const newUserRecord: UserProfile = {
+          isLoggedIn: true,
+          email: data.email || email,
+          phone: data.phone || '8888888888',
+          name: data.name || name,
+          subscription: {
+            hasActivePlan: false,
+            planId: null,
+            planName: "Free Orientation Mode",
+            validUntil: "Orientation Unlocked",
+            unlockedDays: [1, 2]
+          }
+        };
+        setUser(newUserRecord);
+
+        // Also update registered accounts cache
+        const registered = JSON.parse(localStorage.getItem('tripura_registered_accounts') || '[]');
+        if (!registered.some((acc: any) => acc.email.toLowerCase() === email.toLowerCase())) {
+          registered.push({ email: email.toLowerCase(), password, name, phone: newUserRecord.phone, hasActivePlan: false });
+          localStorage.setItem('tripura_registered_accounts', JSON.stringify(registered));
+        }
+        return true;
+      } else {
+        const errorData = await response.json().catch(() => null);
+        const errorMsg = errorData?.message || 'Could not create account. An account with this email may already exist.';
+        throw new Error(errorMsg);
+      }
+    } catch (err: any) {
+      if (err.message && err.message !== 'Failed to fetch' && !err.message.includes('fetch') && !err.message.includes('NetworkError')) {
+        throw err;
+      }
+      networkError = true;
+    }
+
+    // Offline / Demo Fallback Mode
+    if (networkError) {
+      const registered = JSON.parse(localStorage.getItem('tripura_registered_accounts') || '[]');
+      const normalizedEmail = email.trim().toLowerCase();
+      const defaultEmails = ['suryateja@tripura.org', 'google.seeker@tripura.org', 'demo@tripura.org'];
+
+      if (registered.some((acc: any) => acc.email.toLowerCase() === normalizedEmail) || defaultEmails.includes(normalizedEmail)) {
+        throw new Error('An account with this email already exists. Please sign in instead.');
+      }
+
+      const token = 'demo_jwt_token_' + Math.random().toString(36).substring(2);
+      localStorage.setItem('tripura_jwt_token', token);
+
+      const phone = '99' + String(Math.floor(10000000 + Math.random() * 90000000));
+      const newUserRecord = { email: normalizedEmail, password, name, phone, hasActivePlan: false };
+
+      registered.push(newUserRecord);
+      localStorage.setItem('tripura_registered_accounts', JSON.stringify(registered));
+
+      setUser({
+        isLoggedIn: true,
+        email: normalizedEmail,
+        phone: phone,
+        name: name,
+        subscription: {
+          hasActivePlan: false,
+          planId: null,
+          planName: "Free Orientation Mode",
+          validUntil: "Orientation Unlocked",
+          unlockedDays: [1, 2]
+        }
+      });
+      return true;
+    }
+
+    return false;
+  };
+
   const logout = () => {
+    localStorage.removeItem('tripura_jwt_token');
     setUser(defaultGuestUser);
   };
 
@@ -261,6 +463,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const openAuthModal = () => setIsAuthOpen(true);
   const closeAuthModal = () => setIsAuthOpen(false);
+
+
 
   // Payment Modal
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
@@ -379,7 +583,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
-  // Ambient Audio State
+  // Prevent background page / dashboard scrolling whenever any modal, drawer, audio player, or transition is active
+  const isAnyOverlayActive = isAuthOpen || isPaymentOpen || isVideoOpen || isBookDrawerOpen || isBookAudioOpen || isLoginTransitionActive;
+
+  useEffect(() => {
+    if (isAnyOverlayActive) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [isAnyOverlayActive]);
+
+
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [isMusicMuted, setIsMusicMuted] = useState(false);
   const [musicVolume, setMusicVolumeState] = useState(0.15);
@@ -433,6 +655,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         t,
         user,
         login,
+        loginWithEmailPassword,
+        signUpWithEmailPassword,
         logout,
         switchDemoUser,
         isAuthOpen,
@@ -464,6 +688,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         toggleMusicPlay,
         toggleMusicMute,
         setMusicVolume,
+        isLoginTransitionActive,
+        triggerLoginSuccessTransition,
+        completeLoginSuccessTransition,
         adminOverrides,
         toggleAdminUserDayAccess,
         resetDemoState

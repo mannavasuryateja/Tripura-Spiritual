@@ -16,11 +16,18 @@ export const BookAudioPlayerModal: React.FC = () => {
       setProgress(25);
       setCurrentChapterIdx(0);
 
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape') closeBookAudioPlayer();
       };
       window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+      };
     }
   }, [isBookAudioOpen, closeBookAudioPlayer]);
 
@@ -42,9 +49,9 @@ export const BookAudioPlayerModal: React.FC = () => {
   return (
     <div 
       onClick={(e) => { if (e.target === e.currentTarget) closeBookAudioPlayer(); }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/85 backdrop-blur-md animate-fadeIn overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/85 backdrop-blur-md animate-backdrop-fade overflow-y-auto"
     >
-      <div className="bg-[#241C1A] text-white rounded-3xl max-w-2xl w-full border border-stone-800 shadow-2xl overflow-hidden relative flex flex-col my-auto max-h-[90vh]">
+      <div className="bg-[#241C1A] text-white rounded-3xl max-w-2xl w-full border border-amber-500/30 shadow-2xl overflow-hidden relative flex flex-col my-auto max-h-[90vh] animate-modal-scale-in animate-sacred-glow">
         
         {/* Top Header */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-stone-800 bg-[#1D1615] shrink-0">

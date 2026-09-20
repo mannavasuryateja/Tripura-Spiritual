@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
+import { ScrollReveal, StaggerContainer } from '../components/ScrollReveal';
 
 export const Plans: React.FC = () => {
   const { openPaymentModal } = useApp();
@@ -66,17 +67,19 @@ export const Plans: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12 animate-fadeIn text-[#2C2421]">
 
       {/* Header */}
-      <div className="text-center space-y-3 max-w-2xl mx-auto">
-        <span className="px-3.5 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-          <span>Transparent Spiritual Pricing</span>
-        </span>
-        <h1 className="font-serif text-4xl font-bold text-stone-900">Session Offerings & Packages</h1>
-        <p className="text-stone-600 text-sm">Choose the right pathway for your spiritual journey with Master Gorli Peddi Raju Garu.</p>
-      </div>
+      <ScrollReveal variant="hero-zoom">
+        <div className="text-center space-y-3 max-w-2xl mx-auto">
+          <span className="px-3.5 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+            <span>Transparent Spiritual Pricing</span>
+          </span>
+          <h1 className="font-serif text-4xl font-bold text-stone-900">Session Offerings & Packages</h1>
+          <p className="text-stone-600 text-sm">Choose the right pathway for your spiritual journey with Master Gorli Peddi Raju Garu.</p>
+        </div>
+      </ScrollReveal>
 
       {/* Grid of Plans */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6" staggerDelay={100}>
         {plans.map((plan) => (
           <div
             key={plan.id}
@@ -117,7 +120,7 @@ export const Plans: React.FC = () => {
 
             <button
               onClick={() => openPaymentModal({ id: plan.id, name: plan.name, price: plan.price, type: plan.type })}
-              className={`mt-6 w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition shadow-md ${plan.popular
+              className={`mt-6 w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition shadow-md hover:-translate-y-0.5 ${plan.popular
                 ? 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white shadow-amber-600/30'
                 : 'bg-amber-600 hover:bg-amber-700 text-white'
                 }`}
@@ -126,17 +129,18 @@ export const Plans: React.FC = () => {
             </button>
           </div>
         ))}
-      </div>
+      </StaggerContainer>
 
       {/* Trust Notice */}
-      <div className="p-6 rounded-2xl bg-amber-50/80 border border-amber-200 text-center max-w-xl mx-auto space-y-2 text-xs text-stone-600">
-        <p className="font-semibold text-stone-900 flex items-center justify-center gap-1.5">
-          <ShieldCheck className="w-4 h-4 text-amber-600" />
-          <span>All Packages Include Instant Access & WhatsApp Community Support</span>
-        </p>
-        <p>Selecting any option will open the secure prototype payment modal where you can test instant UPI QR, Card, or NetBanking flows.</p>
-      </div>
+      <ScrollReveal variant="fade-up">
+        <div className="p-6 rounded-2xl bg-amber-50/80 border border-amber-200 text-center max-w-xl mx-auto space-y-2 text-xs text-stone-600">
+          <p className="font-semibold text-stone-900 flex items-center justify-center gap-1.5">
+            <ShieldCheck className="w-4 h-4 text-amber-600" />
+            <span>All Packages Include Instant Access & WhatsApp Community Support</span>
+          </p>
+          <p>Selecting any option will open the secure prototype payment modal where you can test instant UPI QR, Card, or NetBanking flows.</p>
+        </div>
+      </ScrollReveal>
     </div>
   );
 };
-

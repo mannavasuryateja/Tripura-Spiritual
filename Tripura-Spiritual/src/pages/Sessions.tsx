@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Play, Sparkles, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { ScrollReveal, StaggerContainer } from '../components/ScrollReveal';
 
 interface SessionsProps {
   setActiveTab: (tab: string) => void;
@@ -62,116 +63,122 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16 animate-fadeIn text-[#2C2421]">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16 text-[#2C2421]">
       
       {/* Header */}
-      <div className="text-center max-w-3xl mx-auto space-y-3">
-        <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#8B5E34]">
-          Live Immersions & Masterclasses
-        </span>
-        <h1 className="font-serif text-4xl sm:text-5xl font-bold text-[#2C2421]">
-          {t.nav.sessions}
-        </h1>
-        <p className="text-stone-600 text-sm sm:text-base font-light leading-relaxed">
-          Structured 11-day spiritual immersions, flexible recording packages, and private community guidance led directly by <strong>Gorli Peddi Raju Garu</strong>.
-        </p>
-      </div>
+      <ScrollReveal animation="fade-up">
+        <div className="text-center max-w-3xl mx-auto space-y-3">
+          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#8B5E34]">
+            Live Immersions & Masterclasses
+          </span>
+          <h1 className="font-serif text-4xl sm:text-5xl font-bold text-[#2C2421]">
+            {t.nav.sessions}
+          </h1>
+          <p className="text-stone-600 text-sm sm:text-base font-light leading-relaxed">
+            Structured 11-day spiritual immersions, flexible recording packages, and private community guidance led directly by <strong>Gorli Peddi Raju Garu</strong>.
+          </p>
+        </div>
+      </ScrollReveal>
 
       {/* FEATURED BANNER: HANUMAN KRIYA (OCTOBER 1 TO 11) */}
-      <div className="bg-gradient-to-br from-[#3B234A] via-[#2A1836] to-[#1C0F24] rounded-3xl p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden">
-        
-        {/* Background Aura */}
-        <div className="absolute -right-20 -top-20 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+      <ScrollReveal animation="hero-zoom" duration={850}>
+        <div className="bg-gradient-to-br from-[#3B234A] via-[#2A1836] to-[#1C0F24] rounded-3xl p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden">
           
-          <div className="lg:col-span-8 space-y-5">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="px-3.5 py-1 rounded-full bg-amber-400 text-stone-950 text-xs font-bold uppercase tracking-wider shadow-sm animate-pulse">
-                Starts in 5 Days • Coming Soon
-              </span>
-              <span className="px-3.5 py-1 rounded-full bg-white/10 text-amber-200 text-xs font-mono">
-                October 1 – October 11, 2026
-              </span>
-            </div>
+          {/* Background Aura */}
+          <div className="absolute -right-20 -top-20 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
-            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light text-white leading-tight">
-              Hanuman Kriya: 11-Day Divine Awakening Masterclass
-            </h2>
-
-            <p className="text-stone-300 text-sm sm:text-base font-light leading-relaxed max-w-2xl">
-              Awaken subtle energy, mental resilience, and pure consciousness through sacred movement, pranayama, and mantra frequencies. Live classes held daily at <strong>6:30 AM IST</strong> with direct daily guidance in our private WhatsApp community.
-            </p>
-
-            {/* Features List */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs font-light text-stone-200">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Daily 6:30 AM Live Interactive Zoom Sessions</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Automatic Next-Day 12 PM HD Recordings (Till Day 13)</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Direct WhatsApp Community Links & Master Support</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Dual Language Instruction (English & Telugu)</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Pricing & Enrollment Card */}
-          <div className="lg:col-span-4 bg-white/10 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-white/20 text-center space-y-4">
-            <span className="text-[11px] uppercase tracking-widest text-amber-300 font-bold block">
-              11-Day Live Immersion Pass
-            </span>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
             
-            <div className="space-y-1">
-              <div className="text-4xl sm:text-5xl font-bold font-sans text-white">
-                ₹1,111
+            <div className="lg:col-span-8 space-y-5">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="px-3.5 py-1 rounded-full bg-amber-400 text-stone-950 text-xs font-bold uppercase tracking-wider shadow-sm animate-pulse">
+                  Starts in 5 Days • Coming Soon
+                </span>
+                <span className="px-3.5 py-1 rounded-full bg-white/10 text-amber-200 text-xs font-mono">
+                  October 1 – October 11, 2026
+                </span>
               </div>
-              <p className="text-xs text-stone-300">Complete 11 Days Live + WhatsApp Access</p>
+
+              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light text-white leading-tight">
+                Hanuman Kriya: 11-Day Divine Awakening Masterclass
+              </h2>
+
+              <p className="text-stone-300 text-sm sm:text-base font-light leading-relaxed max-w-2xl">
+                Awaken subtle energy, mental resilience, and pure consciousness through sacred movement, pranayama, and mantra frequencies. Live classes held daily at <strong>6:30 AM IST</strong> with direct daily guidance in our private WhatsApp community.
+              </p>
+
+              {/* Features List */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs font-light text-stone-200">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>Daily 6:30 AM Live Interactive Zoom Sessions</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>Automatic Next-Day 12 PM HD Recordings (Till Day 13)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>Direct WhatsApp Community Links & Master Support</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>Dual Language Instruction (English & Telugu)</span>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-2 pt-2">
-              <button
-                onClick={handleEnrollLive}
-                className="w-full py-4 rounded-full bg-[#D1A559] hover:bg-[#C29548] text-[#201812] font-bold text-xs tracking-widest uppercase shadow-xl transition transform hover:scale-102 flex items-center justify-center gap-2"
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>Enroll Now & Join WhatsApp</span>
-              </button>
+            {/* Pricing & Enrollment Card */}
+            <div className="lg:col-span-4 bg-white/10 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-white/20 text-center space-y-4">
+              <span className="text-[11px] uppercase tracking-widest text-amber-300 font-bold block">
+                11-Day Live Immersion Pass
+              </span>
+              
+              <div className="space-y-1">
+                <div className="text-4xl sm:text-5xl font-bold font-sans text-white">
+                  ₹1,111
+                </div>
+                <p className="text-xs text-stone-300">Complete 11 Days Live + WhatsApp Access</p>
+              </div>
 
-              <button
-                onClick={() => setActiveTab('session-details')}
-                className="w-full py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-semibold text-xs tracking-wider uppercase border border-white/30 transition"
-              >
-                View 11-Day Curriculum
-              </button>
+              <div className="space-y-2 pt-2">
+                <button
+                  onClick={handleEnrollLive}
+                  className="btn-spiritual w-full py-4 rounded-full bg-[#D1A559] hover:bg-[#C29548] text-[#201812] font-bold text-xs tracking-widest uppercase shadow-xl flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>Enroll Now & Join WhatsApp</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('session-details')}
+                  className="btn-spiritual w-full py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-semibold text-xs tracking-wider uppercase border border-white/30"
+                >
+                  View 11-Day Curriculum
+                </button>
+              </div>
+
+              <p className="text-[10px] text-stone-300 italic pt-1">
+                Includes live access + recordings available till the 13th day.
+              </p>
             </div>
 
-            <p className="text-[10px] text-stone-300 italic pt-1">
-              Includes live access + recordings available till the 13th day.
-            </p>
           </div>
-
         </div>
-      </div>
+      </ScrollReveal>
 
       {/* 4 CORE SCENARIO CARDS GRID */}
       <div className="space-y-6">
-        <div className="text-center space-y-1">
-          <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#2C2421]">
-            Flexible Pathways for Every Seeker
-          </h3>
-          <p className="text-xs text-stone-500">Choose the option that fits your schedule and spiritual journey</p>
-        </div>
+        <ScrollReveal animation="fade-up">
+          <div className="text-center space-y-1">
+            <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#2C2421]">
+              Flexible Pathways for Every Seeker
+            </h3>
+            <p className="text-xs text-stone-500">Choose the option that fits your schedule and spiritual journey</p>
+          </div>
+        </ScrollReveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StaggerContainer staggerDelay={120} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           
           {/* Card 1: 11-Day Live Masterclass */}
           <div className="bg-white rounded-3xl p-6 border-2 border-[#3B234A] shadow-lg flex flex-col justify-between space-y-6 relative">
@@ -198,7 +205,7 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
 
             <button
               onClick={handleEnrollLive}
-              className="w-full py-3 rounded-xl bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-xs tracking-wider uppercase transition shadow-sm"
+              className="btn-spiritual w-full py-3 rounded-xl bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-xs tracking-wider uppercase shadow-sm"
             >
               Enroll for Live (₹1,111)
             </button>
@@ -234,7 +241,7 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
 
             <button
               onClick={handleBuyExtension}
-              className="w-full py-3 rounded-xl bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs tracking-wider uppercase transition shadow-xs"
+              className="btn-spiritual w-full py-3 rounded-xl bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs tracking-wider uppercase shadow-xs"
             >
               Extend 21 Days (₹555)
             </button>
@@ -261,7 +268,7 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
 
             <button
               onClick={handleBuyRecordingsOnly}
-              className="w-full py-3 rounded-xl bg-stone-800 hover:bg-stone-900 text-white font-bold text-xs tracking-wider uppercase transition shadow-xs"
+              className="btn-spiritual w-full py-3 rounded-xl bg-stone-800 hover:bg-stone-900 text-white font-bold text-xs tracking-wider uppercase shadow-xs"
             >
               Get Recordings Pack (₹1,500)
             </button>
@@ -288,40 +295,43 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
 
             <button
               onClick={handlePlayOrientation}
-              className="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs tracking-wider uppercase transition shadow-sm flex items-center justify-center gap-1.5"
+              className="btn-spiritual w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs tracking-wider uppercase shadow-sm flex items-center justify-center gap-1.5"
             >
               <Play className="w-3.5 h-3.5 fill-white" />
               <span>Watch Free Orientation</span>
             </button>
           </div>
 
-        </div>
+        </StaggerContainer>
       </div>
 
       {/* WhatsApp Community Direct Guidance Info */}
-      <div className="p-8 rounded-3xl bg-[#FAF7F0] border border-[#E6E0D2] flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#8B5E34]">
-            <ShieldCheck className="w-4 h-4 text-[#8B5E34]" />
-            <span>Direct WhatsApp Community Integration</span>
+      <ScrollReveal animation="fade-up">
+        <div className="p-8 rounded-3xl bg-[#FAF7F0] border border-[#E6E0D2] flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#8B5E34]">
+              <ShieldCheck className="w-4 h-4 text-[#8B5E34]" />
+              <span>Direct WhatsApp Community Integration</span>
+            </div>
+            <h4 className="font-serif text-xl font-bold text-[#2C2421]">
+              How Live Sessions & Daily Links Work
+            </h4>
+            <p className="text-xs text-stone-600 max-w-2xl leading-relaxed">
+              Upon completing your enrollment, you will be instantly redirected to the private WhatsApp community. Daily live Zoom session links, practice reminders, and Q&A interactions with Master Gorli Peddi Raju Garu are provided directly in the WhatsApp group.
+            </p>
           </div>
-          <h4 className="font-serif text-xl font-bold text-[#2C2421]">
-            How Live Sessions & Daily Links Work
-          </h4>
-          <p className="text-xs text-stone-600 max-w-2xl leading-relaxed">
-            Upon completing your enrollment, you will be instantly redirected to the private WhatsApp community. Daily live Zoom session links, practice reminders, and Q&A interactions with Master Gorli Peddi Raju Garu are provided directly in the WhatsApp group.
-          </p>
-        </div>
 
-        <button
-          onClick={handleEnrollLive}
-          className="px-6 py-3.5 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-xs tracking-widest uppercase shadow-md transition shrink-0"
-        >
-          Enroll for ₹1,111
-        </button>
-      </div>
+          <button
+            onClick={handleEnrollLive}
+            className="btn-spiritual px-6 py-3.5 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-xs tracking-widest uppercase shadow-md shrink-0"
+          >
+            Enroll for ₹1,111
+          </button>
+        </div>
+      </ScrollReveal>
 
     </div>
   );
 };
+
 

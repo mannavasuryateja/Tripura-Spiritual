@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { UserCheck, Lock, RotateCcw, ChevronUp, ChevronDown, Sliders } from 'lucide-react';
 
 export const DemoUserSelector: React.FC = () => {
-  const { user, switchDemoUser, resetDemoState } = useApp();
+  const { user, logout, switchDemoUser, resetDemoState } = useApp();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -65,7 +65,16 @@ export const DemoUserSelector: React.FC = () => {
             </button>
           </div>
 
-          <div className="pt-2 border-t border-stone-800">
+          <div className="pt-2 border-t border-stone-800 space-y-2">
+            {user.isLoggedIn && (
+              <button
+                onClick={logout}
+                className="w-full py-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 border border-rose-800 text-rose-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition"
+              >
+                <span>Log Out (Guest Mode)</span>
+              </button>
+            )}
+
             <button
               onClick={resetDemoState}
               className="w-full py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-medium flex items-center justify-center gap-1.5 transition"

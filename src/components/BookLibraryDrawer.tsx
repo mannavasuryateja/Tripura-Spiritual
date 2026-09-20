@@ -12,18 +12,27 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
   const { isBookDrawerOpen, closeBookDrawer, openBookAudioPlayer, unlockedBooks, openPaymentModal } = useApp();
   const [activeBook, setActiveBook] = useState<BookItem>(SPIRITUAL_BOOKS[0]);
 
+  React.useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, []);
+
   if (!isBookDrawerOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden animate-fadeIn">
+    <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <div 
         onClick={closeBookDrawer}
-        className="absolute inset-0 bg-stone-950/60 backdrop-blur-sm transition-opacity"
+        className="absolute inset-0 bg-stone-950/65 backdrop-blur-md animate-backdrop-fade transition-opacity"
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-xl bg-[#FAF7F0] border-l border-[#E6E0D2] shadow-2xl flex flex-col justify-between overflow-hidden">
+        <div className="w-screen max-w-xl bg-[#FAF7F0] border-l border-[#E6E0D2] shadow-2xl flex flex-col justify-between overflow-hidden animate-drawer-slide-in">
           
           {/* Header */}
           <div className="p-6 bg-[#FAF7F0] border-b border-[#E6E0D2] flex items-center justify-between shrink-0">

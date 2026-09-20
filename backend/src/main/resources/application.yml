@@ -1,6 +1,6 @@
 spring:
   application:
-    name: tripura-backend
+    name: backend
 
   # JPA & Hibernate Configuration for PostgreSQL
   jpa:

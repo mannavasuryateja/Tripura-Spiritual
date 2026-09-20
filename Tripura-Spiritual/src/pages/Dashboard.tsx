@@ -1,31 +1,34 @@
 import React, { useState } from 'react';
 import { useApp, TRIPURA_WHATSAPP_COMMUNITY_URL } from '../context/AppContext';
-import { Play, Lock, User, Calendar, MessageCircle, Sparkles, Clock, ArrowUpRight } from 'lucide-react';
+import { Play, Lock, User, Calendar, MessageCircle, Sparkles, Clock, ArrowUpRight, LogOut } from 'lucide-react';
+import { ScrollReveal, StaggerContainer } from '../components/ScrollReveal';
 
 interface DashboardProps {
   setActiveTab: (tab: string) => void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
-  const { user, openPaymentModal, openVideoModal, openAuthModal, t } = useApp();
+  const { user, logout, openPaymentModal, openVideoModal, openAuthModal, t } = useApp();
   const [activePortalTab, setActivePortalTab] = useState<'recordings' | 'upcoming'>('recordings');
 
   if (!user.isLoggedIn) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center space-y-6 animate-fadeIn text-[#2C2421]">
-        <div className="w-16 h-16 rounded-full bg-[#EFE9DD] text-[#3B234A] flex items-center justify-center mx-auto">
-          <User className="w-8 h-8" />
-        </div>
-        <h2 className="font-serif text-3xl font-bold text-[#2C2421]">Sign In to Access Your Portal</h2>
-        <p className="text-stone-600 text-sm">
-          Please log in with your registered 10-digit mobile number to view active session recordings, validity, and WhatsApp live links.
-        </p>
-        <button
-          onClick={openAuthModal}
-          className="px-8 py-3.5 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-xs tracking-widest uppercase shadow-md transition"
-        >
-          Sign In / Quick Demo Login
-        </button>
+        <ScrollReveal variant="hero-zoom">
+          <div className="w-16 h-16 rounded-full bg-[#EFE9DD] text-[#3B234A] flex items-center justify-center mx-auto mb-4">
+            <User className="w-8 h-8" />
+          </div>
+          <h2 className="font-serif text-3xl font-bold text-[#2C2421]">Sign In to Access Your Portal</h2>
+          <p className="text-stone-600 text-sm max-w-lg mx-auto">
+            Please log in with your registered 10-digit mobile number to view active session recordings, validity, and WhatsApp live links.
+          </p>
+          <button
+            onClick={openAuthModal}
+            className="mt-6 px-8 py-3.5 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-xs tracking-widest uppercase shadow-md transition hover:-translate-y-0.5"
+          >
+            Sign In / Quick Demo Login
+          </button>
+        </ScrollReveal>
       </div>
     );
   }
@@ -76,83 +79,92 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10 animate-fadeIn text-[#2C2421]">
       
       {/* Welcome Banner & Active Enrollment Status */}
-      <div className="glass-panel p-8 sm:p-10 rounded-3xl border border-[#E6E0D2] shadow-lg space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="space-y-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#8B5E34]">
-              {t.dashboard.welcome}
-            </span>
-            <h1 className="font-serif text-3xl font-bold text-[#2C2421]">
-              {user.name}
-            </h1>
-            <p className="text-xs text-stone-500 font-mono">Mobile: +91 {user.phone}</p>
-          </div>
+      <ScrollReveal variant="hero-zoom">
+        <div className="glass-panel p-8 sm:p-10 rounded-3xl border border-[#E6E0D2] shadow-lg space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="space-y-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#8B5E34]">
+                {t.dashboard.welcome}
+              </span>
+              <h1 className="font-serif text-3xl font-bold text-[#2C2421]">
+                {user.name}
+              </h1>
+              <p className="text-xs text-stone-500 font-mono">Mobile: +91 {user.phone}</p>
+            </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setActiveTab('profile')}
-              className="px-4 py-2 rounded-xl bg-white border border-stone-200 text-stone-700 text-xs font-semibold hover:bg-stone-50 transition"
-            >
-              Account Details
-            </button>
-          </div>
-        </div>
-
-        {/* Active Enrollment Card */}
-        <div className={`p-6 rounded-2xl border flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${
-          user.subscription.hasActivePlan
-            ? 'bg-gradient-to-r from-emerald-500/10 via-amber-500/10 to-teal-500/10 border-emerald-300'
-            : 'bg-stone-100 border-stone-200'
-        }`}>
-          <div className="space-y-1.5">
-            <span className="text-xs text-stone-500 uppercase font-bold tracking-wider">{t.dashboard.activePlan}</span>
-            <h3 className="font-serif font-bold text-xl text-stone-900 flex items-center gap-2">
-              <span>{user.subscription.planName}</span>
-              {user.subscription.hasActivePlan ? (
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] uppercase font-bold tracking-wider">
-                  Active Enrollment
-                </span>
-              ) : (
-                <span className="px-2.5 py-0.5 rounded-full bg-stone-500 text-white text-[10px] uppercase font-bold tracking-wider">
-                  Free Orientation Mode
-                </span>
-              )}
-            </h3>
-            <p className="text-xs text-stone-700 font-medium">
-              Validity: <strong className="text-stone-900 font-mono">{user.subscription.validUntil}</strong>
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            {user.subscription.hasActivePlan ? (
-              <>
-                <button
-                  onClick={handleJoinWhatsApp}
-                  className="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>WhatsApp Community</span>
-                </button>
-                <button
-                  onClick={handleBuyExtension}
-                  className="px-4 py-2.5 rounded-xl bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm"
-                  title="Extend recordings for 21 days"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>21-Day Extension (₹555)</span>
-                </button>
-              </>
-            ) : (
+            <div className="flex items-center gap-3">
               <button
-                onClick={() => setActiveTab('sessions')}
-                className="px-6 py-3 rounded-xl bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-xs shadow-md transition uppercase tracking-wider"
+                onClick={() => setActiveTab('profile')}
+                className="px-4 py-2 rounded-xl bg-white border border-stone-200 text-stone-700 text-xs font-semibold hover:bg-stone-50 transition hover:-translate-y-0.5"
               >
-                Enroll in Masterclass (₹1,111)
+                Account Details
               </button>
-            )}
+              <button
+                onClick={() => { logout(); setActiveTab('home'); }}
+                className="px-4 py-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 text-xs font-semibold transition flex items-center gap-1.5 hover:-translate-y-0.5"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Log Out</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Active Enrollment Card */}
+          <div className={`p-6 rounded-2xl border flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${
+            user.subscription.hasActivePlan
+              ? 'bg-gradient-to-r from-emerald-500/10 via-amber-500/10 to-teal-500/10 border-emerald-300'
+              : 'bg-stone-100 border-stone-200'
+          }`}>
+            <div className="space-y-1.5">
+              <span className="text-xs text-stone-500 uppercase font-bold tracking-wider">{t.dashboard.activePlan}</span>
+              <h3 className="font-serif font-bold text-xl text-stone-900 flex items-center gap-2">
+                <span>{user.subscription.planName}</span>
+                {user.subscription.hasActivePlan ? (
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] uppercase font-bold tracking-wider">
+                    Active Enrollment
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-0.5 rounded-full bg-stone-500 text-white text-[10px] uppercase font-bold tracking-wider">
+                    Free Orientation Mode
+                  </span>
+                )}
+              </h3>
+              <p className="text-xs text-stone-700 font-medium">
+                Validity: <strong className="text-stone-900 font-mono">{user.subscription.validUntil}</strong>
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              {user.subscription.hasActivePlan ? (
+                <>
+                  <button
+                    onClick={handleJoinWhatsApp}
+                    className="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm hover:-translate-y-0.5"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>WhatsApp Community</span>
+                  </button>
+                  <button
+                    onClick={handleBuyExtension}
+                    className="px-4 py-2.5 rounded-xl bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm hover:-translate-y-0.5"
+                    title="Extend recordings for 21 days"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>21-Day Extension (₹555)</span>
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setActiveTab('sessions')}
+                  className="px-6 py-3 rounded-xl bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-xs shadow-md transition uppercase tracking-wider hover:-translate-y-0.5"
+                >
+                  Enroll in Masterclass (₹1,111)
+                </button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </ScrollReveal>
 
       {/* 2 PROMINENT CARDS / TABS: RECORDED CLASSES & UPCOMING LIVE CLASSES */}
       <div className="space-y-6">
@@ -176,7 +188,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
             className={`px-6 py-3 font-serif text-lg font-bold transition border-b-2 flex items-center gap-2 ${
               activePortalTab === 'upcoming'
                 ? 'border-[#3B234A] text-[#3B234A]'
-                : 'border-transparent text-stone-400 hover:text-stone-700'
+                : 'border-[#3B234A]/0 text-stone-400 hover:text-stone-700'
             }`}
           >
             <Calendar className="w-4 h-4" />
@@ -189,27 +201,29 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
           <div className="space-y-6 animate-fadeIn">
             
             {/* Validity Information & 49% Extension Offer Bar */}
-            <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs">
-              <div className="flex items-center gap-2 text-stone-700">
-                <Clock className="w-4 h-4 text-amber-700 shrink-0" />
-                <span>
-                  <strong>Recording Policy:</strong> Available next day by 12:00 PM until the 13th day.
-                </span>
-              </div>
+            <ScrollReveal variant="fade-up">
+              <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs">
+                <div className="flex items-center gap-2 text-stone-700">
+                  <Clock className="w-4 h-4 text-amber-700 shrink-0" />
+                  <span>
+                    <strong>Recording Policy:</strong> Available next day by 12:00 PM until the 13th day.
+                  </span>
+                </div>
 
-              {user.subscription.hasActivePlan && (
-                <button
-                  onClick={handleBuyExtension}
-                  className="px-4 py-1.5 rounded-lg bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs shadow-xs transition shrink-0 flex items-center gap-1"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Keep for 21 Days (49% Off @ ₹555)</span>
-                </button>
-              )}
-            </div>
+                {user.subscription.hasActivePlan && (
+                  <button
+                    onClick={handleBuyExtension}
+                    className="px-4 py-1.5 rounded-lg bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs shadow-xs transition shrink-0 flex items-center gap-1 hover:-translate-y-0.5"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Keep for 21 Days (49% Off @ ₹555)</span>
+                  </button>
+                )}
+              </div>
+            </ScrollReveal>
 
             {/* Recordings Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-4" staggerDelay={80}>
               {recordings.map((rec) => {
                 const isUnlocked = user.subscription.unlockedDays.includes(rec.day);
 
@@ -240,7 +254,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                         {isUnlocked ? (
                           <button
                             onClick={() => openVideoModal({ day: rec.day, title: rec.title, duration: rec.duration, desc: rec.desc })}
-                            className="px-4 py-2 rounded-xl bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5"
+                            className="px-4 py-2 rounded-xl bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5 hover:-translate-y-0.5"
                           >
                             <Play className="w-3.5 h-3.5 fill-white" />
                             <span>Watch</span>
@@ -248,7 +262,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                         ) : (
                           <button
                             onClick={() => setActiveTab('sessions')}
-                            className="px-3.5 py-2 rounded-xl bg-stone-200 hover:bg-amber-100 text-stone-700 hover:text-amber-900 font-semibold text-xs transition flex items-center gap-1 border border-stone-300"
+                            className="px-3.5 py-2 rounded-xl bg-stone-200 hover:bg-amber-100 text-stone-700 hover:text-amber-900 font-semibold text-xs transition flex items-center gap-1 border border-stone-300 hover:-translate-y-0.5"
                             title="Enroll in Masterclass to unlock"
                           >
                             <Lock className="w-3.5 h-3.5 text-amber-700" />
@@ -260,7 +274,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                   </div>
                 );
               })}
-            </div>
+            </StaggerContainer>
 
           </div>
         )}
@@ -270,67 +284,71 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
           <div className="space-y-6 animate-fadeIn">
             
             {/* WhatsApp Community Live Access Card */}
-            <div className="p-6 rounded-3xl bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 text-white shadow-xl space-y-4">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div className="space-y-1">
-                  <span className="text-xs uppercase tracking-widest text-emerald-200 font-bold block">
-                    Direct Zoom Meeting Access
-                  </span>
-                  <h3 className="font-serif text-2xl font-bold">WhatsApp Live Session Community</h3>
-                  <p className="text-xs text-emerald-100 max-w-xl leading-relaxed">
-                    Live Zoom links are shared directly inside the WhatsApp community every morning at 6:15 AM (15 minutes prior to session start).
-                  </p>
-                </div>
+            <ScrollReveal variant="hero-zoom">
+              <div className="p-6 rounded-3xl bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 text-white shadow-xl space-y-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="space-y-1">
+                    <span className="text-xs uppercase tracking-widest text-emerald-200 font-bold block">
+                      Direct Zoom Meeting Access
+                    </span>
+                    <h3 className="font-serif text-2xl font-bold">WhatsApp Live Session Community</h3>
+                    <p className="text-xs text-emerald-100 max-w-xl leading-relaxed">
+                      Live Zoom links are shared directly inside the WhatsApp community every morning at 6:15 AM (15 minutes prior to session start).
+                    </p>
+                  </div>
 
-                <button
-                  onClick={handleJoinWhatsApp}
-                  className="px-6 py-3 rounded-full bg-white text-emerald-900 hover:bg-emerald-50 font-bold text-xs tracking-wider uppercase shadow-lg transition flex items-center gap-2 shrink-0"
-                >
-                  <MessageCircle className="w-4 h-4 text-emerald-700" />
-                  <span>Open WhatsApp Group</span>
-                  <ArrowUpRight className="w-4 h-4" />
-                </button>
+                  <button
+                    onClick={handleJoinWhatsApp}
+                    className="px-6 py-3 rounded-full bg-white text-emerald-900 hover:bg-emerald-50 font-bold text-xs tracking-wider uppercase shadow-lg transition flex items-center gap-2 shrink-0 hover:-translate-y-0.5"
+                  >
+                    <MessageCircle className="w-4 h-4 text-emerald-700" />
+                    <span>Open WhatsApp Group</span>
+                    <ArrowUpRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-            </div>
+            </ScrollReveal>
 
             {/* Upcoming 11-Day Timetable */}
-            <div className="bg-white rounded-3xl border border-[#E6E0D2] shadow-sm p-6 space-y-4">
-              <div className="flex justify-between items-center border-b border-[#F0EBE1] pb-3">
-                <h4 className="font-serif font-bold text-lg text-[#2C2421]">Hanuman Kriya Batch Timetable (Oct 1 – 11)</h4>
-                <span className="text-xs font-mono text-stone-500 font-semibold">11 Live Zoom Sessions</span>
-              </div>
+            <ScrollReveal variant="fade-up">
+              <div className="bg-white rounded-3xl border border-[#E6E0D2] shadow-sm p-6 space-y-4">
+                <div className="flex justify-between items-center border-b border-[#F0EBE1] pb-3">
+                  <h4 className="font-serif font-bold text-lg text-[#2C2421]">Hanuman Kriya Batch Timetable (Oct 1 – 11)</h4>
+                  <span className="text-xs font-mono text-stone-500 font-semibold">11 Live Zoom Sessions</span>
+                </div>
 
-              <div className="space-y-2">
-                {upcomingDays.map((item) => (
-                  <div
-                    key={item.day}
-                    className="p-3.5 rounded-2xl bg-[#FAF7F0] border border-[#E6E0D2] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-full bg-[#EFE9DD] text-[#3B234A] font-bold text-xs flex items-center justify-center shrink-0">
-                        D{item.day}
-                      </span>
-                      <div>
-                        <p className="font-bold text-stone-900 text-sm">{item.topic}</p>
-                        <p className="text-stone-500">{item.date} • {item.time}</p>
+                <div className="space-y-2">
+                  {upcomingDays.map((item) => (
+                    <div
+                      key={item.day}
+                      className="p-3.5 rounded-2xl bg-[#FAF7F0] border border-[#E6E0D2] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-full bg-[#EFE9DD] text-[#3B234A] font-bold text-xs flex items-center justify-center shrink-0">
+                          D{item.day}
+                        </span>
+                        <div>
+                          <p className="font-bold text-stone-900 text-sm">{item.topic}</p>
+                          <p className="text-stone-500">{item.date} • {item.time}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 self-end sm:self-auto">
+                        <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 text-[10px] font-bold uppercase tracking-wider">
+                          {item.status}
+                        </span>
+                        <button
+                          onClick={handleJoinWhatsApp}
+                          className="px-3 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-300 font-semibold text-[11px] hover:bg-emerald-100 transition hover:-translate-y-0.5"
+                        >
+                          Get Zoom Link
+                        </button>
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-2 self-end sm:self-auto">
-                      <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 text-[10px] font-bold uppercase tracking-wider">
-                        {item.status}
-                      </span>
-                      <button
-                        onClick={handleJoinWhatsApp}
-                        className="px-3 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-300 font-semibold text-[11px] hover:bg-emerald-100 transition"
-                      >
-                        Get Zoom Link
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            </ScrollReveal>
 
           </div>
         )}
@@ -340,4 +358,3 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
     </div>
   );
 };
-

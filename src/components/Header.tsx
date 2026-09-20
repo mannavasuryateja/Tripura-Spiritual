@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { MusicControl } from './MusicControl';
-import { Menu, X, User, Shield } from 'lucide-react';
+import { Menu, X, User, Shield, LogOut, ChevronDown, LayoutDashboard } from 'lucide-react';
 
 interface HeaderProps {
   activeTab: string;
@@ -9,12 +9,14 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
-  const { language, setLanguage, t, user, openAuthModal } = useApp();
+  const { language, setLanguage, t, user, logout } = useApp();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const handleNavClick = (id: string) => {
     setActiveTab(id);
     setMobileMenuOpen(false);
+    setUserMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -42,22 +44,26 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
             <span className="font-serif text-2xl sm:text-3xl font-extrabold text-[#D1A559] ml-1">.</span>
           </div>
 
-          {/* Desktop Navigation - Clean, Uncluttered, Single-line */}
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+          {/* Desktop Navigation - Clean, Centered, Spacious & Premium */}
+          <nav className="hidden lg:flex items-center gap-7 xl:gap-9 mx-auto">
             {navLinks.map((link) => (
               <button
                 key={link.id}
                 onClick={() => handleNavClick(link.id)}
-                className={`text-xs font-semibold tracking-[0.14em] uppercase transition whitespace-nowrap py-1 relative ${
+                className={`group text-xs font-semibold tracking-[0.16em] uppercase transition-all duration-300 whitespace-nowrap py-1.5 relative flex items-center justify-center ${
                   activeTab === link.id
-                    ? 'text-[#8B5E34] font-bold'
-                    : 'text-[#5C534E] hover:text-[#2C2421]'
+                    ? 'text-[#8B5E34] font-bold drop-shadow-[0_0_6px_rgba(180,130,60,0.25)]'
+                    : 'text-[#5C534E] hover:text-[#9A6B32] hover:-translate-y-[1px] hover:drop-shadow-[0_0_8px_rgba(180,130,60,0.35)]'
                 }`}
               >
                 <span>{link.label}</span>
-                {activeTab === link.id && (
-                  <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#8B5E34] rounded-full"></span>
-                )}
+                <span
+                  className={`absolute bottom-0 left-0 w-full h-[2px] rounded-full transform origin-center transition-transform duration-300 ${
+                    activeTab === link.id
+                      ? 'scale-x-100 bg-[#8B5E34]'
+                      : 'scale-x-0 group-hover:scale-x-100 bg-[#9A6B32] opacity-90'
+                  }`}
+                />
               </button>
             ))}
           </nav>
@@ -102,22 +108,71 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
               <Shield className="w-4 h-4" />
             </button>
 
-            {/* LOGIN / DASHBOARD Button */}
+            {/* USER LOGGED IN BADGE & DROPDOWN MENU */}
             {user.isLoggedIn ? (
-              <button
-                onClick={() => handleNavClick('dashboard')}
-                className="px-5 py-2.5 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-semibold text-xs tracking-[0.12em] uppercase shadow-sm transition flex items-center gap-2 whitespace-nowrap"
-              >
-                <User className="w-3.5 h-3.5" />
-                <span>{user.name.split(' ')[0]}</span>
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="px-4 py-2 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-semibold text-xs tracking-[0.12em] uppercase shadow-sm transition flex items-center gap-2 whitespace-nowrap"
+                >
+                  <User className="w-3.5 h-3.5 text-amber-300" />
+                  <span>{user.name.split(' ')[0]}</span>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* User Dropdown Menu */}
+                {userMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-stone-200 py-2 z-50 animate-fadeIn">
+                    <div className="px-4 py-2.5 border-b border-stone-100 space-y-0.5">
+                      <p className="text-xs font-bold text-stone-900 truncate">{user.name}</p>
+                      <p className="text-[11px] text-stone-500 truncate">{user.email || `+91 ${user.phone}`}</p>
+                    </div>
+
+                    <div className="py-1">
+                      <button
+                        onClick={() => handleNavClick('dashboard')}
+                        className="w-full px-4 py-2 text-left text-xs font-medium text-stone-700 hover:bg-stone-50 flex items-center gap-2.5 transition"
+                      >
+                        <LayoutDashboard className="w-4 h-4 text-[#A3733A]" />
+                        <span>My Dashboard</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleNavClick('profile')}
+                        className="w-full px-4 py-2 text-left text-xs font-medium text-stone-700 hover:bg-stone-50 flex items-center gap-2.5 transition"
+                      >
+                        <User className="w-4 h-4 text-[#A3733A]" />
+                        <span>Profile & Account</span>
+                      </button>
+                    </div>
+
+                    <div className="pt-1 border-t border-stone-100">
+                      <button
+                        onClick={() => { logout(); setUserMenuOpen(false); setActiveTab('home'); }}
+                        className="w-full px-4 py-2.5 text-left text-xs font-semibold text-rose-600 hover:bg-rose-50 flex items-center gap-2.5 transition"
+                      >
+                        <LogOut className="w-4 h-4 text-rose-500" />
+                        <span>Log Out</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
-              <button
-                onClick={openAuthModal}
-                className="px-6 py-2.5 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-semibold text-xs tracking-[0.12em] uppercase shadow-sm transition whitespace-nowrap"
-              >
-                {t.nav.login}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleNavClick('login')}
+                  className="px-5 py-2.5 rounded-full bg-[#A3733A] hover:bg-[#8E612B] text-white font-semibold text-xs tracking-[0.12em] uppercase shadow-sm transition whitespace-nowrap"
+                >
+                  {t.nav.login}
+                </button>
+                <button
+                  onClick={() => handleNavClick('signup')}
+                  className="px-4 py-2.5 rounded-full border border-[#A3733A] text-[#A3733A] hover:bg-[#A3733A]/10 font-semibold text-xs tracking-[0.12em] uppercase transition whitespace-nowrap"
+                >
+                  Sign Up
+                </button>
+              </div>
             )}
           </div>
 
@@ -179,21 +234,38 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
             ))}
           </div>
 
-          <div className="pt-2">
+          <div className="pt-2 space-y-2">
             {user.isLoggedIn ? (
-              <button
-                onClick={() => handleNavClick('dashboard')}
-                className="w-full py-3 rounded-full bg-[#3B234A] text-white font-bold text-xs tracking-widest uppercase text-center"
-              >
-                {t.nav.dashboard} ({user.name})
-              </button>
+              <>
+                <button
+                  onClick={() => handleNavClick('dashboard')}
+                  className="w-full py-3 rounded-full bg-[#3B234A] text-white font-bold text-xs tracking-widest uppercase text-center"
+                >
+                  {t.nav.dashboard} ({user.name.split(' ')[0]})
+                </button>
+                <button
+                  onClick={() => { logout(); setMobileMenuOpen(false); setActiveTab('home'); }}
+                  className="w-full py-2.5 rounded-full bg-rose-50 border border-rose-200 text-rose-700 font-bold text-xs tracking-widest uppercase text-center flex items-center justify-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Log Out</span>
+                </button>
+              </>
             ) : (
-              <button
-                onClick={() => { openAuthModal(); setMobileMenuOpen(false); }}
-                className="w-full py-3 rounded-full bg-[#3B234A] text-white font-bold text-xs tracking-widest uppercase text-center"
-              >
-                {t.nav.login}
-              </button>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => handleNavClick('login')}
+                  className="w-full py-3 rounded-full bg-[#A3733A] text-white font-bold text-xs tracking-widest uppercase text-center"
+                >
+                  {t.nav.login}
+                </button>
+                <button
+                  onClick={() => handleNavClick('signup')}
+                  className="w-full py-3 rounded-full border border-[#A3733A] text-[#A3733A] font-bold text-xs tracking-widest uppercase text-center"
+                >
+                  Sign Up
+                </button>
+              </div>
             )}
           </div>
         </div>

@@ -5,6 +5,7 @@ public class AuthResponseDto {
     private String token;
     private Long userId;
     private String name;
+    private String email;
     private String phone;
     private String role;
     private Boolean hasActivePlan;
@@ -20,6 +21,7 @@ public class AuthResponseDto {
         private String token;
         private Long userId;
         private String name;
+        private String email;
         private String phone;
         private String role;
         private Boolean hasActivePlan;
@@ -28,6 +30,7 @@ public class AuthResponseDto {
         public AuthResponseDtoBuilder token(String token) { this.token = token; return this; }
         public AuthResponseDtoBuilder userId(Long userId) { this.userId = userId; return this; }
         public AuthResponseDtoBuilder name(String name) { this.name = name; return this; }
+        public AuthResponseDtoBuilder email(String email) { this.email = email; return this; }
         public AuthResponseDtoBuilder phone(String phone) { this.phone = phone; return this; }
         public AuthResponseDtoBuilder role(String role) { this.role = role; return this; }
         public AuthResponseDtoBuilder hasActivePlan(Boolean hasActivePlan) { this.hasActivePlan = hasActivePlan; return this; }
@@ -38,6 +41,7 @@ public class AuthResponseDto {
             a.token = this.token;
             a.userId = this.userId;
             a.name = this.name;
+            a.email = this.email;
             a.phone = this.phone;
             a.role = this.role;
             a.hasActivePlan = this.hasActivePlan;
@@ -54,6 +58,9 @@ public class AuthResponseDto {
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }

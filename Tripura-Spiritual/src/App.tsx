@@ -22,46 +22,81 @@ import { Dashboard } from './pages/Dashboard';
 import { Profile } from './pages/Profile';
 import { Admin } from './pages/Admin';
 
+import { Login } from './pages/Login';
+import { SignUp } from './pages/SignUp';
+import { LoginSuccessTransition } from './components/LoginSuccessTransition';
+import { useApp } from './context/AppContext';
+
 const MainContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('home');
+  const { isLoginTransitionActive, completeLoginSuccessTransition } = useApp();
+
+  const handleTransitionComplete = () => {
+    completeLoginSuccessTransition();
+    setActiveTab('dashboard');
+  };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between selection:bg-amber-200 selection:text-amber-900">
-      
-      {/* Top Header */}
-      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+    <>
+      {/* Automatic State-Driven Post-Login Zoom Transition Overlay */}
+      <LoginSuccessTransition
+        isActive={isLoginTransitionActive}
+        onComplete={handleTransitionComplete}
+      />
 
-      {/* Main View Area */}
-      <main className="flex-1">
-        {activeTab === 'home' && <Home setActiveTab={setActiveTab} />}
-        {activeTab === 'about' && <About />}
-        {activeTab === 'sessions' && <Sessions setActiveTab={setActiveTab} />}
-        {activeTab === 'session-details' && <SessionDetails setActiveTab={setActiveTab} />}
-        {activeTab === 'demo' && <DemoClass />}
-        {activeTab === 'book-library' && <BookLibrary />}
-        {activeTab === 'plans' && <Plans />}
-        {activeTab === 'onetoone' && <OneToOne />}
-        {activeTab === 'dashboard' && <Dashboard setActiveTab={setActiveTab} />}
-        {activeTab === 'profile' && <Profile setActiveTab={setActiveTab} />}
-        {activeTab === 'admin' && <Admin />}
-      </main>
+      {/* Main App Layout */}
+      {isLoginTransitionActive ? (
+        // During transition, render Dashboard underneath so it crossfades seamlessly
+        <div className="min-h-screen flex flex-col justify-between selection:bg-amber-200 selection:text-amber-900">
+          <Header activeTab="dashboard" setActiveTab={setActiveTab} />
+          <main className="flex-1">
+            <Dashboard setActiveTab={setActiveTab} />
+          </main>
+          <Footer setActiveTab={setActiveTab} />
+        </div>
+      ) : activeTab === 'login' ? (
+        <Login setActiveTab={setActiveTab} />
+      ) : activeTab === 'signup' ? (
+        <SignUp setActiveTab={setActiveTab} />
+      ) : (
+        <div className="min-h-screen flex flex-col justify-between selection:bg-amber-200 selection:text-amber-900">
+          
+          {/* Top Header */}
+          <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* Modals & Presentation Overlays */}
-      <AuthModal onSuccessRedirect={() => setActiveTab('dashboard')} />
-      <PaymentModal onSuccessNavigate={() => setActiveTab('dashboard')} />
-      <VideoPlayerModal />
-      <BookLibraryDrawer onNavigateToFullPage={() => setActiveTab('book-library')} />
-      <BookAudioPlayerModal />
+          {/* Main View Area */}
+          <main className="flex-1">
+            {activeTab === 'home' && <Home setActiveTab={setActiveTab} />}
+            {activeTab === 'about' && <About />}
+            {activeTab === 'sessions' && <Sessions setActiveTab={setActiveTab} />}
+            {activeTab === 'session-details' && <SessionDetails setActiveTab={setActiveTab} />}
+            {activeTab === 'demo' && <DemoClass />}
+            {activeTab === 'book-library' && <BookLibrary />}
+            {activeTab === 'plans' && <Plans />}
+            {activeTab === 'onetoone' && <OneToOne />}
+            {activeTab === 'dashboard' && <Dashboard setActiveTab={setActiveTab} />}
+            {activeTab === 'profile' && <Profile setActiveTab={setActiveTab} />}
+            {activeTab === 'admin' && <Admin />}
+          </main>
 
-      {/* Floating Right Side Sacred Books & Podcasts Button */}
-      <FloatingBookButton />
+          {/* Modals & Presentation Overlays */}
+          <AuthModal onSuccessRedirect={() => setActiveTab('dashboard')} />
+          <PaymentModal onSuccessNavigate={() => setActiveTab('dashboard')} />
+          <VideoPlayerModal />
+          <BookLibraryDrawer onNavigateToFullPage={() => setActiveTab('book-library')} />
+          <BookAudioPlayerModal />
 
-      {/* Quick Demo Users Floating Toolbar */}
-      <DemoUserSelector />
+          {/* Floating Right Side Sacred Books & Podcasts Button */}
+          <FloatingBookButton />
 
-      {/* Footer */}
-      <Footer setActiveTab={setActiveTab} />
-    </div>
+          {/* Quick Demo Users Floating Toolbar */}
+          <DemoUserSelector />
+
+          {/* Footer */}
+          <Footer setActiveTab={setActiveTab} />
+        </div>
+      )}
+    </>
   );
 };
 

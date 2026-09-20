@@ -7,7 +7,7 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRedirect }) => {
-  const { isAuthOpen, closeAuthModal, login, t } = useApp();
+  const { isAuthOpen, closeAuthModal, login, triggerLoginSuccessTransition, t } = useApp();
   const [mobile, setMobile] = useState('');
   const [step, setStep] = useState<'mobile' | 'otp'>('mobile');
   const [otp, setOtp] = useState('');
@@ -19,7 +19,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRedirect }) => {
     e.preventDefault();
     if (!mobile || mobile.length < 10) {
       setError('Please enter a valid 10-digit mobile number');
-      return;
+      return false;
     }
     setError('');
     setStep('otp');
@@ -30,6 +30,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRedirect }) => {
     if (otp === '123456' || otp.length === 6) {
       login(mobile);
       closeAuthModal();
+      triggerLoginSuccessTransition();
       if (onSuccessRedirect) onSuccessRedirect();
     } else {
       setError('Invalid OTP. Use Demo OTP: 123456');
@@ -39,6 +40,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRedirect }) => {
   const handleQuickLogin = (phone: string) => {
     login(phone);
     closeAuthModal();
+    triggerLoginSuccessTransition();
     if (onSuccessRedirect) onSuccessRedirect();
   };
 

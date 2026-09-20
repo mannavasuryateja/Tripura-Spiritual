@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+import com.tripura.backend.dto.LoginRequestDto;
+import com.tripura.backend.dto.SignUpRequestDto;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -20,6 +23,26 @@ public class AuthController {
 
     public AuthController(AuthService authService) {
         this.authService = authService;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginDto) {
+        try {
+            AuthResponseDto response = authService.loginWithEmailPassword(loginDto);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+        }
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<?> signUp(@Valid @RequestBody SignUpRequestDto signUpDto) {
+        try {
+            AuthResponseDto response = authService.signUpWithEmailPassword(signUpDto);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+        }
     }
 
     @PostMapping("/send-otp")
