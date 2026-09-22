@@ -70,37 +70,10 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
             <h4 className="font-serif text-[#2D241E] font-medium text-xs mb-5 tracking-[0.2em] uppercase">
               {t.footer.legal}
             </h4>
-            <ul className="space-y-2.5 text-xs text-[#5F554B] font-light">
-              <li>
-                <a 
-                  href="#privacy" 
-                  onClick={(e) => { e.preventDefault(); alert("Tripura Spiritual Privacy Policy: All demo data remains local to your browser session."); }} 
-                  className="group relative inline-block text-[#5F554B] hover:text-[#9A6B32] transition-all duration-300 ease-out hover:-translate-y-[1px] hover:drop-shadow-[0_0_8px_rgba(180,130,60,0.35)] py-0.5"
-                >
-                  <span>{t.footer.privacy}</span>
-                  <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#9A6B32] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-center" />
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="#terms" 
-                  onClick={(e) => { e.preventDefault(); alert("Tripura Spiritual Terms: Prototype evaluation license."); }} 
-                  className="group relative inline-block text-[#5F554B] hover:text-[#9A6B32] transition-all duration-300 ease-out hover:-translate-y-[1px] hover:drop-shadow-[0_0_8px_rgba(180,130,60,0.35)] py-0.5"
-                >
-                  <span>{t.footer.terms}</span>
-                  <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#9A6B32] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-center" />
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="#contact" 
-                  onClick={(e) => { e.preventDefault(); alert("Contact Support: support@tripuraspiritual.com"); }} 
-                  className="group relative inline-block text-[#5F554B] hover:text-[#9A6B32] transition-all duration-300 ease-out hover:-translate-y-[1px] hover:drop-shadow-[0_0_8px_rgba(180,130,60,0.35)] py-0.5"
-                >
-                  <span>{t.footer.contact}</span>
-                  <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#9A6B32] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-center" />
-                </a>
-              </li>
+            <ul className="space-y-2 text-xs text-stone-400 font-light">
+              <li><a href="#privacy" onClick={(e) => { e.preventDefault(); alert("Tripura Spiritual Privacy Policy: All demo data remains local to your browser session."); }} className="hover:text-[#D1A559] transition">{t.footer.privacy}</a></li>
+              <li><a href="#terms" onClick={(e) => { e.preventDefault(); alert("Tripura Spiritual Terms: Prototype evaluation license."); }} className="hover:text-[#D1A559] transition">{t.footer.terms}</a></li>
+              <li><a href="#contact" onClick={(e) => { e.preventDefault(); alert("Contact Support: support@tripuraspiritual.com"); }} className="hover:text-[#D1A559] transition">{t.footer.contact}</a></li>
               <li>
                 <a 
                   href="https://chat.whatsapp.com/TripuraSpiritualCommunity" 

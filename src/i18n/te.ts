@@ -192,6 +192,23 @@ export const te: typeof en = {
     terms: "నిబంధనలు",
     contact: "మాస్టర్‌ను సంప్రదించండి",
     disclaimer: "త్రిపుర స్పిరిచువల్ — tripuraspiritual.com"
+  },
+  contactSection: {
+    heading: "మమ్మల్ని సంప్రదించండి",
+    subheading: "మా సేవలు లేదా సాధనా తరగతుల గురించి ఏవైనా సందేహాలుంటే, దయచేసి ఈ ఫారమ్ పూరించండి. మేము 1 పని దినంలో మీకు సమాధానం ఇస్తాము.",
+    emailLabel: "ఈమెయిల్",
+    emailValue: "contact@tripuraspiritual.com",
+    phoneLabel: "ఫోన్",
+    phoneValue: "+91 98765 43210",
+    addressLabel: "చిరునామా",
+    addressValue: "హైదరాబాద్, తెలంగాణ, భారతదేశం",
+    nameLabel: "పేరు",
+    emailFieldLabel: "ఈమెయిల్",
+    phoneFieldLabel: "ఫోన్",
+    messageLabel: "సందేశం",
+    submitBtn: "సమర్పించండి",
+    sendingBtn: "పంపుతున్నాము...",
+    successMessage: "మమ్మల్ని సంప్రదించినందుకు ధన్యవాదాలు! మేము 1 పని దినంలో మిమ్మల్ని సంప్రదిస్తాము."
   }
 };
 

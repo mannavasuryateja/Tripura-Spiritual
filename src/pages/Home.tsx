@@ -2,7 +2,6 @@ import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Calendar, CheckCircle2, ArrowRight, Star, BookOpen, Radio, Sparkles, Play } from 'lucide-react';
 import { SACRED_BOOKS } from '../data/bookLibraryData';
-import { ScrollReveal, StaggerContainer } from '../components/ScrollReveal';
 
 interface HomeProps {
   setActiveTab: (tab: string) => void;
@@ -463,6 +462,9 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
           ))}
         </StaggerContainer>
       </section>
+
+      {/* GET IN TOUCH / CONTACT SECTION */}
+      <ContactSection />
 
     </div>
   );

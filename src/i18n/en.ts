@@ -190,6 +190,23 @@ export const en = {
     terms: "Terms of Use",
     contact: "Contact Master",
     disclaimer: "Tripura Spiritual — tripuraspiritual.com"
+  },
+  contactSection: {
+    heading: "Get in touch",
+    subheading: "If you have any questions regarding our Services or need help, please fill out the form here. We do our best to respond within 1 business day.",
+    emailLabel: "Email",
+    emailValue: "contact@tripuraspiritual.com",
+    phoneLabel: "Phone",
+    phoneValue: "+91 98765 43210",
+    addressLabel: "Address",
+    addressValue: "Hyderabad, Telangana, India",
+    nameLabel: "Name",
+    emailFieldLabel: "Email",
+    phoneFieldLabel: "Phone",
+    messageLabel: "Message",
+    submitBtn: "Submit",
+    sendingBtn: "Sending...",
+    successMessage: "Thank you for reaching out! We will get back to you within 1 business day."
   }
 };
 
