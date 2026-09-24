@@ -2,52 +2,82 @@ spring:
   application:
     name: backend
 
-  # Database Configuration (H2 In-Memory)
+  # Database Configuration (PostgreSQL with Environment Variable Overrides & Least-Privilege Support)
   datasource:
-    url: jdbc:h2:mem:tripuradb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: 
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/tripuradb}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:surya123}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      max-lifetime: 600000
+      connection-timeout: 20000
 
   # JPA & Hibernate Configuration
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
+
+  # Flyway Database Migration Management (Enabled via env var FLYWAY_ENABLED=true for staging/production)
+  flyway:
+    enabled: ${FLYWAY_ENABLED:false}
+    baseline-on-migrate: true
+    locations: classpath:db/migration
 
 server:
-  port: 8080
+  port: ${PORT:8080}
+  error:
+    include-stacktrace: never
+    include-message: never
 
-# Application Configuration
+# Application Security & Integration Configuration
 app:
+  # JWT Token Configuration with httpOnly Cookie Support
   jwt:
-    secret: 9a6f8b12c4e5d6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1
+    secret: ${JWT_SECRET:9a6f8b12c4e5d6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1}
     expiration-ms: 86400000 # 24 Hours
+    cookie-name: "tripura_auth_token"
+    cookie-secure: ${JWT_COOKIE_SECURE:false} # Set to true in production with HTTPS
+    cookie-same-site: "Strict"
+    cookie-path: "/api"
 
-  # Bunny Stream Configuration (Bunny.net Video Delivery)
+  # Explicit CORS Origin Security
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000,http://localhost:4173}
+
+  # Rate Limiting via Bucket4j
+  rate-limiting:
+    login-capacity: 10
+    login-refill-tokens: 10
+    login-refill-duration-seconds: 60
+    otp-capacity: 5
+    otp-refill-tokens: 5
+    otp-refill-duration-seconds: 60
+
+  # Bunny Stream Configuration (Bunny.net Video Delivery & Direct Uploads)
   bunny:
-    library-id: "354129"
-    api-key: "b3f9104a-mock-key-bunny-stream-api-key"
-    token-security-key: "tripura-bunny-stream-token-security-key"
+    library-id: ${BUNNY_LIBRARY_ID:354129}
+    api-key: ${BUNNY_API_KEY:b3f9104a-mock-key-bunny-stream-api-key}
+    token-security-key: ${BUNNY_TOKEN_SECURITY_KEY:tripura-bunny-stream-token-security-key}
+    webhook-signing-secret: ${BUNNY_WEBHOOK_SECRET:bunny_webhook_secret_key_tripura_2026}
     embed-base-url: "https://iframe.mediadelivery.net/embed"
     hls-cdn-base-url: "https://vz-354129.b-cdn.net"
+    token-expiration-seconds: 3600 # 60 Minutes Signed URL Expiry
 
   # WhatsApp Community & Razorpay Credentials
   whatsapp:
-    community-invite-url: "https://chat.whatsapp.com/TripuraSpiritualCommunityLive2026"
+    community-invite-url: ${WHATSAPP_INVITE_URL:https://chat.whatsapp.com/TripuraSpiritualCommunityLive2026}
 
   razorpay:
-    key-id: "rzp_test_mock_tripura_key"
-    key-secret: "mock_tripura_razorpay_secret"
+    key-id: ${RAZORPAY_KEY_ID:rzp_test_mock_tripura_key}
+    key-secret: ${RAZORPAY_KEY_SECRET:mock_tripura_razorpay_secret}
 
   zoom:
-    webhook-verification-token: "zoom_webhook_secret_verification_token"
+    webhook-verification-token: ${ZOOM_WEBHOOK_SECRET:zoom_webhook_secret_verification_token}

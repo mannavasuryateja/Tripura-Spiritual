@@ -2,6 +2,8 @@ import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Calendar, CheckCircle2, ArrowRight, Star, BookOpen, Radio, Sparkles, Play } from 'lucide-react';
 import { SACRED_BOOKS } from '../data/bookLibraryData';
+import { ScrollReveal, StaggerContainer } from '../components/ScrollReveal';
+import { ContactSection } from '../components/ContactSection';
 
 interface HomeProps {
   setActiveTab: (tab: string) => void;

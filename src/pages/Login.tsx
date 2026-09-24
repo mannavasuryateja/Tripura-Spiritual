@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, Check } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, Check, Smartphone, KeyRound, CheckCircle2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { ScrollReveal } from '../components/ScrollReveal';
 
@@ -8,17 +8,78 @@ interface LoginProps {
 }
 
 export const Login: React.FC<LoginProps> = ({ setActiveTab }) => {
-  const { loginWithEmailPassword, triggerLoginSuccessTransition } = useApp();
+  const { loginWithEmailPassword, sendOtp, verifyOtpAndLogin, triggerLoginSuccessTransition } = useApp();
   
+  const [authMethod, setAuthMethod] = useState<'otp' | 'email'>('otp');
+  
+  // Mobile OTP States
+  const [mobile, setMobile] = useState('');
+  const [otpStep, setOtpStep] = useState<'mobile' | 'otp'>('mobile');
+  const [otp, setOtp] = useState('');
+
+  // Email States
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  
+  // Common States
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
-  const validate = () => {
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccessMsg('');
+
+    const cleanMobile = mobile.replace(/\D/g, '');
+    if (!cleanMobile || cleanMobile.length !== 10) {
+      setError('Please enter a valid 10-digit Indian mobile number');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const res = await sendOtp(cleanMobile);
+      setSuccessMsg(res.message);
+      setOtpStep('otp');
+    } catch (err: any) {
+      setError(err.message || 'Could not send OTP. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccessMsg('');
+
+    const cleanOtp = otp.trim();
+    if (!cleanOtp || cleanOtp.length < 4) {
+      setError('Please enter the OTP sent to your phone (Demo OTP: 123456)');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const cleanMobile = mobile.replace(/\D/g, '');
+      const success = await verifyOtpAndLogin(cleanMobile, cleanOtp);
+      if (success) {
+        setSuccessMsg('Sign in successful! Welcome to Tripura Spiritual.');
+        triggerLoginSuccessTransition();
+      } else {
+        setError('Invalid OTP. Use Demo OTP: 123456');
+        setIsLoading(false);
+      }
+    } catch (err: any) {
+      setError(err.message || 'OTP verification failed. Use Demo OTP: 123456');
+      setIsLoading(false);
+    }
+  };
+
+  const validateEmail = () => {
     if (!email) {
       setError('Please enter your email address');
       return false;
@@ -39,12 +100,12 @@ export const Login: React.FC<LoginProps> = ({ setActiveTab }) => {
     return true;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccessMsg('');
 
-    if (!validate()) return;
+    if (!validateEmail()) return;
 
     setIsLoading(true);
 
@@ -137,117 +198,237 @@ export const Login: React.FC<LoginProps> = ({ setActiveTab }) => {
             <div className="w-full max-w-md bg-[#FAF8F3]/95 backdrop-blur-md rounded-3xl p-6 sm:p-7 shadow-2xl border border-white/30 text-[#2C2421]">
               
               {/* Card Header */}
-              <div className="space-y-1 mb-4">
+              <div className="space-y-1 mb-3">
                 <h2 className="font-serif text-xl sm:text-2xl font-semibold text-[#2C2421]">
                   Sign in to your account
                 </h2>
                 <p className="text-xs text-stone-600 font-normal">
-                  Welcome back! Continue your journey.
+                  Welcome back! Enter your mobile number or email.
                 </p>
+              </div>
+
+              {/* Auth Method Segmented Tabs */}
+              <div className="flex rounded-2xl bg-[#ECE7DC] p-1 mb-3.5 border border-[#DFD8CA]">
+                <button
+                  type="button"
+                  onClick={() => { setAuthMethod('otp'); setError(''); setSuccessMsg(''); }}
+                  className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                    authMethod === 'otp'
+                      ? 'bg-white text-[#2C2421] shadow-xs font-bold border border-amber-200/50'
+                      : 'text-stone-600 hover:text-stone-900'
+                  }`}
+                >
+                  <Smartphone className="w-3.5 h-3.5 text-[#A3733A]" />
+                  <span>Mobile OTP</span>
+                  <span className="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full font-medium">Easy</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setAuthMethod('email'); setError(''); setSuccessMsg(''); }}
+                  className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                    authMethod === 'email'
+                      ? 'bg-white text-[#2C2421] shadow-xs font-bold border border-amber-200/50'
+                      : 'text-stone-600 hover:text-stone-900'
+                  }`}
+                >
+                  <Mail className="w-3.5 h-3.5 text-[#A3733A]" />
+                  <span>Email & Password</span>
+                </button>
               </div>
 
               {/* Notifications */}
               {error && (
-                <div className="mb-4 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2 animate-fadeIn">
+                <div className="mb-3 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2 animate-fadeIn">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0 text-rose-500" />
                   <span>{error}</span>
                 </div>
               )}
 
               {successMsg && (
-                <div className="mb-4 p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-fadeIn">
+                <div className="mb-3 p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-fadeIn">
                   <Check className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
                   <span>{successMsg}</span>
                 </div>
               )}
 
-              {/* Sign In Form */}
-              <form onSubmit={handleSubmit} className="space-y-3.5">
-                
-                {/* Email Field */}
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                    Email
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
-                      <Mail className="w-3.5 h-3.5" />
+              {/* MOBILE OTP FLOW */}
+              {authMethod === 'otp' ? (
+                otpStep === 'mobile' ? (
+                  <form onSubmit={handleSendOtp} className="space-y-3">
+                    <div>
+                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                        Mobile Number / మొబైల్ నంబర్
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-2.5 text-stone-700 font-bold text-xs">
+                          +91
+                        </span>
+                        <input
+                          type="tel"
+                          maxLength={10}
+                          required
+                          placeholder="9876543210"
+                          value={mobile}
+                          onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
+                          className="w-full pl-12 pr-4 py-2 rounded-full border border-stone-300 bg-white/90 focus:bg-white focus:border-[#A3733A] focus:ring-2 focus:ring-[#A3733A]/20 text-xs text-stone-900 font-semibold outline-none transition placeholder:text-stone-400"
+                        />
+                      </div>
                     </div>
-                    <input
-                      type="email"
-                      required
-                      placeholder="m@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 rounded-full border border-stone-300 bg-white/90 focus:bg-white focus:border-[#A3733A] focus:ring-2 focus:ring-[#A3733A]/20 text-xs text-stone-900 outline-none transition placeholder:text-stone-400"
-                    />
-                  </div>
-                </div>
 
-                {/* Password Field */}
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
-                      <Lock className="w-3.5 h-3.5" />
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full py-2.5 px-5 rounded-full bg-[#A3733A] hover:bg-[#8E612B] active:bg-[#785122] text-white font-medium text-xs transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed group mt-1"
+                    >
+                      {isLoading ? (
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <span>Get OTP / ఓటీపీ పొందండి</span>
+                          <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                        </>
+                      )}
+                    </button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleVerifyOtp} className="space-y-3">
+                    <div className="p-2.5 bg-[#EFE9DD] rounded-2xl border border-[#D8CFBF] text-center space-y-1">
+                      <span className="text-[11px] text-stone-600 block">OTP Sent to <strong>+91 {mobile}</strong></span>
+                      <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#3B234A] text-white text-[10px] font-bold font-mono tracking-wider">
+                        Demo OTP: 123456
+                      </span>
                     </div>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      placeholder="Password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-10 pr-10 py-2.5 rounded-full border border-stone-300 bg-white/90 focus:bg-white focus:border-[#A3733A] focus:ring-2 focus:ring-[#A3733A]/20 text-xs text-stone-900 outline-none transition placeholder:text-stone-400"
-                    />
+
+                    <div>
+                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                        Enter 6-Digit OTP / ఓటీపీ నమోదు చేయండి
+                      </label>
+                      <div className="relative">
+                        <KeyRound className="absolute left-3.5 top-2.5 w-3.5 h-3.5 text-stone-400" />
+                        <input
+                          type="text"
+                          maxLength={6}
+                          required
+                          placeholder="123456"
+                          value={otp}
+                          onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                          className="w-full pl-10 pr-4 py-2 rounded-full border border-stone-300 bg-white text-[#2C2421] font-mono tracking-widest text-center text-base font-bold outline-none transition"
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full py-2.5 px-5 rounded-full bg-[#A3733A] hover:bg-[#8E612B] text-white font-medium text-xs transition-all duration-200 shadow-md flex items-center justify-center gap-2 disabled:opacity-70 group"
+                    >
+                      {isLoading ? (
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>Verify & Sign In / లాగిన్</span>
+                        </>
+                      )}
+                    </button>
+
                     <button
                       type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600 transition"
+                      onClick={() => { setOtpStep('mobile'); setError(''); }}
+                      className="w-full text-[11px] text-stone-500 hover:text-stone-800 underline text-center block pt-1"
                     >
-                      {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      Change Mobile Number
+                    </button>
+                  </form>
+                )
+              ) : (
+                /* EMAIL & PASSWORD FLOW */
+                <form onSubmit={handleEmailSubmit} className="space-y-3">
+                  {/* Email Field */}
+                  <div>
+                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                      Email
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+                        <Mail className="w-3.5 h-3.5" />
+                      </div>
+                      <input
+                        type="email"
+                        required
+                        placeholder="m@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 rounded-full border border-stone-300 bg-white/90 focus:bg-white focus:border-[#A3733A] focus:ring-2 focus:ring-[#A3733A]/20 text-xs text-stone-900 outline-none transition placeholder:text-stone-400"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password Field */}
+                  <div>
+                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+                        <Lock className="w-3.5 h-3.5" />
+                      </div>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full pl-10 pr-10 py-2 rounded-full border border-stone-300 bg-white/90 focus:bg-white focus:border-[#A3733A] focus:ring-2 focus:ring-[#A3733A]/20 text-xs text-stone-900 outline-none transition placeholder:text-stone-400"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600 transition"
+                      >
+                        {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Remember Me & Forgot Password Row */}
+                  <div className="flex items-center justify-between text-[11px] pt-0.5">
+                    <label className="flex items-center gap-1.5 cursor-pointer text-stone-700 select-none">
+                      <input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="w-3.5 h-3.5 rounded border-stone-300 text-[#A3733A] focus:ring-[#A3733A] accent-[#A3733A]"
+                      />
+                      <span>Remember me</span>
+                    </label>
+
+                    <button
+                      type="button"
+                      onClick={() => setError('Password reset instructions have been sent if account exists.')}
+                      className="text-[#A3733A] hover:underline font-medium transition"
+                    >
+                      Forgot password?
                     </button>
                   </div>
-                </div>
 
-                {/* Remember Me & Forgot Password Row */}
-                <div className="flex items-center justify-between text-[11px] pt-0.5">
-                  <label className="flex items-center gap-1.5 cursor-pointer text-stone-700 select-none">
-                    <input
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="w-3.5 h-3.5 rounded border-stone-300 text-[#A3733A] focus:ring-[#A3733A] accent-[#A3733A]"
-                    />
-                    <span>Remember me</span>
-                  </label>
-
+                  {/* Submit Button */}
                   <button
-                    type="button"
-                    onClick={() => setError('Password reset instructions have been sent if account exists.')}
-                    className="text-[#A3733A] hover:underline font-medium transition"
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full py-2.5 px-5 rounded-full bg-[#A3733A] hover:bg-[#8E612B] active:bg-[#785122] text-white font-medium text-xs transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed group mt-1"
                   >
-                    Forgot password?
+                    {isLoading ? (
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <span>Sign In</span>
+                        <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                      </>
+                    )}
                   </button>
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-2.5 px-5 rounded-full bg-[#A3733A] hover:bg-[#8E612B] active:bg-[#785122] text-white font-medium text-xs transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed group mt-1"
-                >
-                  {isLoading ? (
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      <span>Sign In</span>
-                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                    </>
-                  )}
-                </button>
-              </form>
+                </form>
+              )}
 
               {/* Social Auth Separator */}
               <div className="relative my-3.5">

@@ -6,6 +6,7 @@ import com.tripura.backend.model.User;
 import com.tripura.backend.service.PaymentService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,7 @@ public class PaymentController {
     }
 
     @PostMapping("/create-order")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Payment> createOrder(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody EnrollmentRequestDto request) {
@@ -31,6 +33,7 @@ public class PaymentController {
     }
 
     @PostMapping("/verify-and-fulfill")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> verifyAndFulfill(
             @AuthenticationPrincipal User user,
             @RequestBody Map<String, Object> payload) {

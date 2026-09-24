@@ -7,6 +7,7 @@ import com.tripura.backend.repository.MentorBookingRepository;
 import com.tripura.backend.service.MentorService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ public class MentorController {
     }
 
     @PostMapping("/book")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MentorBooking> bookSession(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody MentorBookingRequestDto request) {
@@ -34,6 +36,7 @@ public class MentorController {
     }
 
     @GetMapping("/my-bookings")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<MentorBooking>> getMyBookings(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(mentorBookingRepository.findByUserId(user.getId()));
     }

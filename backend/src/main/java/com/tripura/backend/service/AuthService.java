@@ -72,7 +72,9 @@ public class AuthService {
             throw new IllegalArgumentException("An account with this email already exists");
         }
 
-        String phone = "99" + String.valueOf(System.currentTimeMillis()).substring(5);
+        String phone = (dto.getPhone() != null && !dto.getPhone().trim().isEmpty())
+                ? dto.getPhone().trim()
+                : "99" + String.valueOf(System.currentTimeMillis()).substring(5);
 
         User user = userRepository.save(
                 User.builder()

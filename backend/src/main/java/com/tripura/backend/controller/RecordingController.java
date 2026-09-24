@@ -8,6 +8,7 @@ import com.tripura.backend.repository.RecordingRepository;
 import com.tripura.backend.service.BunnyStreamService;
 import com.tripura.backend.service.RecordingAccessService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,13 +42,10 @@ public class RecordingController {
     }
 
     @GetMapping("/{recordingId}/stream-token")
-    public ResponseEntity<?> getSignedStreamToken(
+    @PreAuthorize("@securityService.hasRecordingAccess(authentication, #recordingId)")
+    public ResponseEntity<StreamTokenResponseDto> getSignedStreamToken(
             @PathVariable Long recordingId,
             @AuthenticationPrincipal User user) {
-
-        if (user == null) {
-            return ResponseEntity.status(401).body("Authentication required to access video stream");
-        }
 
         Recording recording = recordingRepository.findById(recordingId)
                 .orElseThrow(() -> new IllegalArgumentException("Recording not found"));
