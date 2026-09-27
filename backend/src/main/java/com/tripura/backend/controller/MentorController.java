@@ -77,4 +77,26 @@ public class MentorController {
         mentorBookingRepository.save(booking);
         return ResponseEntity.ok(Map.of("success", true, "message", "Booking status updated successfully", "booking", booking));
     }
+
+    /**
+     * Seeker / Admin: Cancel booking
+     */
+    @PostMapping("/bookings/{bookingId}/cancel")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> cancelBooking(
+            @PathVariable Long bookingId,
+            @AuthenticationPrincipal User user) {
+
+        MentorBooking booking = mentorBookingRepository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found with ID: " + bookingId));
+
+        if (!booking.getUser().getId().equals(user.getId()) && !user.isAdmin()) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN)
+                    .body(Map.of("success", false, "message", "You are not authorized to cancel this booking"));
+        }
+
+        booking.setStatus(MentorBooking.BookingStatus.CANCELLED);
+        mentorBookingRepository.save(booking);
+        return ResponseEntity.ok(Map.of("success", true, "message", "Booking cancelled successfully"));
+    }
 }

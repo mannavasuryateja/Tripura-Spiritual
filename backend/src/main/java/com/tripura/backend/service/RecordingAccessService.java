@@ -65,11 +65,11 @@ public class RecordingAccessService {
                 } else {
                     if (now.isAfter(rec.getReleaseAt()) && now.isBefore(rec.getDefaultExpiresAt())) {
                         unlocked = true;
-                        statusMsg = "Unlocked (Available until Oct 13, 12:00 PM)";
+                        statusMsg = "Unlocked (Available until " + rec.getDefaultExpiresAt().toLocalDate() + ")";
                     } else if (now.isAfter(rec.getDefaultExpiresAt())) {
-                        statusMsg = "Live access expired on 13th day. Extend for 21 days @ ₹555";
+                        statusMsg = "Access expired on " + rec.getDefaultExpiresAt().toLocalDate() + ". Extend access via recording package.";
                     } else {
-                        statusMsg = "Releases tomorrow 12:00 PM";
+                        statusMsg = "Releases on " + rec.getReleaseAt().toLocalDate();
                     }
                 }
             }

@@ -2,22 +2,23 @@
 -- V2__seed_initial_data.sql
 
 -- 1. Initial Masterclass Session
-INSERT INTO sessions (id, title, subtitle, description, start_date, end_date, live_price, extension_price, recordings_only_price, status)
+INSERT INTO sessions (id, slug, title, description, start_date, end_date, price_live, price_extension, price_recordings, whatsapp_community_url, active)
 VALUES (
     1,
+    'hanuman-kriya-live-1111',
     'Hanuman Kriya & Sundarakanda 11-Day Masterclass',
-    'Conducted by Master Gorli Peddi Raju Garu',
-    'Experience divine energy, mental clarity, and spiritual awakening through powerful daily Kriya and discourse.',
+    'Experience divine energy, mental clarity, and spiritual awakening through powerful daily Kriya and discourse conducted by Master Gorli Peddi Raju Garu.',
     '2026-10-01',
     '2026-10-11',
     1111.00,
     555.00,
     1500.00,
-    'UPCOMING'
+    'https://chat.whatsapp.com/TripuraSpiritualCommunityLive2026',
+    true
 ) ON CONFLICT (id) DO NOTHING;
 
 -- 2. Sacred Books Seed
-INSERT INTO books (id, slug, title, telugu_title, author, tag, synopsis, master_quote, price, cover_image_url)
+INSERT INTO books (id, slug, title, telugu_title, author, tag, synopsis, master_quote, price, cover_image, episodes_count, is_published, sort_order)
 VALUES 
 (
     1,
@@ -29,7 +30,10 @@ VALUES
     'The crowning jewel of Advaita Vedanta philosophy revealed by Lord Dattatreya to Parasurama.',
     'The world is nothing but pure consciousness reflected within itself.',
     199.00,
-    'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80'
+    'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80',
+    6,
+    true,
+    1
 ),
 (
     2,
@@ -41,5 +45,8 @@ VALUES
     'A deep master discourse on Chapter 2 & Chapter 6 describing the unshakable serene state of consciousness.',
     'One whose mind remains undisturbed amidst sorrow and without desire in pleasure is a Sthitaprajna.',
     199.00,
-    'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=80'
+    'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=80',
+    5,
+    true,
+    2
 ) ON CONFLICT (id) DO NOTHING;

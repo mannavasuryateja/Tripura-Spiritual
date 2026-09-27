@@ -2,6 +2,7 @@ import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Play, Sparkles, CheckCircle2, Calendar, MessageCircle, ArrowRight, AlertCircle } from 'lucide-react';
 import { ScrollReveal, StaggerContainer } from '../components/ScrollReveal';
+import { sessionsApi, productsApi } from '../api/client';
 
 interface SessionsProps {
   setActiveTab: (tab: string) => void;
@@ -9,6 +10,26 @@ interface SessionsProps {
 
 export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
   const { user, openPaymentModal, openVideoModal, openAuthModal, t } = useApp();
+  const [session, setSession] = React.useState<any>(null);
+  const [products, setProducts] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    sessionsApi.getSessions().then(res => {
+      if (res && res.length > 0) setSession(res[0]);
+    }).catch(() => {});
+    productsApi.getActiveProducts().then(res => {
+      if (res && res.length > 0) setProducts(res);
+    }).catch(() => {});
+  }, []);
+
+  const getProductPrice = (slug: string, fallback: number) => {
+    const p = products.find(prod => prod.slug === slug);
+    return p ? p.price : fallback;
+  };
+
+  const priceLive = session?.priceLive || getProductPrice('live-session', 1111);
+  const priceRecordings = session?.priceRecordings || getProductPrice('recordings-only', 1500);
+  const priceExtension = session?.priceExtension || getProductPrice('recording-extension', 555);
 
   const handleEnrollLive = () => {
     if (!user.isLoggedIn) {
@@ -16,11 +37,12 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
       return;
     }
     openPaymentModal({
-      id: 'hanuman-kriya-live',
-      name: "Hanuman Kriya: 11-Day Live Masterclass (1st–11th Monthly Batch)",
-      price: 1111,
+      id: `hanuman-kriya-live-${session?.id || 1}`,
+      name: session?.title ? `${session.title} (Live Masterclass)` : "Hanuman Kriya: 11-Day Live Masterclass (1st–11th Monthly Batch)",
+      price: priceLive,
       type: 'live-session',
-      details: "1st–11th Monthly Batch • Daily 6:30 AM IST • Recordings Valid Till 13th • WhatsApp Community Link"
+      details: `${session?.startDate || 'Monthly'} Batch • Daily 6:30 AM IST • Recordings Valid Till 13th • WhatsApp Community Link`,
+      sessionId: session?.id || 1
     });
   };
 
@@ -30,11 +52,12 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
       return;
     }
     openPaymentModal({
-      id: 'hanuman-kriya-recordings-only',
-      name: "Hanuman Kriya: Full 11-Day Masterclass Recordings Pack",
-      price: 1500,
+      id: `hanuman-kriya-recordings-only-${session?.id || 1}`,
+      name: session?.title ? `${session.title} (Full Recordings Pack)` : "Hanuman Kriya: Full 11-Day Masterclass Recordings Pack",
+      price: priceRecordings,
       type: 'recordings-only',
-      details: "Complete 11-Day Video Recordings via Bunny.net • 30 Days Access from Purchase Date"
+      details: "Complete 11-Day Video Recordings via Stream • 30 Days Access from Purchase Date",
+      sessionId: session?.id || 1
     });
   };
 
@@ -44,11 +67,12 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
       return;
     }
     openPaymentModal({
-      id: 'hanuman-kriya-recording-extension',
+      id: `hanuman-kriya-recording-extension-${session?.id || 1}`,
       name: "30-Day Recording Extension (Live Seeker Loyalty Upgrade)",
-      price: 555,
+      price: priceExtension,
       type: 'recording-extension',
-      details: "Exclusive to Live Batch Seekers • 30 Days Extended Recording Access"
+      details: "Exclusive to Live Batch Seekers • 30 Days Extended Recording Access",
+      sessionId: session?.id || 1
     });
   };
 
@@ -123,7 +147,7 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>30-Day Recording Extension for Live Seekers @ ₹555</span>
+                  <span>30-Day Recording Extension for Live Seekers @ ₹{priceExtension}</span>
                 </div>
               </div>
             </div>
@@ -136,7 +160,7 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
               
               <div className="space-y-1">
                 <div className="text-4xl sm:text-5xl font-bold font-sans text-white">
-                  ₹1,111
+                  ₹{priceLive.toLocaleString('en-IN')}
                 </div>
                 <p className="text-xs text-stone-300">1st–11th Live Classes + WhatsApp Community</p>
               </div>
@@ -147,7 +171,7 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
                   className="btn-spiritual w-full py-4 rounded-full bg-[#D1A559] hover:bg-[#C29548] text-[#201812] font-bold text-xs tracking-widest uppercase shadow-xl flex items-center justify-center gap-2"
                 >
                   <Sparkles className="w-4 h-4" />
-                  <span>Enroll for ₹1,111 & Join WhatsApp</span>
+                  <span>Enroll for ₹{priceLive} & Join WhatsApp</span>
                 </button>
 
                 <button
@@ -159,7 +183,7 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
               </div>
 
               <p className="text-[10px] text-stone-300 italic pt-1">
-                Recordings valid till the 13th day. Extend anytime for 30 days @ ₹555.
+                Recordings valid till the 13th day. Extend anytime for 30 days @ ₹{priceExtension}.
               </p>
             </div>
 
@@ -198,7 +222,7 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
               </p>
 
               <div className="pt-2 border-t border-[#F0EBE1]">
-                <div className="text-2xl font-bold text-[#2C2421] font-sans">₹1,111</div>
+                <div className="text-2xl font-bold text-[#2C2421] font-sans">₹{priceLive.toLocaleString('en-IN')}</div>
                 <span className="text-[10px] text-emerald-700 font-semibold">Includes WhatsApp Community + Live Zoom</span>
               </div>
             </div>
@@ -207,7 +231,7 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
               onClick={handleEnrollLive}
               className="btn-spiritual w-full py-3 rounded-xl bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-xs tracking-wider uppercase shadow-sm flex items-center justify-center gap-1.5"
             >
-              <span>Enroll for Live (₹1,111)</span>
+              <span>Enroll for Live (₹{priceLive})</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -228,13 +252,13 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
                 30-Day Recording Extension
               </h4>
               <p className="text-xs text-stone-600 font-light leading-relaxed">
-                Completed or attended your ₹1,111 live batch? Retain all 11 daily recordings for <strong>30 full days from date of purchase</strong> to deepen your sadhana.
+                Completed or attended your ₹{priceLive} live batch? Retain all 11 daily recordings for <strong>30 full days from date of purchase</strong> to deepen your sadhana.
               </p>
 
               <div className="pt-2 border-t border-[#F0EBE1]">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold text-[#2C2421] font-sans">₹555</span>
-                  <span className="text-xs text-stone-400 line-through">₹1,111</span>
+                  <span className="text-2xl font-bold text-[#2C2421] font-sans">₹{priceExtension}</span>
+                  <span className="text-xs text-stone-400 line-through">₹{priceLive}</span>
                 </div>
                 <span className="text-[10px] text-stone-500 font-medium">Valid 30 Days from Purchase Date</span>
               </div>
@@ -244,11 +268,11 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
               onClick={handleBuyExtension}
               className="btn-spiritual w-full py-3 rounded-xl bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs tracking-wider uppercase shadow-xs"
             >
-              Extend 30 Days (₹555)
+              Extend 30 Days (₹{priceExtension})
             </button>
           </div>
 
-          {/* Card 3: Scenario 2 - Mid-Month Joiner (₹1,500 Full Recordings Pack) */}
+          {/* Card 3: Scenario 2 - Mid-Month Joiner (Full Recordings Pack) */}
           <div className="bg-amber-50/70 rounded-3xl p-6 border-2 border-amber-400 shadow-md hover:shadow-lg transition flex flex-col justify-between space-y-6 relative">
             <span className="absolute -top-3 left-6 px-3 py-0.5 rounded-full bg-amber-600 text-white text-[10px] font-bold uppercase tracking-wider">
               Discovered Mid-Month?
@@ -269,7 +293,7 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
               </p>
 
               <div className="pt-2 border-t border-amber-200">
-                <div className="text-2xl font-bold text-[#2C2421] font-sans">₹1,500</div>
+                <div className="text-2xl font-bold text-[#2C2421] font-sans">₹{priceRecordings.toLocaleString('en-IN')}</div>
                 <span className="text-[10px] text-amber-900 font-semibold">Valid 30 Days from Date of Purchase</span>
               </div>
             </div>
@@ -278,7 +302,7 @@ export const Sessions: React.FC<SessionsProps> = ({ setActiveTab }) => {
               onClick={handleBuyRecordingsOnly}
               className="btn-spiritual w-full py-3 rounded-xl bg-amber-800 hover:bg-amber-900 text-white font-bold text-xs tracking-wider uppercase shadow-sm"
             >
-              Get Recordings Pack (₹1,500)
+              Get Recordings Pack (₹{priceRecordings})
             </button>
           </div>
 

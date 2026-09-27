@@ -1,6 +1,6 @@
 package com.tripura.backend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,9 +14,8 @@ public class MentorBooking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
     private User user;
 
     private String category;
@@ -27,12 +26,19 @@ public class MentorBooking {
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 50)
     private BookingStatus status = BookingStatus.PENDING;
+
+    @Column(columnDefinition = "TEXT")
+    private String notes;
+
+    @Column(columnDefinition = "TEXT")
+    private String meetingLink;
 
     private LocalDateTime createdAt;
 
     public enum BookingStatus {
-        PENDING, CONFIRMED, COMPLETED, CANCELLED
+        PENDING, REQUESTED, CONFIRMED, REJECTED, CANCELLED, COMPLETED
     }
 
     public MentorBooking() {}
@@ -51,6 +57,8 @@ public class MentorBooking {
         private String preferredTimeSlot;
         private BigDecimal amount;
         private BookingStatus status = BookingStatus.PENDING;
+        private String notes;
+        private String meetingLink;
 
         public MentorBookingBuilder id(Long id) { this.id = id; return this; }
         public MentorBookingBuilder user(User user) { this.user = user; return this; }
@@ -61,6 +69,8 @@ public class MentorBooking {
         public MentorBookingBuilder preferredTimeSlot(String preferredTimeSlot) { this.preferredTimeSlot = preferredTimeSlot; return this; }
         public MentorBookingBuilder amount(BigDecimal amount) { this.amount = amount; return this; }
         public MentorBookingBuilder status(BookingStatus status) { this.status = status; return this; }
+        public MentorBookingBuilder notes(String notes) { this.notes = notes; return this; }
+        public MentorBookingBuilder meetingLink(String meetingLink) { this.meetingLink = meetingLink; return this; }
 
         public MentorBooking build() {
             MentorBooking m = new MentorBooking();
@@ -72,14 +82,18 @@ public class MentorBooking {
             m.secondaryDate = this.secondaryDate;
             m.preferredTimeSlot = this.preferredTimeSlot;
             m.amount = this.amount;
-            m.status = this.status;
+            m.status = this.status != null ? this.status : BookingStatus.PENDING;
+            m.notes = this.notes;
+            m.meetingLink = this.meetingLink;
             return m;
         }
     }
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
     }
 
     public Long getId() { return id; }
@@ -87,6 +101,15 @@ public class MentorBooking {
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+
+    @JsonProperty("userName")
+    public String getUserName() { return user != null ? user.getName() : null; }
+
+    @JsonProperty("userEmail")
+    public String getUserEmail() { return user != null ? user.getEmail() : null; }
+
+    @JsonProperty("userPhone")
+    public String getUserPhone() { return user != null ? user.getPhone() : null; }
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
@@ -108,6 +131,12 @@ public class MentorBooking {
 
     public BookingStatus getStatus() { return status; }
     public void setStatus(BookingStatus status) { this.status = status; }
+
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
+
+    public String getMeetingLink() { return meetingLink; }
+    public void setMeetingLink(String meetingLink) { this.meetingLink = meetingLink; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
 }

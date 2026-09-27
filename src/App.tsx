@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { AppProvider } from './context/AppContext';
+import React, { useState, useCallback } from 'react';
+import { AppProvider, useApp } from './context/AppContext';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { AuthModal } from './components/AuthModal';
@@ -20,72 +20,46 @@ import { BookLibrary } from './pages/BookLibrary';
 import { Dashboard } from './pages/Dashboard';
 import { Profile } from './pages/Profile';
 import { AdminPanel } from './components/AdminPanel';
-import { Shield } from 'lucide-react';
+import { Shield, Lock, ArrowLeft } from 'lucide-react';
 
 import { Login } from './pages/Login';
 import { SignUp } from './pages/SignUp';
 import { LoginSuccessTransition } from './components/LoginSuccessTransition';
-import { useApp } from './context/AppContext';
 
 const MainContent: React.FC = () => {
   const {
     isLoginTransitionActive,
     completeLoginSuccessTransition,
-    user,
-    sessionExpiredNotice,
-    setOnSessionExpiredCallback
+    user
   } = useApp();
 
-  // If user reopened the website after 1-minute expiration, open directly at login
-  const [activeTab, setActiveTab] = useState<string>(() => {
-    const savedExpiry = localStorage.getItem('tripura_session_expiry');
-    if (savedExpiry && Date.now() >= Number(savedExpiry)) {
-      return 'login';
-    }
-    return 'home';
-  });
-
+  const [activeTab, setActiveTab] = useState<string>('home');
   const [previewPublicSite, setPreviewPublicSite] = useState<boolean>(false);
-
-  // When 1-minute session expires while active, smoothly transition to Login
-  useEffect(() => {
-    setOnSessionExpiredCallback(() => {
-      setPreviewPublicSite(false);
-      setActiveTab('login');
-    });
-  }, [setOnSessionExpiredCallback]);
-
-  // When session notice triggers and user is logged out, route to login page
-  useEffect(() => {
-    if (sessionExpiredNotice && !user.isLoggedIn && activeTab !== 'login' && activeTab !== 'signup') {
-      setPreviewPublicSite(false);
-      setActiveTab('login');
-    }
-  }, [sessionExpiredNotice, user.isLoggedIn, activeTab]);
 
   const handleTransitionComplete = useCallback(() => {
     completeLoginSuccessTransition();
     setPreviewPublicSite(false);
-    if (user.role !== 'ROLE_ADMIN') {
-      setActiveTab('home');
+    if (user.role === 'ROLE_ADMIN' || user.role === 'ROLE_MASTER') {
+      setActiveTab('admin');
+    } else {
+      setActiveTab('dashboard');
     }
   }, [completeLoginSuccessTransition, user.role]);
 
-  const isAdmin = user.isLoggedIn && user.role === 'ROLE_ADMIN';
+  const isAdmin = user.isLoggedIn && (user.role === 'ROLE_ADMIN' || user.role === 'ROLE_MASTER');
 
   return (
     <>
-      {/* Automatic State-Driven Post-Login Zoom Transition Overlay */}
+      {/* State-Driven Post-Login Transition Overlay */}
       <LoginSuccessTransition
         isActive={isLoginTransitionActive}
         onComplete={handleTransitionComplete}
       />
 
-      {/* ADMIN WORKSPACE ROUTING: When authenticated as Admin, show dedicated Admin Dashboard directly */}
+      {/* Admin Full Workspace View */}
       {isAdmin && !previewPublicSite && !isLoginTransitionActive ? (
         <AdminPanel onPreviewSite={() => setPreviewPublicSite(true)} />
       ) : isLoginTransitionActive ? (
-        // During transition, render Home / ambient background underneath
         <div className="min-h-screen flex flex-col justify-between selection:bg-amber-200 selection:text-amber-900">
           <Header activeTab="home" setActiveTab={setActiveTab} onReturnToAdmin={() => setPreviewPublicSite(false)} />
           <main className="flex-1">
@@ -100,17 +74,17 @@ const MainContent: React.FC = () => {
       ) : (
         <div className="min-h-screen flex flex-col justify-between selection:bg-amber-200 selection:text-amber-900">
           
-          {/* Admin Preview Mode Top Bar (Only visible when Admin is previewing public seeker website) */}
+          {/* Admin Preview Mode Banner */}
           {isAdmin && previewPublicSite && (
             <div className="bg-[#191421] border-b border-purple-800/60 px-4 sm:px-8 py-2.5 flex items-center justify-between text-xs sticky top-0 z-50 shadow-xl">
               <div className="flex items-center gap-2.5">
                 <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="font-bold tracking-wider text-amber-300 uppercase font-mono text-[11px]">Admin Preview Mode</span>
-                <span className="text-stone-300 hidden md:inline text-xs">— Viewing public seeker experience as administrator ({user.email || user.name}).</span>
+                <span className="text-stone-300 hidden md:inline text-xs">— Viewing public seeker portal as administrator ({user.email || user.name}).</span>
               </div>
               <button
                 onClick={() => setPreviewPublicSite(false)}
-                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-700 to-amber-600 hover:from-purple-600 hover:to-amber-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-md hover:-translate-y-0.5"
+                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-700 to-amber-600 hover:from-purple-600 hover:to-amber-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-md hover:-translate-y-0.5 cursor-pointer"
               >
                 <Shield className="w-3.5 h-3.5 text-amber-200" />
                 <span>Return to Admin Dashboard</span>
@@ -133,15 +107,38 @@ const MainContent: React.FC = () => {
             {activeTab === 'onetoone' && <OneToOne />}
             {activeTab === 'dashboard' && <Dashboard setActiveTab={setActiveTab} />}
             {activeTab === 'profile' && <Profile setActiveTab={setActiveTab} />}
-            {activeTab === 'admin' && <AdminPanel onPreviewSite={() => setPreviewPublicSite(true)} />}
+            
+            {/* Protected Admin Tab with Real Authorization Guard */}
+            {activeTab === 'admin' && (
+              isAdmin ? (
+                <AdminPanel onPreviewSite={() => setPreviewPublicSite(true)} />
+              ) : (
+                <div className="max-w-md mx-auto py-24 px-6 text-center space-y-5 animate-fadeIn">
+                  <div className="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto shadow-inner">
+                    <Lock className="w-8 h-8" />
+                  </div>
+                  <h2 className="font-serif text-2xl font-bold text-stone-900">Access Restricted</h2>
+                  <p className="text-xs text-stone-600 leading-relaxed">
+                    This section requires Administrator privileges. Your current account does not have permission to access the Tripura Spiritual administrative workspace.
+                  </p>
+                  <button
+                    onClick={() => setActiveTab('home')}
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold uppercase tracking-wider transition cursor-pointer"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span>Return to Home</span>
+                  </button>
+                </div>
+              )
+            )}
           </main>
 
-          {/* Modals & Presentation Overlays */}
+          {/* Modals & Overlays */}
           <AuthModal onSuccessRedirect={() => {
-            if (user.role === 'ROLE_ADMIN') {
+            if (isAdmin) {
               setPreviewPublicSite(false);
             } else {
-              setActiveTab('home');
+              setActiveTab('dashboard');
             }
           }} />
           <PaymentModal onSuccessNavigate={() => setActiveTab('dashboard')} />
@@ -149,7 +146,7 @@ const MainContent: React.FC = () => {
           <BookLibraryDrawer onNavigateToFullPage={() => setActiveTab('book-library')} />
           <BookAudioPlayerModal />
 
-          {/* Floating Right Side Sacred Books & Podcasts Button */}
+          {/* Floating Sacred Books & Podcasts Button */}
           <FloatingBookButton />
 
           {/* Footer */}

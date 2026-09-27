@@ -2,12 +2,19 @@ spring:
   application:
     name: backend
 
+  # Multipart Upload Configuration (Up to 500MB for Audio/Video files)
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: ${MAX_FILE_SIZE:500MB}
+      max-request-size: ${MAX_REQUEST_SIZE:500MB}
+
   # Database Configuration (PostgreSQL with Environment Variable Overrides & Least-Privilege Support)
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/tripuradb}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/Tripura-Spiritual}
     driver-class-name: org.postgresql.Driver
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:surya123}
+    password: ${DB_PASSWORD:Srinivasnani123}
     hikari:
       maximum-pool-size: 20
       minimum-idle: 5
@@ -25,10 +32,11 @@ spring:
       hibernate:
         format_sql: false
 
-  # Flyway Database Migration Management (Enabled via env var FLYWAY_ENABLED=true for staging/production)
+  # Flyway Database Migration Management
   flyway:
-    enabled: ${FLYWAY_ENABLED:false}
+    enabled: ${FLYWAY_ENABLED:true}
     baseline-on-migrate: true
+    baseline-version: 0
     locations: classpath:db/migration
 
 server:

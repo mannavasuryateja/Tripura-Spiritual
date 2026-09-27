@@ -1,6 +1,7 @@
 package com.tripura.backend.controller;
 
-import com.tripura.backend.dto.EnrollmentRequestDto;
+import com.tripura.backend.dto.PaymentOrderRequestDto;
+import com.tripura.backend.dto.PaymentVerifyRequestDto;
 import com.tripura.backend.model.Payment;
 import com.tripura.backend.model.User;
 import com.tripura.backend.service.PaymentService;
@@ -10,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -22,35 +24,70 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
+    /**
+     * Create checkout order for any product (Live session, extension, recordings-only, book audio, 1-on-1)
+     */
     @PostMapping("/create-order")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Payment> createOrder(
+    public ResponseEntity<Map<String, Object>> createOrder(
             @AuthenticationPrincipal User user,
-            @Valid @RequestBody EnrollmentRequestDto request) {
+            @Valid @RequestBody PaymentOrderRequestDto request) {
 
-        Payment order = paymentService.createRazorpayOrder(user.getId(), request.getSessionId(), request.getType());
+        Map<String, Object> order = paymentService.createOrder(user.getId(), request);
         return ResponseEntity.ok(order);
     }
 
-    @PostMapping("/verify-and-fulfill")
+    /**
+     * Verify payment and atomically fulfill the entitlement
+     */
+    @PostMapping("/verify")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> verifyAndFulfill(
+    public ResponseEntity<?> verifyPayment(
             @AuthenticationPrincipal User user,
+            @Valid @RequestBody PaymentVerifyRequestDto verifyDto) {
+
+        Map<String, Object> result = paymentService.verifyPaymentAndFulfill(user.getId(), verifyDto);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * Report payment failure or user cancellation
+     */
+    @PostMapping("/fail")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> failPayment(
+            @AuthenticationPrincipal User user,
+            @RequestBody Map<String, String> body) {
+
+        String orderId = body.get("orderId");
+        String reason = body.getOrDefault("reason", "Cancelled by seeker");
+        if (orderId != null) {
+            paymentService.recordPaymentFailure(user.getId(), orderId, reason);
+        }
+        return ResponseEntity.ok(Map.of("success", true, "message", "Payment status updated to failed/cancelled"));
+    }
+
+    /**
+     * Seeker: Get personal purchase history
+     */
+    @GetMapping("/my-purchases")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<Payment>> getMyPurchases(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(paymentService.getUserPurchases(user.getId()));
+    }
+
+    /**
+     * Razorpay / Payment Gateway Webhook (Idempotent)
+     */
+    @PostMapping("/webhook")
+    public ResponseEntity<?> handlePaymentWebhook(
+            @RequestHeader(value = "X-Razorpay-Event-Id", required = false) String eventId,
             @RequestBody Map<String, Object> payload) {
 
-        Long sessionId = Long.parseLong(payload.get("sessionId").toString());
-        String typeStr = payload.get("type").toString();
-        String paymentId = payload.get("razorpayPaymentId").toString();
+        String id = eventId != null ? eventId : "evt_" + System.currentTimeMillis();
+        String eventType = payload.getOrDefault("event", "payment.captured").toString();
 
-        com.tripura.backend.model.Enrollment.EnrollmentType type =
-                com.tripura.backend.model.Enrollment.EnrollmentType.valueOf(typeStr);
-
-        String whatsappInviteUrl = paymentService.verifyPaymentAndFulfill(user.getId(), sessionId, type, paymentId);
-
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "Payment verified and enrollment granted!",
-                "whatsappCommunityUrl", whatsappInviteUrl
-        ));
+        paymentService.processWebhook("RAZORPAY", id, eventType, payload.toString());
+        return ResponseEntity.ok(Map.of("status", "ok"));
     }
 }

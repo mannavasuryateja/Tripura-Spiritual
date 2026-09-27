@@ -27,6 +27,13 @@ public class MentorService {
 
         validateBookingDates(request.getPrimaryDate(), request.getSecondaryDate());
 
+        boolean alreadyBooked = mentorBookingRepository.findByUserId(userId).stream()
+                .anyMatch(b -> b.getPrimaryDate().equals(request.getPrimaryDate()) 
+                        && b.getStatus() != MentorBooking.BookingStatus.CANCELLED);
+        if (alreadyBooked) {
+            throw new IllegalArgumentException("You already have an active consultation booking on this date.");
+        }
+
         BigDecimal amount = request.getDurationMinutes() == 30 ? new BigDecimal("499.00") : new BigDecimal("899.00");
 
         MentorBooking booking = MentorBooking.builder()
@@ -44,6 +51,14 @@ public class MentorService {
     }
 
     private void validateBookingDates(LocalDate primary, LocalDate secondary) {
+        LocalDate today = LocalDate.now();
+        if (primary.isBefore(today)) {
+            throw new IllegalArgumentException("Primary consultation date cannot be in the past.");
+        }
+        if (secondary.isBefore(today)) {
+            throw new IllegalArgumentException("Secondary consultation date cannot be in the past.");
+        }
+
         if (isDateLocked(primary)) {
             throw new IllegalArgumentException("Primary preferred date falls between the 1st and 12th of the month. " +
                     "Master is conducting 11-day live immersions and review sessions. Please select a date from the 13th onwards.");

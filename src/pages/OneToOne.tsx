@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { CheckCircle2, Sparkles, Lock, AlertCircle } from 'lucide-react';
 import { ScrollReveal } from '../components/ScrollReveal';
+import { mentorApi } from '../api/client';
 
 export const OneToOne: React.FC = () => {
-  const { openPaymentModal, t } = useApp();
+  const { openPaymentModal, openAuthModal, user, t } = useApp();
   const [selectedCategory, setSelectedCategory] = useState('spiritual');
   const [selectedDuration, setSelectedDuration] = useState<30 | 60>(30);
   const [primaryDate, setPrimaryDate] = useState('2026-10-15');
   const [secondaryDate, setSecondaryDate] = useState('2026-10-18');
   const [preferredTime, setPreferredTime] = useState('10:00 AM');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   const categories = [
@@ -28,9 +30,14 @@ export const OneToOne: React.FC = () => {
     return day >= 1 && day <= 12;
   };
 
-  const handleBooking = (e: React.FormEvent) => {
+  const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!user.isLoggedIn) {
+      openAuthModal();
+      return;
+    }
 
     if (isDateLocked(primaryDate)) {
       setError('Primary date falls between the 1st and 12th (Reserved for Master’s 11-day live immersion). Please select a date from the 13th onwards.');
@@ -47,13 +54,32 @@ export const OneToOne: React.FC = () => {
       return;
     }
 
-    openPaymentModal({
-      id: `1on1-${selectedCategory}-${selectedDuration}`,
-      name: `1-on-1 Guidance with Master (${selectedDuration} Mins)`,
-      price,
-      type: '1on1',
-      details: `1st Choice: ${primaryDate} | 2nd Choice: ${secondaryDate} at ${preferredTime}`
-    });
+    setIsSubmitting(true);
+    try {
+      const bookingRes = await mentorApi.bookSession({
+        category: selectedCategory,
+        durationMinutes: selectedDuration,
+        primaryDate,
+        secondaryDate,
+        preferredTimeSlot: preferredTime
+      });
+
+      const booking = bookingRes.data || bookingRes;
+
+      openPaymentModal({
+        id: `1on1-${booking.id}`,
+        name: `1-on-1 Guidance with Master (${selectedDuration} Mins)`,
+        price,
+        type: '1on1',
+        details: `1st Choice: ${primaryDate} | 2nd Choice: ${secondaryDate} at ${preferredTime}`,
+        bookingId: booking.id
+      });
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || 'Unable to schedule booking. Please ensure selected dates are valid.';
+      setError(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -237,10 +263,11 @@ export const OneToOne: React.FC = () => {
             {/* Submit */}
             <button
               type="submit"
-              className="btn-spiritual w-full py-4 rounded-2xl bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-sm tracking-wider uppercase shadow-lg flex items-center justify-center gap-2"
+              disabled={isSubmitting}
+              className="btn-spiritual w-full py-4 rounded-2xl bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-sm tracking-wider uppercase shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <Sparkles className="w-5 h-5 text-amber-300" />
-              <span>Book Consultation (₹{price})</span>
+              <span>{isSubmitting ? 'Scheduling Booking...' : `Book Consultation (₹${price})`}</span>
             </button>
           </form>
         </ScrollReveal>

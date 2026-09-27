@@ -1,62 +1,209 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
-import { X, Play, Pause, RotateCcw, RotateCw, Volume2, VolumeX, Radio, Sparkles, BookOpen } from 'lucide-react';
+import { X, Play, Pause, RotateCcw, RotateCw, Volume2, VolumeX, Radio, Sparkles, BookOpen, Lock, Loader2, AlertCircle } from 'lucide-react';
+import { booksApi } from '../api/client';
 
 export const BookAudioPlayerModal: React.FC = () => {
   const { isBookAudioOpen, closeBookAudioPlayer, currentBookAudio, unlockedBooks, openPaymentModal } = useApp();
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoadingMedia, setIsLoadingMedia] = useState(false);
+  const [mediaError, setMediaError] = useState<string | null>(null);
   const [currentChapterIdx, setCurrentChapterIdx] = useState(0);
   const [activeTab, setActiveTab] = useState<'player' | 'summary'>('player');
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
-  
-  // Timer state in seconds for simulated audio playback
-  const [currentTimeSec, setCurrentTimeSec] = useState(45); // Start with 45s played
+  const [currentTimeSec, setCurrentTimeSec] = useState(0);
+  const [durationSec, setDurationSec] = useState(0);
+  const [activeStreamUrl, setActiveStreamUrl] = useState<string | null>(null);
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const rawChapters = currentBookAudio?.chapters || currentBookAudio?.episodes || [];
+  const isBookUnlocked = currentBookAudio ? unlockedBooks.some(id => String(id) === String(currentBookAudio.id)) : false;
+  const activeChapter = rawChapters[currentChapterIdx] || rawChapters[0];
+  const isChapterUnlocked = isBookUnlocked || (activeChapter?.isFree ?? false);
+  const isPreviewLimitReached = !isChapterUnlocked && currentTimeSec >= 300;
+
+  // Resolve stream URL whenever chapter or book changes
+  const loadStreamForChapter = useCallback(async (bookId: number | string, chapterIdx: number) => {
+    const ch = rawChapters[chapterIdx];
+    if (!ch) return;
+
+    setIsLoadingMedia(true);
+    setMediaError(null);
+    try {
+      if (ch.id) {
+        const res = await booksApi.playEpisode(Number(bookId), Number(ch.id));
+        if (res.data?.streamUrl) {
+          setActiveStreamUrl(res.data.streamUrl);
+          return;
+        }
+      }
+      // If direct URL is present and seeker is unlocked or chapter is free
+      const directUrl = ch.audioUrl || ch.videoUrl;
+      if (directUrl && (isBookUnlocked || ch.isFree)) {
+        setActiveStreamUrl(directUrl);
+      } else if (!isBookUnlocked && !ch.isFree) {
+        setActiveStreamUrl(null);
+        setMediaError("This sacred discourse is locked. Please unlock the complete book to listen.");
+      } else {
+        setActiveStreamUrl(null);
+      }
+    } catch (err: any) {
+      setActiveStreamUrl(null);
+      if (err.response?.status === 403 || err.response?.status === 401) {
+        setMediaError("This sacred discourse is locked. Please unlock the complete book to listen.");
+      } else {
+        setMediaError(err.response?.data?.message || "Media stream unavailable.");
+      }
+    } finally {
+      setIsLoadingMedia(false);
+    }
+  }, [rawChapters, isBookUnlocked]);
 
   useEffect(() => {
-    if (isBookAudioOpen) {
-      setIsPlaying(true);
-      setCurrentTimeSec(45);
+    if (isBookAudioOpen && currentBookAudio) {
       setCurrentChapterIdx(0);
+      setCurrentTimeSec(0);
       setActiveTab('player');
-
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') closeBookAudioPlayer();
-      };
-      window.addEventListener('keydown', handleKeyDown);
-      return () => {
-        window.removeEventListener('keydown', handleKeyDown);
-      };
+      loadStreamForChapter(currentBookAudio.id, 0);
+    } else {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      setIsPlaying(false);
+      setActiveStreamUrl(null);
     }
-  }, [isBookAudioOpen, closeBookAudioPlayer]);
+  }, [isBookAudioOpen, currentBookAudio, loadStreamForChapter]);
 
-  // Audio timer ticker simulation
+  // Handle stream URL change on audio element
   useEffect(() => {
-    let interval: any = null;
-    if (isBookAudioOpen && isPlaying) {
-      interval = setInterval(() => {
-        setCurrentTimeSec(prev => {
-          const isFullyUnlocked = isBookUnlocked || (currentBookAudio?.chapters[currentChapterIdx]?.isFree ?? false);
-          // If not unlocked, clamp at 300 seconds (5 minutes)
-          if (!isFullyUnlocked && prev >= 300) {
-            setIsPlaying(false);
-            return 300;
-          }
-          return prev + 1;
-        });
-      }, 1000 / playbackSpeed);
+    if (!audioRef.current) return;
+    if (activeStreamUrl) {
+      audioRef.current.src = activeStreamUrl;
+      audioRef.current.playbackRate = playbackSpeed;
+      audioRef.current.muted = isMuted;
+      audioRef.current.load();
+      audioRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch(() => {
+        // Autoplay may be prevented until user interaction
+        setIsPlaying(false);
+      });
+    } else {
+      audioRef.current.pause();
+      audioRef.current.removeAttribute('src');
+      setIsPlaying(false);
     }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isBookAudioOpen, isPlaying, playbackSpeed, currentChapterIdx, currentBookAudio, unlockedBooks]);
+  }, [activeStreamUrl]);
+
+  // Audio event listeners
+  const onTimeUpdate = () => {
+    if (!audioRef.current) return;
+    const cur = audioRef.current.currentTime;
+    setCurrentTimeSec(cur);
+
+    // Free preview enforcement: 5 minutes limit (300 seconds)
+    if (!isChapterUnlocked && cur >= 300) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 300;
+      setIsPlaying(false);
+    }
+  };
+
+  const onLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDurationSec(audioRef.current.duration || 0);
+      setIsLoadingMedia(false);
+    }
+  };
+
+  const togglePlay = () => {
+    if (!audioRef.current) return;
+
+    if (isPreviewLimitReached) {
+      handleUnlockFull();
+      return;
+    }
+
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch(() => {
+        setMediaError("Unable to play audio. Please click play to try again.");
+      });
+    }
+  };
+
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!audioRef.current) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickRatio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const total = durationSec > 0 ? durationSec : 2400;
+    const targetSeconds = clickRatio * total;
+
+    if (!isChapterUnlocked && targetSeconds > 300) {
+      audioRef.current.currentTime = 300;
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.currentTime = targetSeconds;
+      setCurrentTimeSec(targetSeconds);
+    }
+  };
+
+  const skipTime = (seconds: number) => {
+    if (!audioRef.current) return;
+    const nextTime = Math.max(0, audioRef.current.currentTime + seconds);
+    if (!isChapterUnlocked && nextTime > 300) {
+      audioRef.current.currentTime = 300;
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.currentTime = nextTime;
+      setCurrentTimeSec(nextTime);
+    }
+  };
+
+  const changeSpeed = (speed: number) => {
+    setPlaybackSpeed(speed);
+    if (audioRef.current) {
+      audioRef.current.playbackRate = speed;
+    }
+  };
+
+  const toggleMute = () => {
+    const nextMute = !isMuted;
+    setIsMuted(nextMute);
+    if (audioRef.current) {
+      audioRef.current.muted = nextMute;
+    }
+  };
+
+  const selectChapter = (idx: number) => {
+    if (!currentBookAudio) return;
+    setCurrentChapterIdx(idx);
+    setCurrentTimeSec(0);
+    loadStreamForChapter(currentBookAudio.id, idx);
+  };
+
+  const handleUnlockFull = () => {
+    if (!currentBookAudio) return;
+    closeBookAudioPlayer();
+    openPaymentModal({
+      id: `book-${currentBookAudio.id}`,
+      name: `${currentBookAudio.title} - Complete Discourse Audio`,
+      price: currentBookAudio.price,
+      type: 'book-audio',
+      details: `Full Audio Access • All ${currentBookAudio.episodesCount || rawChapters.length} Chapters Unlocked Forever`,
+      bookId: Number(currentBookAudio.id)
+    });
+  };
 
   if (!isBookAudioOpen || !currentBookAudio) return null;
-
-  const isBookUnlocked = unlockedBooks.includes(currentBookAudio.id);
-  const activeChapter = currentBookAudio.chapters[currentChapterIdx] || currentBookAudio.chapters[0];
-  const isChapterUnlocked = isBookUnlocked || activeChapter.isFree;
-  const isPreviewLimitReached = !isChapterUnlocked && currentTimeSec >= 300;
 
   const formatSeconds = (sec: number) => {
     const m = Math.floor(sec / 60);
@@ -64,60 +211,44 @@ export const BookAudioPlayerModal: React.FC = () => {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickRatio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const targetSeconds = clickRatio * 2400; // Assume 40 min avg
-
-    if (!isChapterUnlocked && targetSeconds > 300) {
-      setCurrentTimeSec(300);
-      setIsPlaying(false);
-    } else {
-      setCurrentTimeSec(Math.round(targetSeconds));
-    }
-  };
-
-  const skipTime = (seconds: number) => {
-    setCurrentTimeSec(prev => {
-      const nextTime = Math.max(0, prev + seconds);
-      if (!isChapterUnlocked && nextTime > 300) {
-        return 300;
-      }
-      return nextTime;
-    });
-  };
-
-  const handleUnlockFull = () => {
-    closeBookAudioPlayer();
-    openPaymentModal({
-      id: `book-${currentBookAudio.id}`,
-      name: `${currentBookAudio.title} - Complete Commentary Podcast`,
-      price: currentBookAudio.price,
-      type: 'book-audio',
-      details: `Full Audio Access • All ${currentBookAudio.episodesCount} Chapters Unlocked Forever`
-    });
-  };
-
-  // Progress percentage (out of 5 mins for preview or out of 40 mins for unlocked)
-  const maxDisplaySec = isChapterUnlocked ? 2400 : 300;
-  const progressPercent = Math.min(100, (currentTimeSec / maxDisplaySec) * 100);
+  const maxDisplaySec = isChapterUnlocked ? (durationSec > 0 ? durationSec : 2400) : 300;
+  const progressPercent = maxDisplaySec > 0 ? Math.min(100, (currentTimeSec / maxDisplaySec) * 100) : 0;
 
   return (
     <div 
       onClick={(e) => { if (e.target === e.currentTarget) closeBookAudioPlayer(); }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/85 backdrop-blur-md animate-backdrop-fade overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/85 backdrop-blur-md animate-fadeIn overflow-y-auto"
     >
-      <div className="bg-[#241C1A] text-white rounded-3xl max-w-2xl w-full border border-amber-500/30 shadow-2xl overflow-hidden relative flex flex-col my-auto max-h-[92vh] animate-modal-scale-in animate-sacred-glow">
+      {/* Real HTML5 Audio Element */}
+      <audio
+        ref={audioRef}
+        onTimeUpdate={onTimeUpdate}
+        onLoadedMetadata={onLoadedMetadata}
+        onWaiting={() => setIsLoadingMedia(true)}
+        onCanPlay={() => setIsLoadingMedia(false)}
+        onError={() => {
+          setIsLoadingMedia(false);
+          setMediaError("Media stream could not be loaded.");
+        }}
+        onEnded={() => {
+          setIsPlaying(false);
+          if (currentChapterIdx < rawChapters.length - 1) {
+            selectChapter(currentChapterIdx + 1);
+          }
+        }}
+      />
+
+      <div className="bg-[#241C1A] text-white rounded-3xl max-w-2xl w-full border border-amber-500/30 shadow-2xl overflow-hidden relative flex flex-col my-auto max-h-[92vh]">
         
         {/* Top Header */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-stone-800 bg-[#1D1615] shrink-0">
           <div className="flex items-center gap-2.5">
             <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center text-xs">
-              <Radio className="w-4 h-4 text-amber-400 animate-pulse" />
+              <Radio className={`w-4 h-4 text-amber-400 ${isPlaying ? 'animate-pulse' : ''}`} />
             </span>
             <div>
               <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 block">
-                Tripura Spiritual Audio Podcast
+                Tripura Spiritual Audio Discourse
               </span>
               <h3 className="font-serif text-base font-bold text-stone-100 truncate max-w-xs sm:max-w-md">
                 {currentBookAudio.title}
@@ -133,7 +264,7 @@ export const BookAudioPlayerModal: React.FC = () => {
           </button>
         </div>
 
-        {/* Tab Selector: 🎙️ Audio Podcast vs 📖 Problem Statement & Summary */}
+        {/* Tab Selector */}
         <div className="flex border-b border-stone-800 bg-[#1F1816] px-6">
           <button
             onClick={() => setActiveTab('player')}
@@ -144,7 +275,7 @@ export const BookAudioPlayerModal: React.FC = () => {
             }`}
           >
             <Radio className="w-3.5 h-3.5" />
-            <span>Podcast Player ({isChapterUnlocked ? 'Full' : '5-Min Free Preview'})</span>
+            <span>Audio Player ({isChapterUnlocked ? 'Full Unlocked' : '5-Min Free Preview'})</span>
           </button>
 
           <button
@@ -160,7 +291,7 @@ export const BookAudioPlayerModal: React.FC = () => {
           </button>
         </div>
 
-        {/* View 1: Audio Player */}
+        {/* Tab 1: Audio Player */}
         {activeTab === 'player' && (
           <div className="p-6 sm:p-8 space-y-6 flex-1 overflow-y-auto">
             
@@ -176,6 +307,14 @@ export const BookAudioPlayerModal: React.FC = () => {
                 <span className="px-2.5 py-1 rounded-full bg-amber-400 text-stone-950 text-[10px] font-bold uppercase tracking-wider shrink-0 font-mono">
                   {formatSeconds(Math.max(0, 300 - currentTimeSec))} Left
                 </span>
+              </div>
+            )}
+
+            {/* Error banner if media fails */}
+            {mediaError && (
+              <div className="p-3 rounded-xl bg-rose-950/70 border border-rose-500/40 text-rose-200 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                <span>{mediaError}</span>
               </div>
             )}
 
@@ -203,10 +342,10 @@ export const BookAudioPlayerModal: React.FC = () => {
 
               <div className="space-y-1 max-w-md">
                 <span className="inline-block px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold uppercase tracking-wider">
-                  Chapter {currentChapterIdx + 1} of {currentBookAudio.chapters.length}
+                  Chapter {currentChapterIdx + 1} of {rawChapters.length}
                 </span>
                 <h4 className="font-serif text-lg font-bold text-amber-100">
-                  {activeChapter.title}
+                  {activeChapter?.title || 'Sacred Discourse'}
                 </h4>
                 <p className="text-xs text-stone-400">
                   Commentary by Master Gorli Peddi Raju Garu
@@ -220,14 +359,14 @@ export const BookAudioPlayerModal: React.FC = () => {
                 <div>
                   <h5 className="font-serif font-bold text-sm">5-Minute Free Preview Completed</h5>
                   <p className="text-[11px] text-amber-100">
-                    Unlock all {currentBookAudio.episodesCount} audio chapters forever for just ₹{currentBookAudio.price}.
+                    Unlock all {currentBookAudio.episodesCount || rawChapters.length} audio chapters forever for just ₹{currentBookAudio.price}.
                   </p>
                 </div>
                 <button
                   onClick={handleUnlockFull}
                   className="px-5 py-2.5 rounded-xl bg-white text-stone-900 font-bold text-xs uppercase tracking-wider shadow-md hover:bg-stone-100 transition shrink-0"
                 >
-                  Unlock Podcast (₹{currentBookAudio.price})
+                  Unlock Discourse (₹{currentBookAudio.price})
                 </button>
               </div>
             )}
@@ -236,14 +375,14 @@ export const BookAudioPlayerModal: React.FC = () => {
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs text-stone-400 font-mono">
                 <span>{formatSeconds(currentTimeSec)}</span>
-                <span>{isChapterUnlocked ? activeChapter.duration : '05:00 (Free Preview)'}</span>
+                <span>{isChapterUnlocked ? (activeChapter?.duration || formatSeconds(durationSec)) : '05:00 (Free Preview)'}</span>
               </div>
               <div
                 onClick={handleSeek}
                 className="h-2.5 bg-stone-800 rounded-full overflow-hidden cursor-pointer relative"
               >
                 <div
-                  className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-200"
+                  className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-150"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -255,17 +394,17 @@ export const BookAudioPlayerModal: React.FC = () => {
               {/* Left Controls: Speed & Mute */}
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setPlaybackSpeed(playbackSpeed === 1 ? 1.25 : playbackSpeed === 1.25 ? 1.5 : 1)}
+                  onClick={() => changeSpeed(playbackSpeed === 1 ? 1.25 : playbackSpeed === 1.25 ? 1.5 : 1)}
                   className="px-2.5 py-1 rounded bg-stone-800 hover:bg-stone-700 text-xs font-mono font-bold text-amber-300 transition"
                   title="Playback Speed"
                 >
                   {playbackSpeed}x
                 </button>
                 <button
-                  onClick={() => setIsMuted(!isMuted)}
+                  onClick={toggleMute}
                   className="p-2 rounded-full hover:bg-stone-800 text-stone-300 transition"
                 >
-                  {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4" />}
+                  {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4 text-stone-300" />}
                 </button>
               </div>
 
@@ -280,16 +419,17 @@ export const BookAudioPlayerModal: React.FC = () => {
                 </button>
 
                 <button
-                  onClick={() => {
-                    if (isPreviewLimitReached) {
-                      handleUnlockFull();
-                    } else {
-                      setIsPlaying(!isPlaying);
-                    }
-                  }}
-                  className="p-4 rounded-full bg-amber-600 hover:bg-amber-500 text-white shadow-xl transition transform hover:scale-105"
+                  onClick={togglePlay}
+                  disabled={isLoadingMedia}
+                  className="p-4 rounded-full bg-amber-600 hover:bg-amber-500 text-white shadow-xl transition transform hover:scale-105 disabled:opacity-50"
                 >
-                  {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
+                  {isLoadingMedia ? (
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  ) : isPlaying ? (
+                    <Pause className="w-6 h-6" />
+                  ) : (
+                    <Play className="w-6 h-6 ml-0.5" />
+                  )}
                 </button>
 
                 <button
@@ -305,14 +445,14 @@ export const BookAudioPlayerModal: React.FC = () => {
               <div className="flex items-center gap-1.5 text-xs text-stone-400">
                 <button
                   disabled={currentChapterIdx === 0}
-                  onClick={() => { setCurrentChapterIdx(prev => Math.max(0, prev - 1)); setCurrentTimeSec(0); }}
+                  onClick={() => selectChapter(Math.max(0, currentChapterIdx - 1))}
                   className="px-2.5 py-1 rounded bg-stone-800 hover:bg-stone-700 disabled:opacity-40 transition"
                 >
                   Prev
                 </button>
                 <button
-                  disabled={currentChapterIdx === currentBookAudio.chapters.length - 1}
-                  onClick={() => { setCurrentChapterIdx(prev => Math.min(currentBookAudio.chapters.length - 1, prev + 1)); setCurrentTimeSec(0); }}
+                  disabled={currentChapterIdx === rawChapters.length - 1}
+                  onClick={() => selectChapter(Math.min(rawChapters.length - 1, currentChapterIdx + 1))}
                   className="px-2.5 py-1 rounded bg-stone-800 hover:bg-stone-700 disabled:opacity-40 transition"
                 >
                   Next
@@ -325,31 +465,27 @@ export const BookAudioPlayerModal: React.FC = () => {
             <div className="space-y-2 pt-4 border-t border-stone-800">
               <div className="flex justify-between items-center text-xs">
                 <span className="font-bold text-stone-400 uppercase tracking-wider">
-                  Podcast Chapters
+                  Discourse Chapters ({rawChapters.length})
                 </span>
                 {!isBookUnlocked && (
                   <button
                     onClick={handleUnlockFull}
                     className="text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1"
                   >
-                    <span>Unlock All ({currentBookAudio.episodesCount}) for ₹{currentBookAudio.price}</span>
+                    <span>Unlock All for ₹{currentBookAudio.price}</span>
                   </button>
                 )}
               </div>
 
-              <div className="space-y-1 max-h-36 overflow-y-auto pr-1 text-xs">
-                {currentBookAudio.chapters.map((ch, idx) => {
+              <div className="space-y-1 max-h-40 overflow-y-auto pr-1 text-xs">
+                {rawChapters.map((ch, idx) => {
                   const isSelected = idx === currentChapterIdx;
                   const isItemAccessible = isBookUnlocked || ch.isFree;
 
                   return (
                     <button
                       key={idx}
-                      onClick={() => {
-                        setCurrentChapterIdx(idx);
-                        setCurrentTimeSec(0);
-                        setIsPlaying(true);
-                      }}
+                      onClick={() => selectChapter(idx)}
                       className={`w-full p-2.5 rounded-xl text-left flex items-center justify-between transition ${
                         isSelected
                           ? 'bg-amber-500/20 text-amber-200 border border-amber-500/40'
@@ -363,9 +499,13 @@ export const BookAudioPlayerModal: React.FC = () => {
 
                       <span className="flex items-center gap-2 shrink-0 font-mono text-[11px]">
                         <span>{ch.duration}</span>
-                        {!isItemAccessible && (
-                          <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] uppercase font-bold">
-                            5m Free
+                        {!isItemAccessible ? (
+                          <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] uppercase font-bold flex items-center gap-1">
+                            <Lock className="w-2.5 h-2.5" /> 5m Free
+                          </span>
+                        ) : (
+                          <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[9px] uppercase font-bold">
+                            Full
                           </span>
                         )}
                       </span>
@@ -378,7 +518,7 @@ export const BookAudioPlayerModal: React.FC = () => {
           </div>
         )}
 
-        {/* View 2: Free Problem Statement & Summary */}
+        {/* Tab 2: Free Problem Statement & Summary */}
         {activeTab === 'summary' && (
           <div className="p-6 sm:p-8 space-y-6 flex-1 overflow-y-auto animate-fadeIn text-stone-200 text-xs">
             
@@ -388,7 +528,7 @@ export const BookAudioPlayerModal: React.FC = () => {
                 The Core Problem Statement Solved
               </span>
               <p className="text-sm text-stone-100 font-serif leading-relaxed">
-                "{currentBookAudio.problemStatement}"
+                "{currentBookAudio.problemStatement || 'Discover liberation from existential suffering through the master’s inquiry.'}"
               </p>
             </div>
 
@@ -398,13 +538,13 @@ export const BookAudioPlayerModal: React.FC = () => {
                 Narrative Summary & Methodology
               </span>
               <p className="text-stone-300 leading-relaxed font-light text-xs sm:text-sm">
-                {currentBookAudio.summaryStory}
+                {currentBookAudio.summaryStory || currentBookAudio.synopsis || 'Direct, uncompromising discourses revealing non-dual consciousness.'}
               </p>
             </div>
 
             {/* Master's Key Direct Pointer */}
             <div className="p-4 rounded-2xl bg-[#1A1413] border border-stone-800 italic text-amber-200 leading-relaxed">
-              "{currentBookAudio.masterQuote}"
+              "{currentBookAudio.masterQuote || 'You are the awareness in which thoughts arise and subside.'}"
               <span className="block not-italic text-stone-400 text-[10px] uppercase font-bold mt-2">
                 — Master Gorli Peddi Raju Garu
               </span>
@@ -416,15 +556,17 @@ export const BookAudioPlayerModal: React.FC = () => {
                 className="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold text-xs transition flex items-center gap-1.5"
               >
                 <Play className="w-3.5 h-3.5" />
-                <span>Listen to 5-Min Preview</span>
+                <span>Listen to Discourse</span>
               </button>
 
-              <button
-                onClick={handleUnlockFull}
-                className="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs uppercase tracking-wider transition shadow-md"
-              >
-                Unlock Full Audio (₹{currentBookAudio.price})
-              </button>
+              {!isBookUnlocked && (
+                <button
+                  onClick={handleUnlockFull}
+                  className="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs uppercase tracking-wider transition shadow-md"
+                >
+                  Unlock Full Audio (₹{currentBookAudio.price})
+                </button>
+              )}
             </div>
 
           </div>

@@ -96,7 +96,7 @@ export const en = {
     duration: "45 Minutes Full Class",
     price: "100% FREE",
     watchPreview: "WATCH FREE ORIENTATION CLASS",
-    buyDemo: "EXPLORE LIVE SESSIONS (₹1111)"
+    buyDemo: "EXPLORE LIVE SESSIONS"
   },
   oneToOne: {
     title: "Private 1-on-1 Guidance with the Master",
@@ -129,7 +129,7 @@ export const en = {
     unlockPrompt: "Enroll in session to unlock this recording",
     day: "Day",
     expiryInfo: "Recordings accessible until",
-    extensionPrompt: "Want to keep recordings for 21 more days? Live attendees get 49% discount at ₹555!",
+    extensionPrompt: "Want to keep recordings longer? Live attendees get an exclusive loyalty extension discount!",
     joinWhatsAppBtn: "Join WhatsApp Live Community",
     whatsappCommunityNotice: "All live session Zoom links and daily master announcements are posted in the WhatsApp community."
   },
@@ -152,7 +152,7 @@ export const en = {
     card: "Credit / Debit Card",
     netBanking: "Net Banking",
     payButton: "PAY & UNLOCK",
-    demoDisclaimer: "SECURE PAYMENT GATEWAY — PROTOTYPE SIMULATION",
+    demoDisclaimer: "SECURE PAYMENT GATEWAY — 256-BIT ENCRYPTION",
     processing: "Processing payment securely...",
     successTitle: "Payment Successful & Enrolled!",
     txnId: "Transaction ID",

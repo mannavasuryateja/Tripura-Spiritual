@@ -72,6 +72,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return bearerToken.substring(7);
         }
 
+        // 3. Fallback to query parameter "token" (for HTML5 <audio> and <video> streaming)
+        String paramToken = request.getParameter("token");
+        if (StringUtils.hasText(paramToken)) {
+            return paramToken;
+        }
+
         return null;
     }
 }

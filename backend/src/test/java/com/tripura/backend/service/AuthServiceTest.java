@@ -133,11 +133,12 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("Should successfully signup new user")
+    @DisplayName("Should successfully signup new user with ROLE_SEEKER and hashed password")
     void testSignUpSuccess() {
         SignUpRequestDto dto = new SignUpRequestDto("New Seeker", "new@tripura.org", "Password123!", "9123456780");
 
         when(userRepository.existsByEmailIgnoreCase("new@tripura.org")).thenReturn(false);
+        when(userRepository.existsByPhone("9123456780")).thenReturn(false);
         when(passwordEncoder.encode("Password123!")).thenReturn("$2a$12$encodedPassword");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User u = invocation.getArgument(0);
@@ -152,6 +153,66 @@ class AuthServiceTest {
         assertEquals("signup-jwt-token", response.getToken());
         assertEquals("New Seeker", response.getName());
         assertEquals("new@tripura.org", response.getEmail());
+        assertEquals("ROLE_SEEKER", response.getRole());
+
+        // Verify password hashing and persistence
+        verify(passwordEncoder).encode("Password123!");
+        verify(userRepository).save(argThat(user ->
+                user.getRole().equals("ROLE_SEEKER") &&
+                user.getPassword().equals("$2a$12$encodedPassword") &&
+                user.getEmail().equals("new@tripura.org")
+        ));
+    }
+
+    @Test
+    @DisplayName("Should throw DuplicateResourceException on duplicate email")
+    void testSignUpDuplicateEmailThrowsConflict() {
+        SignUpRequestDto dto = new SignUpRequestDto("Existing Seeker", "existing@tripura.org", "Password123!", "9123456781");
+
+        when(userRepository.existsByEmailIgnoreCase("existing@tripura.org")).thenReturn(true);
+
+        assertThrows(com.tripura.backend.exception.DuplicateResourceException.class, () ->
+                authService.signUpWithEmailPassword(dto)
+        );
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw DuplicateResourceException on case-insensitive duplicate email (Mani@test.com vs mani@test.com)")
+    void testSignUpCaseInsensitiveDuplicateEmailThrowsConflict() {
+        SignUpRequestDto dto = new SignUpRequestDto("Mani", "Mani@Test.Com", "Password123!", null);
+
+        when(userRepository.existsByEmailIgnoreCase("mani@test.com")).thenReturn(true);
+
+        assertThrows(com.tripura.backend.exception.DuplicateResourceException.class, () ->
+                authService.signUpWithEmailPassword(dto)
+        );
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw DuplicateResourceException on duplicate phone number")
+    void testSignUpDuplicatePhoneThrowsConflict() {
+        SignUpRequestDto dto = new SignUpRequestDto("Phone Duplicate", "unique@tripura.org", "Password123!", "9876543210");
+
+        when(userRepository.existsByEmailIgnoreCase("unique@tripura.org")).thenReturn(false);
+        when(userRepository.existsByPhone("9876543210")).thenReturn(true);
+
+        assertThrows(com.tripura.backend.exception.DuplicateResourceException.class, () ->
+                authService.signUpWithEmailPassword(dto)
+        );
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw IllegalArgumentException when email is missing or empty")
+    void testSignUpMissingEmailThrowsBadRequest() {
+        SignUpRequestDto dto = new SignUpRequestDto("No Email", "", "Password123!", null);
+
+        assertThrows(IllegalArgumentException.class, () ->
+                authService.signUpWithEmailPassword(dto)
+        );
+        verify(userRepository, never()).save(any());
     }
 
     @Test

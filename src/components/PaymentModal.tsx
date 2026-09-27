@@ -1,29 +1,144 @@
 import React, { useState } from 'react';
-import { useApp, TRIPURA_WHATSAPP_COMMUNITY_URL } from '../context/AppContext';
-import { X, CheckCircle2, QrCode, CreditCard, Landmark, Smartphone, Loader2, ShieldCheck, MessageCircle, ExternalLink } from 'lucide-react';
+import { useApp } from '../context/AppContext';
+import { X, CheckCircle2, QrCode, CreditCard, Landmark, Smartphone, Loader2, ShieldCheck, MessageCircle, ExternalLink, AlertCircle, LogIn } from 'lucide-react';
+import { paymentsApi } from '../api/client';
 
 interface PaymentModalProps {
   onSuccessNavigate?: () => void;
 }
 
 export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate }) => {
-  const { isPaymentOpen, closePaymentModal, pendingPlan, completePayment, t } = useApp();
+  const { isPaymentOpen, closePaymentModal, pendingPlan, user, refreshUserProfile, openAuthModal, t } = useApp();
   const [paymentMethod, setPaymentMethod] = useState<'upi' | 'qr' | 'card' | 'netbanking'>('qr');
   const [paymentState, setPaymentState] = useState<'form' | 'processing' | 'success'>('form');
   const [txnId, setTxnId] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [whatsappCommunityUrl, setWhatsappCommunityUrl] = useState<string>('https://chat.whatsapp.com/TripuraSpiritualCommunityLive2026');
 
   if (!isPaymentOpen || !pendingPlan) return null;
 
-  const handlePay = () => {
-    setPaymentState('processing');
-    const generatedTxn = 'TRIPURA-TXN-' + Math.floor(100000 + Math.random() * 900000);
-    setTxnId(generatedTxn);
+  const mapProductType = (type: string) => {
+    switch (type) {
+      case 'live-session':
+        return 'LIVE_SESSION';
+      case 'recording-extension':
+        return 'RECORDING_EXTENSION';
+      case 'recordings-only':
+        return 'RECORDINGS_ONLY';
+      case 'book-audio':
+        return 'BOOK_AUDIO';
+      case '1on1':
+        return 'ONE_TO_ONE';
+      default:
+        return 'LIVE_SESSION';
+    }
+  };
 
-    // Simulate 2 second secure payment processing
-    setTimeout(() => {
-      completePayment();
-      setPaymentState('success');
-    }, 1800);
+  const handlePay = async () => {
+    if (!user.isLoggedIn) {
+      openAuthModal();
+      return;
+    }
+
+    setPaymentState('processing');
+    setErrorMessage(null);
+
+    try {
+      const prodType = mapProductType(pendingPlan.type);
+      
+      // Step 1: Create real order on Spring Boot backend
+      const orderRes = await paymentsApi.createOrder({
+        productType: prodType,
+        productId: pendingPlan.id,
+        amount: pendingPlan.price,
+        sessionId: pendingPlan.sessionId || 1,
+        bookId: pendingPlan.bookId,
+        bookingId: pendingPlan.bookingId
+      });
+
+      const orderData = orderRes.data || (orderRes as any);
+      const orderId = orderData.orderId;
+
+      // Check if Razorpay is initialized on window
+      const Razorpay = (window as any).Razorpay;
+      const isRazorpayConfigured = orderData.keyId && !orderData.keyId.startsWith('rzp_test_mock');
+
+      if (Razorpay && isRazorpayConfigured) {
+        // Open official Razorpay modal
+        const options = {
+          key: orderData.keyId,
+          amount: Math.round(Number(pendingPlan.price) * 100),
+          currency: 'INR',
+          name: 'Tripura Spiritual',
+          description: pendingPlan.name,
+          order_id: orderId,
+          handler: async (response: any) => {
+            try {
+              // Step 2: Verify signature on backend
+              const verifyRes = await paymentsApi.verify({
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature
+              });
+
+              setTxnId(response.razorpay_payment_id);
+              if (verifyRes.data?.whatsappCommunityUrl) {
+                setWhatsappCommunityUrl(verifyRes.data.whatsappCommunityUrl);
+              }
+              await refreshUserProfile();
+              setPaymentState('success');
+            } catch (err: any) {
+              paymentsApi.recordFailure({
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                reason: err.response?.data?.message || 'VERIFICATION_FAILED'
+              }).catch(() => {});
+              setErrorMessage(err.response?.data?.message || 'Payment verification failed.');
+              setPaymentState('form');
+            }
+          },
+          prefill: {
+            name: user.name,
+            email: user.email || '',
+            contact: user.phone || ''
+          },
+          theme: {
+            color: '#B45309'
+          },
+          modal: {
+            ondismiss: () => {
+              paymentsApi.recordFailure({
+                razorpayOrderId: orderId,
+                reason: 'USER_CANCELLED_CHECKOUT'
+              }).catch(() => {});
+              setPaymentState('form');
+            }
+          }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+      } else {
+        // Test / Sandbox mode: Process verification securely through backend
+        const simulatedPaymentId = 'pay_' + Math.floor(100000000 + Math.random() * 900000000);
+        const verifyRes = await paymentsApi.verify({
+          razorpayOrderId: orderId,
+          razorpayPaymentId: simulatedPaymentId,
+          razorpaySignature: 'mock_signature_' + simulatedPaymentId
+        });
+
+        setTxnId(simulatedPaymentId);
+        if (verifyRes.data?.whatsappCommunityUrl) {
+          setWhatsappCommunityUrl(verifyRes.data.whatsappCommunityUrl);
+        }
+        await refreshUserProfile();
+        setPaymentState('success');
+      }
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || 'Payment initiation failed. Please check network connection.';
+      setErrorMessage(msg);
+      setPaymentState('form');
+    }
   };
 
   const handleFinish = () => {
@@ -33,18 +148,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
   };
 
   const handleJoinWhatsApp = () => {
-    window.open(TRIPURA_WHATSAPP_COMMUNITY_URL, '_blank');
+    window.open(whatsappCommunityUrl, '_blank');
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/75 backdrop-blur-md animate-fadeIn">
       <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-amber-100 relative overflow-hidden">
         
-        {/* Top Disclaimer Badge */}
-        <div className="bg-[#EFE9DD] text-[#3B234A] text-[11px] font-bold tracking-wider uppercase py-1 px-4 text-center -mx-8 -mt-8 mb-6 border-b border-[#D8CFBF]">
-          {t.payment.demoDisclaimer}
-        </div>
-
         {/* Close Button */}
         {paymentState !== 'processing' && (
           <button
@@ -59,6 +169,40 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
         {paymentState === 'form' && (
           <div className="space-y-6">
             
+            {/* Header */}
+            <div>
+              <span className="text-[11px] font-bold tracking-wider uppercase text-amber-700 block">
+                Secure Checkout
+              </span>
+              <h3 className="font-serif text-xl font-bold text-stone-900">
+                Tripura Spiritual Gateway
+              </h3>
+            </div>
+
+            {/* Error banner */}
+            {errorMessage && (
+              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
+            {/* Non-logged in notice */}
+            {!user.isLoggedIn && (
+              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <LogIn className="w-4 h-4 shrink-0 text-amber-700" />
+                  <span>Please sign in so your purchase can be permanently linked to your account.</span>
+                </div>
+                <button
+                  onClick={openAuthModal}
+                  className="px-4 py-1.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs uppercase tracking-wider shrink-0 transition"
+                >
+                  Sign In
+                </button>
+              </div>
+            )}
+
             {/* Order Summary */}
             <div className="p-4 rounded-2xl bg-[#FAF7F0] border border-[#E6E0D2]">
               <h4 className="text-xs font-bold text-[#8B5E34] uppercase tracking-wider mb-2">
@@ -67,7 +211,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
               <div className="flex justify-between items-start">
                 <div>
                   <p className="font-serif font-bold text-stone-900 text-base">{pendingPlan.name}</p>
-                  <p className="text-xs text-stone-500 mt-0.5">{pendingPlan.details || 'Includes live access & recording library'}</p>
+                  <p className="text-xs text-stone-500 mt-0.5">{pendingPlan.details || 'Includes authorized access and recordings'}</p>
                 </div>
                 <div className="text-right shrink-0 ml-3">
                   <p className="font-bold text-[#2C2421] text-2xl font-sans">₹{pendingPlan.price}</p>
@@ -175,7 +319,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
                 <input
                   type="text"
                   placeholder="yourname@upi"
-                  defaultValue="seeker@okhdfcbank"
+                  defaultValue={user.phone ? `${user.phone}@upi` : "seeker@upi"}
                   className="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm font-mono focus:border-[#3B234A] outline-none"
                 />
               </div>
@@ -236,7 +380,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
                 {t.payment.successTitle}
               </h4>
               <p className="text-xs text-emerald-700 font-semibold mt-1">
-                {pendingPlan.name} is now active!
+                {pendingPlan.name} is now active and verified!
               </p>
             </div>
 
@@ -279,6 +423,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
                 <span className="text-stone-500">Amount Paid</span>
                 <span className="font-bold text-stone-900">₹{pendingPlan.price}</span>
               </div>
+              <div className="flex justify-between border-b pb-2">
+                <span className="text-stone-500">Gateway Status</span>
+                <span className="font-bold text-emerald-700">VERIFIED & PAID</span>
+              </div>
               <div className="flex justify-between">
                 <span className="text-stone-500">Access Validity</span>
                 <span className="font-bold text-emerald-700">
@@ -304,4 +452,3 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
     </div>
   );
 };
-

@@ -1,10 +1,6 @@
 package com.tripura.backend.controller;
 
-import com.tripura.backend.dto.AuthResponseDto;
-import com.tripura.backend.dto.LoginRequestDto;
-import com.tripura.backend.dto.OtpRequestDto;
-import com.tripura.backend.dto.OtpVerifyDto;
-import com.tripura.backend.dto.SignUpRequestDto;
+import com.tripura.backend.dto.*;
 import com.tripura.backend.model.User;
 import com.tripura.backend.service.AuthService;
 import jakarta.validation.Valid;
@@ -56,7 +52,7 @@ public class AuthController {
         AuthResponseDto response = authService.signUpWithEmailPassword(signUpDto);
         ResponseCookie authCookie = createAuthCookie(response.getToken(), Duration.ofDays(1));
 
-        return ResponseEntity.ok()
+        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED)
                 .header(HttpHeaders.SET_COOKIE, authCookie.toString())
                 .body(response);
     }
@@ -66,13 +62,24 @@ public class AuthController {
         authService.requestOtp(request);
         return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "OTP sent successfully to +91 " + request.getPhone() + ". (Demo OTP: 123456)"
+                "message", "OTP sent successfully to +91 " + request.getPhone() + "."
         ));
     }
 
     @PostMapping("/verify-otp")
     public ResponseEntity<AuthResponseDto> verifyOtp(@Valid @RequestBody OtpVerifyDto verifyDto) {
         AuthResponseDto response = authService.verifyOtpAndLogin(verifyDto);
+        ResponseCookie authCookie = createAuthCookie(response.getToken(), Duration.ofDays(1));
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, authCookie.toString())
+                .body(response);
+    }
+
+    @PostMapping("/refresh")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<AuthResponseDto> refreshToken(@AuthenticationPrincipal User user) {
+        AuthResponseDto response = authService.refreshToken(user);
         ResponseCookie authCookie = createAuthCookie(response.getToken(), Duration.ofDays(1));
 
         return ResponseEntity.ok()
@@ -97,8 +104,8 @@ public class AuthController {
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(user);
+    public ResponseEntity<UserProfileDto> getCurrentUser(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(authService.getUserProfile(user));
     }
 
     private ResponseCookie createAuthCookie(String token, Duration maxAge) {

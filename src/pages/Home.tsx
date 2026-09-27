@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { Calendar, CheckCircle2, ArrowRight, Star, BookOpen, Radio, Sparkles, Play } from 'lucide-react';
-import { SACRED_BOOKS } from '../data/bookLibraryData';
 import { ScrollReveal, StaggerContainer } from '../components/ScrollReveal';
 import { ContactSection } from '../components/ContactSection';
+import { productsApi, booksApi } from '../api/client';
 
 interface HomeProps {
   setActiveTab: (tab: string) => void;
@@ -11,6 +11,22 @@ interface HomeProps {
 
 export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
   const { t, openPaymentModal, openBookDrawer, openBookAudioPlayer, openVideoModal } = useApp();
+  const [products, setProducts] = useState<any[]>([]);
+  const [books, setBooks] = useState<any[]>([]);
+
+  useEffect(() => {
+    productsApi.getActiveProducts()
+      .then((res: any) => setProducts(Array.isArray(res) ? res : res.data || []))
+      .catch(() => {});
+    booksApi.getAllBooks()
+      .then((res: any) => setBooks(Array.isArray(res) ? res : res.data || []))
+      .catch(() => {});
+  }, []);
+
+  const getPrice = (slug: string, fallback: number) => {
+    const prod = products.find(p => p.slug === slug);
+    return prod ? Number(prod.price) : fallback;
+  };
 
   const offerings = [
     {
@@ -21,8 +37,8 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
       title: t.offeringsGrid.card1.title,
       desc: t.offeringsGrid.card1.desc,
       meta: t.offeringsGrid.card1.meta,
-      price: t.offeringsGrid.card1.price,
-      numPrice: 1111,
+      price: `₹${getPrice('live-masterclass', 1111).toLocaleString('en-IN')}`,
+      numPrice: getPrice('live-masterclass', 1111),
       action: 'session-details'
     },
     {
@@ -33,8 +49,8 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
       title: t.offeringsGrid.card2.title,
       desc: t.offeringsGrid.card2.desc,
       meta: t.offeringsGrid.card2.meta,
-      price: t.offeringsGrid.card2.price,
-      numPrice: 1500,
+      price: `₹${getPrice('recordings-only', 1500).toLocaleString('en-IN')}`,
+      numPrice: getPrice('recordings-only', 1500),
       action: 'buy-recordings'
     },
     {
@@ -45,8 +61,8 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
       title: t.offeringsGrid.card3.title,
       desc: t.offeringsGrid.card3.desc,
       meta: t.offeringsGrid.card3.meta,
-      price: t.offeringsGrid.card3.price,
-      numPrice: 555,
+      price: `₹${getPrice('recording-extension', 555).toLocaleString('en-IN')}`,
+      numPrice: getPrice('recording-extension', 555),
       action: 'buy-extension'
     },
     {
@@ -311,7 +327,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
                 </p>
 
                 <div className="flex flex-wrap gap-2 pt-2">
-                  {SACRED_BOOKS.slice(0, 3).map((book) => (
+                  {books.slice(0, 3).map((book: any) => (
                     <button
                       key={book.id}
                       onClick={() => openBookDrawer(book)}
@@ -334,11 +350,14 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
                 </div>
                 <div className="flex flex-col gap-2.5">
                   <button
-                    onClick={() => openBookAudioPlayer(SACRED_BOOKS[0])}
+                    onClick={() => {
+                      if (books.length > 0) openBookAudioPlayer(books[0]);
+                      else setActiveTab('book-library');
+                    }}
                     className="btn-spiritual w-full py-3 rounded-full bg-[#D1A559] hover:bg-[#C29548] text-[#201812] font-semibold text-xs tracking-widest uppercase shadow-md flex items-center justify-center gap-2"
                   >
                     <Play className="w-3.5 h-3.5 fill-[#201812]" />
-                    <span>Listen to Tripura Rahasya</span>
+                    <span>{books.length > 0 ? `Listen to ${books[0].title}` : 'Listen to Audio Discourse'}</span>
                   </button>
                   <button
                     onClick={() => setActiveTab('book-library')}

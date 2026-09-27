@@ -137,11 +137,11 @@ export const SignUp: React.FC<SignUpProps> = ({ setActiveTab }) => {
         setSuccessMsg('Account created successfully! Welcome to Tripura Spiritual.');
         triggerLoginSuccessTransition();
       } else {
-        setError('Could not create account. An account with this email may already exist.');
+        setError('Unable to create account. Please verify your details and try again.');
         setIsLoading(false);
       }
     } catch (err: any) {
-      setError(err.message || 'Registration failed. Please check your details.');
+      setError(err.message || 'We could not complete your signup. Please try again.');
       setIsLoading(false);
     }
   };

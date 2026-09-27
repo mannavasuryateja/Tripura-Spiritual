@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { useApp, TRIPURA_WHATSAPP_COMMUNITY_URL } from '../context/AppContext';
-import { Play, Lock, User, Calendar, MessageCircle, Sparkles, Clock, ArrowUpRight, LogOut } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useApp } from '../context/AppContext';
+import { Play, Lock, User, Calendar, MessageCircle, Sparkles, Clock, LogOut, CreditCard, Loader2 } from 'lucide-react';
 import { ScrollReveal, StaggerContainer } from '../components/ScrollReveal';
-import type { AppRole } from '../context/AppContext';
+import { recordingsApi, sessionsApi, paymentsApi, mentorApi } from '../api/client';
 
 interface DashboardProps {
   setActiveTab: (tab: string) => void;
@@ -10,7 +10,35 @@ interface DashboardProps {
 
 export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
   const { user, logout, openPaymentModal, openVideoModal, openAuthModal, t } = useApp();
-  const [activePortalTab, setActivePortalTab] = useState<'recordings' | 'upcoming'>('recordings');
+  const [activePortalTab, setActivePortalTab] = useState<'recordings' | 'upcoming' | 'purchases' | 'bookings'>('recordings');
+
+  // Dynamic server data
+  const [recordings, setRecordings] = useState<any[]>([]);
+  const [sessionInfo, setSessionInfo] = useState<any>(null);
+  const [myPurchases, setMyPurchases] = useState<any[]>([]);
+  const [myBookings, setMyBookings] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (user.isLoggedIn) {
+      setIsLoading(true);
+      Promise.all([
+        recordingsApi.getSessionRecordings(1).catch(() => []),
+        sessionsApi.getSessions().catch(() => []),
+        paymentsApi.getMyPurchases().catch(() => []),
+        mentorApi.getMyBookings().catch(() => [])
+      ]).then(([recs, sessions, purchases, bookings]) => {
+        setRecordings(recs || []);
+        if (sessions && sessions.length > 0) {
+          setSessionInfo(sessions[0]);
+        }
+        setMyPurchases(purchases || []);
+        setMyBookings(bookings || []);
+      }).finally(() => {
+        setIsLoading(false);
+      });
+    }
+  }, [user.isLoggedIn]);
 
   if (!user.isLoggedIn) {
     return (
@@ -42,54 +70,37 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
     );
   }
 
-  const recordings = [
-    { day: 1, title: "Foundations of Hanuman Kriya & Prana Vayu Awakening", duration: "50 mins", desc: "Foundational breath awareness, establishing daily internal stillness, and vital prana." },
-    { day: 2, title: "Spinal Energy Purification (Sushumna Nadi Cleansing)", duration: "52 mins", desc: "Cultivating body-mind observation, clearing subconscious tension." },
-    { day: 3, title: "Surya & Chandra Nadi Balancing for Vitality", duration: "48 mins", desc: "Harmonizing solar (action) and lunar (calm) energy currents." },
-    { day: 4, title: "Mantra Japa & Seed Sound Vibrations", duration: "55 mins", desc: "Using sacred sound frequencies to dissolve subconscious fear and anxiety." },
-    { day: 5, title: "Navel Center (Manipura) Activation & Willpower", duration: "50 mins", desc: "Igniting the inner fire of transformation and overcoming emotional lethargy." },
-    { day: 6, title: "Heart Center Opening (Anahata Bhakti & Surrender)", duration: "54 mins", desc: "Cultivating detached witness consciousness and unconditional love." },
-    { day: 7, title: "Throat & Expression Purification (Vishuddha Kriya)", duration: "49 mins", desc: "Clearing truth blockages and purifying creative sound expression." },
-    { day: 8, title: "Third Eye Intuition & Ajna Stillness (Dharana)", duration: "51 mins", desc: "Refining subtle perception, focus, and inner guidance." },
-    { day: 9, title: "Self-Inquiry & Witness Consciousness (Sakshi Bhava)", duration: "56 mins", desc: "Deep meditation on 'Who Am I?' and abiding in effortless presence." },
-    { day: 10, title: "Integrating Kriya Wisdom into Daily Family & Work Life", duration: "52 mins", desc: "Applying spiritual clarity in work, relationships, and daily challenges." },
-    { day: 11, title: "Grand Culmination, Sankalpa & Master's Blessings", duration: "65 mins", desc: "Grand interactive culmination, student sharing, and personal practice roadmap." }
-  ];
-
-  const upcomingDays = [
-    { day: 1, date: "Oct 1, 2026", time: "6:30 AM – 7:30 AM IST", topic: "Day 1: Foundations of Hanuman Kriya", status: "Upcoming" },
-    { day: 2, date: "Oct 2, 2026", time: "6:30 AM – 7:30 AM IST", topic: "Day 2: Spinal Energy Purification", status: "Upcoming" },
-    { day: 3, date: "Oct 3, 2026", time: "6:30 AM – 7:30 AM IST", topic: "Day 3: Surya & Chandra Nadi Balancing", status: "Upcoming" },
-    { day: 4, date: "Oct 4, 2026", time: "6:30 AM – 7:30 AM IST", topic: "Day 4: Mantra Japa & Sound Frequency", status: "Upcoming" },
-    { day: 5, date: "Oct 5, 2026", time: "6:30 AM – 7:30 AM IST", topic: "Day 5: Navel Center & Willpower", status: "Upcoming" },
-    { day: 6, date: "Oct 6, 2026", time: "6:30 AM – 7:30 AM IST", topic: "Day 6: Heart Center Opening (Anahata)", status: "Upcoming" },
-    { day: 7, date: "Oct 7, 2026", time: "6:30 AM – 7:30 AM IST", topic: "Day 7: Throat & Sound Purification", status: "Upcoming" },
-    { day: 8, date: "Oct 8, 2026", time: "6:30 AM – 7:30 AM IST", topic: "Day 8: Third Eye Clarity (Ajna)", status: "Upcoming" },
-    { day: 9, date: "Oct 9, 2026", time: "6:30 AM – 7:30 AM IST", topic: "Day 9: Self-Inquiry & Witness Presence", status: "Upcoming" },
-    { day: 10, date: "Oct 10, 2026", time: "6:30 AM – 7:30 AM IST", topic: "Day 10: Integration in Modern Life", status: "Upcoming" },
-    { day: 11, date: "Oct 11, 2026", time: "6:30 AM – 7:45 AM IST", topic: "Day 11: Grand Live Culmination & Blessing", status: "Upcoming" }
-  ];
-
   const handleJoinWhatsApp = () => {
-    window.open(TRIPURA_WHATSAPP_COMMUNITY_URL, '_blank');
+    const link = user.subscription?.whatsappLink || sessionInfo?.whatsappCommunityUrl || 'https://chat.whatsapp.com/TripuraSpiritualCommunityLive2026';
+    window.open(link, '_blank');
   };
 
   const handleBuyExtension = () => {
     openPaymentModal({
       id: 'hanuman-kriya-recording-extension',
       name: "30-Day Recording Extension (Live Seeker Loyalty Upgrade)",
-      price: 555,
+      price: sessionInfo?.priceExtension || 555,
       type: 'recording-extension',
-      details: "Exclusive to Live Batch Seekers • 30 Days Extended Access from Date of Purchase"
+      details: "Exclusive to Live Batch Seekers • 30 Days Extended Access from Date of Purchase",
+      sessionId: sessionInfo?.id || 1
     });
   };
 
   const currentRole = user.role || 'ROLE_SEEKER';
 
-  const rolePillStyles: Record<AppRole, { bg: string; text: string; label: string }> = {
+  const rolePillStyles: Record<string, { bg: string; text: string; label: string }> = {
     'ROLE_ADMIN': { bg: 'bg-purple-600 text-white', text: 'text-purple-700', label: 'Platform Admin' },
+    'ROLE_MASTER': { bg: 'bg-amber-600 text-white', text: 'text-amber-700', label: 'Spiritual Master' },
     'ROLE_ENROLLED': { bg: 'bg-emerald-600 text-white', text: 'text-emerald-700', label: 'Enrolled Seeker' },
     'ROLE_SEEKER': { bg: 'bg-stone-600 text-white', text: 'text-stone-700', label: 'Guest Seeker' }
+  };
+
+  // Helper to test if user has access to day recording
+  const isRecordingUnlocked = (dayNum: number) => {
+    if (currentRole === 'ROLE_ADMIN' || currentRole === 'ROLE_MASTER') return true;
+    if (dayNum === 1 || dayNum === 2) return true; // Free orientation / introductory
+    if (user.subscription.hasActivePlan) return true;
+    return user.subscription.unlockedDays?.includes(dayNum);
   };
 
   return (
@@ -174,7 +185,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                     title="Extend recordings for 30 days"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>30-Day Extension (₹555)</span>
+                    <span>30-Day Extension (₹{sessionInfo?.priceExtension || 555})</span>
                   </button>
                 </>
               ) : (
@@ -182,7 +193,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                   onClick={() => setActiveTab('sessions')}
                   className="px-6 py-3 rounded-xl bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-xs shadow-md transition uppercase tracking-wider hover:-translate-y-0.5"
                 >
-                  Enroll in Masterclass (₹1,111)
+                  Enroll in Masterclass (₹{sessionInfo?.priceLive || 1111})
                 </button>
               )}
             </div>
@@ -193,7 +204,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
       {/* 2. TAB NAVIGATION */}
       <div className="space-y-6">
         
-        {/* Navigation Switcher between Recordings, Live Schedule, and Admin */}
+        {/* Navigation Switcher */}
         <div className="flex flex-wrap border-b border-[#E6E0D2] gap-1">
           <button
             onClick={() => setActivePortalTab('recordings')}
@@ -204,7 +215,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
             }`}
           >
             <Play className="w-4 h-4" />
-            <span>Recorded Classes ({user.subscription.unlockedDays.length}/11)</span>
+            <span>Recorded Classes</span>
           </button>
 
           <button
@@ -218,13 +229,37 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
             <Calendar className="w-4 h-4" />
             <span>Upcoming Live Classes</span>
           </button>
+
+          <button
+            onClick={() => setActivePortalTab('purchases')}
+            className={`px-5 py-3 font-serif text-base sm:text-lg font-bold transition border-b-2 flex items-center gap-2 ${
+              activePortalTab === 'purchases'
+                ? 'border-[#3B234A] text-[#3B234A]'
+                : 'border-transparent text-stone-400 hover:text-stone-700'
+            }`}
+          >
+            <CreditCard className="w-4 h-4" />
+            <span>My Purchases ({myPurchases.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActivePortalTab('bookings')}
+            className={`px-5 py-3 font-serif text-base sm:text-lg font-bold transition border-b-2 flex items-center gap-2 ${
+              activePortalTab === 'bookings'
+                ? 'border-[#3B234A] text-[#3B234A]'
+                : 'border-transparent text-stone-400 hover:text-stone-700'
+            }`}
+          >
+            <Clock className="w-4 h-4" />
+            <span>1-on-1 Bookings ({myBookings.length})</span>
+          </button>
         </div>
 
         {/* TAB 1: RECORDED CLASSES */}
         {activePortalTab === 'recordings' && (
           <div className="space-y-6 animate-fadeIn">
             
-            {/* Validity Information & 49% Extension Offer Bar */}
+            {/* Policy Bar */}
             <ScrollReveal variant="fade-up">
               <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs">
                 <div className="flex items-center gap-2 text-stone-700">
@@ -240,148 +275,245 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                     className="px-4 py-1.5 rounded-lg bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs shadow-xs transition shrink-0 flex items-center gap-1 hover:-translate-y-0.5"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Keep for 30 Days (₹555 Loyalty Upgrade)</span>
+                    <span>Keep for 30 Days (₹{sessionInfo?.priceExtension || 555} Loyalty Upgrade)</span>
                   </button>
                 )}
               </div>
             </ScrollReveal>
 
+            {/* Loading */}
+            {isLoading && (
+              <div className="py-12 text-center">
+                <Loader2 className="w-8 h-8 text-amber-700 animate-spin mx-auto" />
+                <p className="text-xs text-stone-500 mt-2 font-serif">Loading recordings...</p>
+              </div>
+            )}
+
             {/* Recordings Grid */}
-            <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-4" staggerDelay={80}>
-              {recordings.map((rec) => {
-                const isUnlocked = user.subscription.unlockedDays.includes(rec.day);
+            {!isLoading && (
+              <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-4" staggerDelay={80}>
+                {recordings.map((rec) => {
+                  const isUnlocked = isRecordingUnlocked(rec.dayNumber);
 
-                return (
-                  <div
-                    key={rec.day}
-                    className={`p-5 rounded-2xl border transition-all ${
-                      isUnlocked
-                        ? 'bg-white border-[#E6E0D2] shadow-xs hover:shadow-md hover:border-[#8B5E34]'
-                        : 'bg-stone-50 border-stone-200 opacity-80'
-                    }`}
-                  >
-                    <div className="flex justify-between items-start gap-3">
-                      <div className="space-y-1 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold font-mono uppercase ${
-                            isUnlocked ? 'bg-[#EFE9DD] text-[#3B234A]' : 'bg-stone-200 text-stone-600'
-                          }`}>
-                            Day {rec.day}
-                          </span>
-                          <span className="text-[11px] text-stone-400 font-mono">{rec.duration}</span>
+                  return (
+                    <div
+                      key={rec.id || rec.dayNumber}
+                      className={`p-5 rounded-2xl border transition-all ${
+                        isUnlocked
+                          ? 'bg-white border-[#E6E0D2] shadow-xs hover:shadow-md hover:border-[#8B5E34]'
+                          : 'bg-stone-50 border-stone-200 opacity-80'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="space-y-1.5 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider font-mono ${
+                              isUnlocked ? 'bg-amber-100 text-[#8B5E34]' : 'bg-stone-200 text-stone-600'
+                            }`}>
+                              Day {rec.dayNumber}
+                            </span>
+                            <span className="text-[11px] text-stone-400 font-mono">
+                              ⏱ {rec.duration || '50 mins'}
+                            </span>
+                          </div>
+
+                          <h4 className="font-serif font-bold text-base text-stone-900 leading-snug">
+                            {rec.title}
+                          </h4>
+
+                          <p className="text-xs text-stone-500 line-clamp-2">
+                            {rec.description || 'Sacred guided meditation, pranayama, and awakening inquiry.'}
+                          </p>
                         </div>
-                        <h4 className="font-serif font-bold text-stone-900 text-base">{rec.title}</h4>
-                        <p className="text-xs text-stone-600 leading-snug">{rec.desc}</p>
-                      </div>
 
-                      <div className="shrink-0 pt-1">
-                        {isUnlocked ? (
-                          <button
-                            onClick={() => openVideoModal({ day: rec.day, title: rec.title, duration: rec.duration, desc: rec.desc })}
-                            className="px-4 py-2 rounded-xl bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5 hover:-translate-y-0.5"
-                          >
-                            <Play className="w-3.5 h-3.5 fill-white" />
-                            <span>Watch</span>
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => setActiveTab('sessions')}
-                            className="px-3.5 py-2 rounded-xl bg-stone-200 hover:bg-amber-100 text-stone-700 hover:text-amber-900 font-semibold text-xs transition flex items-center gap-1 border border-stone-300 hover:-translate-y-0.5"
-                            title="Enroll in Masterclass to unlock"
-                          >
-                            <Lock className="w-3.5 h-3.5 text-amber-700" />
-                            <span>Locked</span>
-                          </button>
-                        )}
+                        <div className="shrink-0 self-center">
+                          {isUnlocked ? (
+                            <button
+                              onClick={() => {
+                                openVideoModal({
+                                  day: rec.dayNumber,
+                                  title: rec.title,
+                                  duration: rec.duration,
+                                  desc: rec.description,
+                                  streamUrl: rec.bunnyVideoId ? `/api/media/stream/${rec.bunnyVideoId}` : undefined
+                                });
+                              }}
+                              className="p-3 rounded-2xl bg-[#8B5E34] hover:bg-[#6e4623] text-white shadow-md transition transform hover:scale-105"
+                              title="Play Recording"
+                            >
+                              <Play className="w-5 h-5 fill-white" />
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                openPaymentModal({
+                                  id: 'hanuman-kriya-live-1111',
+                                  name: "Hanuman Kriya 11-Day Live Masterclass",
+                                  price: sessionInfo?.priceLive || 1111,
+                                  type: 'live-session',
+                                  details: "Unlock all 11 daily recordings & live zoom classes"
+                                });
+                              }}
+                              className="p-3 rounded-2xl bg-stone-200 hover:bg-stone-300 text-stone-500 transition"
+                              title="Locked - Enroll to Access"
+                            >
+                              <Lock className="w-5 h-5" />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </StaggerContainer>
-
+                  );
+                })}
+              </StaggerContainer>
+            )}
           </div>
         )}
 
         {/* TAB 2: UPCOMING LIVE CLASSES */}
         {activePortalTab === 'upcoming' && (
           <div className="space-y-6 animate-fadeIn">
-            
-            {/* WhatsApp Community Live Access Card */}
-            <ScrollReveal variant="hero-zoom">
-              <div className="p-6 rounded-3xl bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 text-white shadow-xl space-y-4">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div className="space-y-1">
-                    <span className="text-xs uppercase tracking-widest text-emerald-200 font-bold block">
-                      Direct Zoom Meeting Access
-                    </span>
-                    <h3 className="font-serif text-2xl font-bold">WhatsApp Live Session Community</h3>
-                    <p className="text-xs text-emerald-100 max-w-xl leading-relaxed">
-                      Live Zoom links are shared directly inside the WhatsApp community every morning at 6:15 AM (15 minutes prior to session start).
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={handleJoinWhatsApp}
-                    className="px-6 py-3 rounded-full bg-white text-emerald-900 hover:bg-emerald-50 font-bold text-xs tracking-wider uppercase shadow-lg transition flex items-center gap-2 shrink-0 hover:-translate-y-0.5"
-                  >
-                    <MessageCircle className="w-4 h-4 text-emerald-700" />
-                    <span>Open WhatsApp Group</span>
-                    <ArrowUpRight className="w-4 h-4" />
-                  </button>
+            <div className="p-6 rounded-3xl bg-[#FAF7F0] border border-[#E6E0D2] space-y-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[#E6E0D2] pb-4">
+                <div>
+                  <h3 className="font-serif text-xl font-bold text-[#2C2421]">
+                    {sessionInfo?.title || 'Hanuman Kriya 11-Day Live Masterclass'}
+                  </h3>
+                  <p className="text-xs text-stone-500">
+                    Daily Schedule: 6:30 AM – 7:30 AM IST • Live on Zoom with Master Gorli Peddi Raju Garu
+                  </p>
                 </div>
+                <button
+                  onClick={handleJoinWhatsApp}
+                  className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Join Live Community</span>
+                </button>
               </div>
-            </ScrollReveal>
 
-            {/* Upcoming 11-Day Timetable */}
-            <ScrollReveal variant="fade-up">
-              <div className="bg-white rounded-3xl border border-[#E6E0D2] shadow-sm p-6 space-y-4">
-                <div className="flex justify-between items-center border-b border-[#F0EBE1] pb-3">
-                  <h4 className="font-serif font-bold text-lg text-[#2C2421]">Hanuman Kriya Batch Timetable (Oct 1 – 11)</h4>
-                  <span className="text-xs font-mono text-stone-500 font-semibold">11 Live Zoom Sessions</span>
-                </div>
-
-                <div className="space-y-2">
-                  {upcomingDays.map((item) => (
-                    <div
-                      key={item.day}
-                      className="p-3.5 rounded-2xl bg-[#FAF7F0] border border-[#E6E0D2] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="w-8 h-8 rounded-full bg-[#EFE9DD] text-[#3B234A] font-bold text-xs flex items-center justify-center shrink-0">
-                          D{item.day}
-                        </span>
-                        <div>
-                          <p className="font-bold text-stone-900 text-sm">{item.topic}</p>
-                          <p className="text-stone-500">{item.date} • {item.time}</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 self-end sm:self-auto">
-                        <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 text-[10px] font-bold uppercase tracking-wider">
-                          {item.status}
-                        </span>
-                        <button
-                          onClick={handleJoinWhatsApp}
-                          className="px-3 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-300 font-semibold text-[11px] hover:bg-emerald-100 transition hover:-translate-y-0.5"
-                        >
-                          Get Zoom Link
-                        </button>
+              <div className="divide-y divide-[#E6E0D2]">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((dayNum) => (
+                  <div key={dayNum} className="py-3 flex justify-between items-center text-xs">
+                    <div className="flex items-center gap-3">
+                      <span className="w-7 h-7 rounded-full bg-[#EFE9DD] text-[#3B234A] font-mono font-bold flex items-center justify-center shrink-0">
+                        {dayNum}
+                      </span>
+                      <div>
+                        <span className="font-bold text-stone-800 block">Day {dayNum} Live Guided Practice</span>
+                        <span className="text-[10px] text-stone-500 font-mono">6:30 AM – 7:30 AM IST</span>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            </ScrollReveal>
 
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
+                      {user.subscription.hasActivePlan ? 'Confirmed' : 'Enrollment Required'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: MY PURCHASES */}
+        {activePortalTab === 'purchases' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div>
+              <h3 className="font-serif text-xl font-bold text-[#2C2421]">My Purchases & Invoices</h3>
+              <p className="text-xs text-stone-500">Official ledger of your active entitlements and transactions.</p>
+            </div>
+
+            <div className="rounded-3xl bg-white border border-[#E6E0D2] overflow-hidden shadow-xs">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#FAF7F0] text-stone-500 uppercase tracking-wider text-[10px] border-b border-[#E6E0D2]">
+                  <tr>
+                    <th className="p-4">Order ID</th>
+                    <th className="p-4">Product / Purpose</th>
+                    <th className="p-4">Amount Paid</th>
+                    <th className="p-4">Status</th>
+                    <th className="p-4">Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E6E0D2]">
+                  {myPurchases.map((p, idx) => (
+                    <tr key={idx} className="hover:bg-amber-50/30">
+                      <td className="p-4 font-mono text-stone-500">{p.razorpayOrderId}</td>
+                      <td className="p-4 font-medium text-stone-900">{p.purpose}</td>
+                      <td className="p-4 font-bold text-stone-900">₹{p.amount}</td>
+                      <td className="p-4">
+                        <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                          {p.status}
+                        </span>
+                      </td>
+                      <td className="p-4 text-stone-500 font-mono">
+                        {p.createdAt ? String(p.createdAt).substring(0, 10) : 'Recent'}
+                      </td>
+                    </tr>
+                  ))}
+                  {myPurchases.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="p-8 text-center text-stone-500">
+                        No purchases found. Explore our sacred sessions or book library to enroll.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: 1-ON-1 BOOKINGS */}
+        {activePortalTab === 'bookings' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-serif text-xl font-bold text-[#2C2421]">1-on-1 Guidance Appointments</h3>
+                <p className="text-xs text-stone-500">Your direct mentoring inquiries with Master Gorli Peddi Raju Garu.</p>
+              </div>
+              <button
+                onClick={() => setActiveTab('one-to-one')}
+                className="px-4 py-2 rounded-xl bg-[#3B234A] text-white font-bold text-xs uppercase tracking-wider"
+              >
+                Book New Session
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {myBookings.map((b) => (
+                <div key={b.id} className="p-5 rounded-2xl bg-white border border-[#E6E0D2] shadow-xs space-y-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <span className="text-[10px] font-bold text-[#8B5E34] uppercase tracking-wider font-mono">
+                        Booking #{b.id}
+                      </span>
+                      <h4 className="font-serif font-bold text-base text-stone-900">{b.category}</h4>
+                    </div>
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                      b.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                    }`}>
+                      {b.status}
+                    </span>
+                  </div>
+
+                  <div className="text-xs text-stone-600 space-y-1 font-mono">
+                    <p>Primary Date: <strong>{b.primaryDate}</strong></p>
+                    {b.secondaryDate && <p>Alternative Date: {b.secondaryDate}</p>}
+                    <p>Time Slot: {b.preferredTimeSlot || '6:30 AM IST'}</p>
+                    <p>Duration: {b.durationMinutes} Minutes</p>
+                  </div>
+                </div>
+              ))}
+              {myBookings.length === 0 && (
+                <div className="col-span-2 p-8 text-center bg-stone-50 rounded-2xl border border-stone-200 text-stone-500 text-xs">
+                  You have not scheduled any 1-on-1 guidance appointments yet.
+                </div>
+              )}
+            </div>
           </div>
         )}
 
       </div>
-
     </div>
   );
 };
-
-export default Dashboard;
-

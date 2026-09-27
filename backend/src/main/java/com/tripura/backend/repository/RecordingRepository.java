@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface RecordingRepository extends JpaRepository<Recording, Long> {
     List<Recording> findBySessionIdOrderByDayNumberAsc(Long sessionId);
     Optional<Recording> findBySessionIdAndDayNumber(Long sessionId, Integer dayNumber);
+    List<Recording> findByBunnyVideoId(String bunnyVideoId);
 }
