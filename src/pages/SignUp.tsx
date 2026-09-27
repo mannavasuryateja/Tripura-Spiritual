@@ -155,7 +155,7 @@ export const SignUp: React.FC<SignUpProps> = ({ setActiveTab }) => {
   };
 
   return (
-    <div className="relative h-screen max-h-screen w-full flex flex-col justify-between overflow-hidden font-sans selection:bg-amber-200 selection:text-amber-900">
+    <div className="relative min-h-screen w-full flex flex-col justify-between font-sans selection:bg-amber-200 selection:text-amber-900">
       
       {/* Full-Screen Background Image */}
       <div 

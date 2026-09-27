@@ -12,15 +12,6 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
   const { isBookDrawerOpen, closeBookDrawer, openBookAudioPlayer, unlockedBooks, openPaymentModal } = useApp();
   const [activeBook, setActiveBook] = useState<BookItem>(SPIRITUAL_BOOKS[0]);
 
-  React.useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-    };
-  }, []);
-
   if (!isBookDrawerOpen) return null;
 
   return (
@@ -132,6 +123,12 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
                     ⏱ {activeBook.duration} • {activeBook.episodesCount} Audio Chapters
                   </p>
                 </div>
+              </div>
+
+              {/* Problem Solved */}
+              <div className="p-3 bg-amber-50/80 rounded-xl border border-amber-200 text-xs space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 block">Problem Solved:</span>
+                <p className="text-stone-700 italic">"{activeBook.problemStatement}"</p>
               </div>
 
               {/* Synopsis */}

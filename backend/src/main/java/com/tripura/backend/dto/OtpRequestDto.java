@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Pattern;
 
 public class OtpRequestDto {
 
-    @NotBlank(message = "Name is required")
     private String name;
 
     @NotBlank(message = "Phone number is required")

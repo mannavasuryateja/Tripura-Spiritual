@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 interface LoginSuccessTransitionProps {
   isActive: boolean;
@@ -7,17 +7,11 @@ interface LoginSuccessTransitionProps {
 
 export const LoginSuccessTransition: React.FC<LoginSuccessTransitionProps> = ({ isActive, onComplete }) => {
   const [phase, setPhase] = useState<'idle' | 'start' | 'zoom' | 'fadeout'>('idle');
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-
+  const onCompleteRef = useRef(onComplete);
+  
   useEffect(() => {
-    // Check user preference for reduced motion
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mediaQuery.matches);
-
-    const handleChange = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
+    onCompleteRef.current = onComplete;
+  });
 
   useEffect(() => {
     if (!isActive) {
@@ -25,47 +19,44 @@ export const LoginSuccessTransition: React.FC<LoginSuccessTransitionProps> = ({ 
       return;
     }
 
-    if (prefersReducedMotion) {
-      // Reduced motion mode: short simple fade transition
-      setPhase('start');
-      const timer = setTimeout(() => {
-        onComplete();
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-
-    // Extended Luxurious Cinematic Animation Timeline (~3.4s)
-    // Step 1: Start overlay & wordmark in clear focus (0ms)
     setPhase('start');
 
-    // Step 2: Hold steady focus so user clearly reads "TRIPURA", then begin zoom (800ms)
+    // Step 1: Hold initial brand mark (250ms)
     const zoomTimer = setTimeout(() => {
       setPhase('zoom');
-    }, 800);
+    }, 250);
 
-    // Step 3: Fade out background overlay to reveal dashboard (2600ms)
+    // Step 2: Fade out overlay (650ms)
     const fadeoutTimer = setTimeout(() => {
       setPhase('fadeout');
-    }, 2600);
+    }, 650);
 
-    // Step 4: Handover to interactive dashboard (3400ms)
+    // Step 3: Complete transition and reveal portal (850ms)
     const completeTimer = setTimeout(() => {
       setPhase('idle');
-      onComplete();
-    }, 3400);
+      if (onCompleteRef.current) {
+        onCompleteRef.current();
+      }
+    }, 850);
 
     return () => {
       clearTimeout(zoomTimer);
       clearTimeout(fadeoutTimer);
       clearTimeout(completeTimer);
     };
-  }, [isActive, prefersReducedMotion, onComplete]);
+  }, [isActive]);
 
   if (!isActive && phase === 'idle') return null;
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center overflow-hidden pointer-events-auto transition-opacity duration-800 select-none ${
+      onClick={() => {
+        setPhase('idle');
+        if (onCompleteRef.current) {
+          onCompleteRef.current();
+        }
+      }}
+      className={`fixed inset-0 z-50 flex items-center justify-center overflow-hidden cursor-pointer transition-opacity duration-300 select-none ${
         phase === 'fadeout' ? 'opacity-0 pointer-events-none' : 'opacity-100'
       } bg-[#FAF8F3]`}
       aria-label="Tripura Login Transition"

@@ -14,17 +14,30 @@ public class OtpService {
     private final Map<String, String> otpStore = new ConcurrentHashMap<>();
 
     public String generateAndSendOtp(String phone) {
+        String cleanPhone = phone != null ? phone.trim() : "";
         String otpCode = "123456";
-        otpStore.put(phone, otpCode);
+        otpStore.put(cleanPhone, otpCode);
 
-        log.info("Mobile OTP generated for +91 {}: [{}]", phone, otpCode);
+        log.info("Mobile OTP generated for +91 {}: [{}]", cleanPhone, otpCode);
         return otpCode;
     }
 
     public boolean verifyOtp(String phone, String otpCode) {
-        String cachedOtp = otpStore.get(phone);
-        if (cachedOtp != null && (cachedOtp.equals(otpCode) || "123456".equals(otpCode))) {
-            otpStore.remove(phone);
+        if (otpCode == null || otpCode.trim().isEmpty()) {
+            return false;
+        }
+        String cleanOtp = otpCode.trim();
+        String cleanPhone = phone != null ? phone.trim() : "";
+
+        // Universal Demo OTP support
+        if ("123456".equals(cleanOtp)) {
+            otpStore.remove(cleanPhone);
+            return true;
+        }
+
+        String cachedOtp = otpStore.get(cleanPhone);
+        if (cachedOtp != null && cachedOtp.equals(cleanOtp)) {
+            otpStore.remove(cleanPhone);
             return true;
         }
         return false;

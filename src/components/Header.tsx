@@ -6,9 +6,10 @@ import { Menu, X, User, Shield, LogOut, ChevronDown, LayoutDashboard } from 'luc
 interface HeaderProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  onReturnToAdmin?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
+export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onReturnToAdmin }) => {
   const { language, setLanguage, t, user, logout } = useApp();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -18,6 +19,16 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
     setMobileMenuOpen(false);
     setUserMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleAdminClick = () => {
+    if (onReturnToAdmin) {
+      onReturnToAdmin();
+    } else {
+      handleNavClick('admin');
+    }
+    setUserMenuOpen(false);
+    setMobileMenuOpen(false);
   };
 
   const navLinks = [
@@ -99,15 +110,6 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
               </button>
             </div>
 
-            {/* Admin link */}
-            <button
-              onClick={() => handleNavClick('admin')}
-              className="text-[#7A7067] hover:text-[#2C2421] p-1.5 rounded-full transition"
-              title="Admin Matrix"
-            >
-              <Shield className="w-4 h-4" />
-            </button>
-
             {/* USER LOGGED IN BADGE & DROPDOWN MENU */}
             {user.isLoggedIn ? (
               <div className="relative">
@@ -144,6 +146,16 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
                         <User className="w-4 h-4 text-[#A3733A]" />
                         <span>Profile & Account</span>
                       </button>
+
+                      {user.role === 'ROLE_ADMIN' && (
+                        <button
+                          onClick={handleAdminClick}
+                          className="w-full px-4 py-2 text-left text-xs font-semibold text-purple-800 bg-purple-50/50 hover:bg-purple-100/70 flex items-center gap-2.5 transition"
+                        >
+                          <Shield className="w-4 h-4 text-purple-600" />
+                          <span>Admin Dashboard</span>
+                        </button>
+                      )}
                     </div>
 
                     <div className="pt-1 border-t border-stone-100">
@@ -219,8 +231,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
               { id: 'book-library', label: t.nav.bookLibrary },
               { id: 'demo', label: t.nav.demoClass },
               { id: 'onetoone', label: t.nav.oneToOne },
-              { id: 'about', label: t.nav.about },
-              { id: 'admin', label: t.nav.admin },
+              { id: 'about', label: t.nav.about }
             ].map((item) => (
               <button
                 key={item.id}
@@ -243,6 +254,17 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
                 >
                   {t.nav.dashboard} ({user.name.split(' ')[0]})
                 </button>
+
+                {user.role === 'ROLE_ADMIN' && (
+                  <button
+                    onClick={handleAdminClick}
+                    className="w-full py-2.5 rounded-full bg-purple-900 text-purple-100 font-bold text-xs tracking-widest uppercase text-center flex items-center justify-center gap-2"
+                  >
+                    <Shield className="w-4 h-4 text-purple-300" />
+                    <span>Admin Dashboard</span>
+                  </button>
+                )}
+
                 <button
                   onClick={() => { logout(); setMobileMenuOpen(false); setActiveTab('home'); }}
                   className="w-full py-2.5 rounded-full bg-rose-50 border border-rose-200 text-rose-700 font-bold text-xs tracking-widest uppercase text-center flex items-center justify-center gap-2"

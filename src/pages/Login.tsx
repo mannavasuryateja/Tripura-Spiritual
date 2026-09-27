@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, Check, Smartphone, KeyRound, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, Check, Smartphone, KeyRound, CheckCircle2, Clock } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { ScrollReveal } from '../components/ScrollReveal';
 
@@ -8,7 +8,7 @@ interface LoginProps {
 }
 
 export const Login: React.FC<LoginProps> = ({ setActiveTab }) => {
-  const { loginWithEmailPassword, sendOtp, verifyOtpAndLogin, triggerLoginSuccessTransition } = useApp();
+  const { loginWithEmailPassword, sendOtp, verifyOtpAndLogin, triggerLoginSuccessTransition, sessionExpiredNotice, clearSessionExpiredNotice } = useApp();
   
   const [authMethod, setAuthMethod] = useState<'otp' | 'email'>('otp');
   
@@ -133,7 +133,7 @@ export const Login: React.FC<LoginProps> = ({ setActiveTab }) => {
   };
 
   return (
-    <div className="relative h-screen max-h-screen w-full flex flex-col justify-between overflow-hidden font-sans selection:bg-amber-200 selection:text-amber-900">
+    <div className="relative min-h-screen w-full flex flex-col justify-between font-sans selection:bg-amber-200 selection:text-amber-900">
       
       {/* Full-Screen Background Image */}
       <div 
@@ -237,6 +237,21 @@ export const Login: React.FC<LoginProps> = ({ setActiveTab }) => {
               </div>
 
               {/* Notifications */}
+              {sessionExpiredNotice && (
+                <div className="mb-3 p-3 rounded-2xl bg-amber-100/90 border border-amber-300 text-amber-900 text-xs flex items-center justify-between gap-2 animate-fadeIn">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-amber-700 shrink-0" />
+                    <span className="font-medium text-[11px]">Your previous session expired after 1 minute. Please sign in to resume.</span>
+                  </div>
+                  <button
+                    onClick={clearSessionExpiredNotice}
+                    className="text-amber-700 hover:text-amber-950 font-bold text-xs p-1"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+
               {error && (
                 <div className="mb-3 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2 animate-fadeIn">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0 text-rose-500" />

@@ -6,8 +6,7 @@ import jakarta.validation.constraints.Size;
 
 public class LoginRequestDto {
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email or mobile number is required")
     private String email;
 
     @NotBlank(message = "Password is required")

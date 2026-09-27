@@ -1,9 +1,13 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import type { Language } from '../i18n';
 import { getTranslation } from '../i18n';
 import { en } from '../i18n/en';
 import { ambientEngine } from '../audio/ambientEngine';
 import { authApi, setUnauthorizedHandler } from '../api/client';
+
+export type AppRole = 'ROLE_SEEKER' | 'ROLE_ENROLLED' | 'ROLE_ADMIN';
+
+export const SESSION_DURATION_MS = 60 * 1000; // 1 minute security session hold
 
 export interface UserSubscription {
   hasActivePlan: boolean;
@@ -20,6 +24,7 @@ export interface UserProfile {
   phone: string;
   email?: string;
   name: string;
+  role: AppRole;
   subscription: UserSubscription;
 }
 
@@ -51,8 +56,11 @@ export interface BookItem {
   episodesCount: number;
   price: number;
   coverImage: string;
+  problemStatement?: string;
   synopsis: string;
+  summaryStory?: string;
   masterQuote: string;
+  previewDurationMinutes?: number;
   chapters: { title: string; duration: string; isFree?: boolean }[];
 }
 
@@ -68,6 +76,8 @@ interface AppContextType {
   signUpWithEmailPassword: (name: string, email: string, password: string, phone?: string) => Promise<boolean>;
   logout: () => void;
   switchDemoUser: (phone: string) => void;
+  switchDemoRole: (role: AppRole) => void;
+  hasRole: (roles: AppRole | AppRole[]) => boolean;
   
   // Auth Modal
   isAuthOpen: boolean;
@@ -100,6 +110,13 @@ interface AppContextType {
   unlockedBooks: string[];
   unlockBookAudio: (bookId: string) => void;
 
+  // 1-minute Session Timeout & Security Hold
+  sessionSecondsLeft: number;
+  sessionExpiredNotice: boolean;
+  clearSessionExpiredNotice: () => void;
+  setOnSessionExpiredCallback: (cb: () => void) => void;
+  resetSessionTimer: () => void;
+
   // Ambient Audio
   isMusicPlaying: boolean;
   isMusicMuted: boolean;
@@ -122,14 +139,33 @@ interface AppContextType {
 // Default WhatsApp Community Link
 export const TRIPURA_WHATSAPP_COMMUNITY_URL = "https://chat.whatsapp.com/GHY78TripuraMasterclassLive";
 
-// Preset Demo Users
+// Preset Demo Users for RBAC Roles
 const SUBSCRIBED_USER_PHONE = '9999999999';
 const RESTRICTED_USER_PHONE = '8888888888';
 
-const defaultSubscribedUser: UserProfile = {
+export const defaultAdminUser: UserProfile = {
+  isLoggedIn: true,
+  phone: "9999000001",
+  email: "admin@tripura.org",
+  name: "Tripura Platform Admin",
+  role: "ROLE_ADMIN",
+  subscription: {
+    hasActivePlan: true,
+    planId: 'admin-masterclass-all',
+    planName: "Platform Admin Superuser Pass",
+    planType: 'live',
+    validUntil: "Permanent Admin Access",
+    unlockedDays: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    whatsappLink: TRIPURA_WHATSAPP_COMMUNITY_URL
+  }
+};
+
+export const defaultSubscribedUser: UserProfile = {
   isLoggedIn: true,
   phone: SUBSCRIBED_USER_PHONE,
+  email: "ananya@tripura.org",
   name: "Ananya Sharma (Live Attendee)",
+  role: "ROLE_ENROLLED",
   subscription: {
     hasActivePlan: true,
     planId: 'hanuman-kriya-live',
@@ -141,23 +177,26 @@ const defaultSubscribedUser: UserProfile = {
   }
 };
 
-const defaultRestrictedUser: UserProfile = {
+export const defaultRestrictedUser: UserProfile = {
   isLoggedIn: true,
   phone: RESTRICTED_USER_PHONE,
+  email: "vikram@tripura.org",
   name: "Vikram Kumar (New Seeker)",
+  role: "ROLE_SEEKER",
   subscription: {
     hasActivePlan: false,
     planId: null,
-    planName: "No Active Subscription",
+    planName: "Free Orientation Mode",
     validUntil: "Orientation Unlocked",
     unlockedDays: [1, 2] // User B has sample access to Day 1 & 2
   }
 };
 
-const defaultGuestUser: UserProfile = {
+export const defaultGuestUser: UserProfile = {
   isLoggedIn: false,
   phone: "",
   name: "Guest Seeker",
+  role: "ROLE_SEEKER",
   subscription: {
     hasActivePlan: false,
     planId: null,
@@ -182,13 +221,89 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const t = getTranslation(language);
 
-  // 2. User & Subscription State
+  // 2. User & Subscription State with 1-Minute Session Expiration Hold
+  const [sessionExpiry, setSessionExpiry] = useState<number | null>(() => {
+    const savedExpiry = localStorage.getItem('tripura_session_expiry');
+    if (savedExpiry) {
+      const expiryTime = Number(savedExpiry);
+      if (!isNaN(expiryTime) && Date.now() < expiryTime) {
+        return expiryTime;
+      }
+    }
+    return null;
+  });
+
+  const [sessionSecondsLeft, setSessionSecondsLeft] = useState<number>(() => {
+    const savedExpiry = localStorage.getItem('tripura_session_expiry');
+    if (savedExpiry) {
+      const expiryTime = Number(savedExpiry);
+      if (!isNaN(expiryTime) && Date.now() < expiryTime) {
+        return Math.ceil((expiryTime - Date.now()) / 1000);
+      }
+    }
+    return 0;
+  });
+
+  const [sessionExpiredNotice, setSessionExpiredNotice] = useState<boolean>(() => {
+    const savedExpiry = localStorage.getItem('tripura_session_expiry');
+    const savedUser = localStorage.getItem('tripura_user');
+    if (savedExpiry && savedUser) {
+      const expiryTime = Number(savedExpiry);
+      if (!isNaN(expiryTime) && Date.now() >= expiryTime) {
+        return true;
+      }
+    }
+    return false;
+  });
+
+  const clearSessionExpiredNotice = () => setSessionExpiredNotice(false);
+
+  const onSessionExpiredRef = useRef<(() => void) | null>(null);
+  const setOnSessionExpiredCallback = (cb: () => void) => {
+    onSessionExpiredRef.current = cb;
+  };
+
+  const startSession = (durationMs: number = SESSION_DURATION_MS) => {
+    const expiry = Date.now() + durationMs;
+    localStorage.setItem('tripura_session_expiry', expiry.toString());
+    setSessionExpiry(expiry);
+    setSessionSecondsLeft(Math.ceil(durationMs / 1000));
+    setSessionExpiredNotice(false);
+  };
+
+  const endSession = () => {
+    localStorage.removeItem('tripura_session_expiry');
+    localStorage.removeItem('tripura_user');
+    setSessionExpiry(null);
+    setSessionSecondsLeft(0);
+  };
+
+  const resetSessionTimer = () => {
+    if (user.isLoggedIn) {
+      startSession();
+    }
+  };
+
   const [user, setUser] = useState<UserProfile>(() => {
     const saved = localStorage.getItem('tripura_user');
+    const savedExpiry = localStorage.getItem('tripura_session_expiry');
+
+    // If session expired (more than 1 minute since last session/hold), reset to guest
+    if (savedExpiry) {
+      const expiryTime = Number(savedExpiry);
+      if (isNaN(expiryTime) || Date.now() >= expiryTime) {
+        localStorage.removeItem('tripura_user');
+        localStorage.removeItem('tripura_session_expiry');
+        return defaultGuestUser;
+      }
+    } else if (saved) {
+      localStorage.removeItem('tripura_user');
+      return defaultGuestUser;
+    }
+
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Clear legacy default user cache so new sessions start in Guest Mode
         if (parsed.phone === '9999999999' && !parsed.email) {
           localStorage.removeItem('tripura_user');
           return defaultGuestUser;
@@ -200,8 +315,59 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   useEffect(() => {
-    localStorage.setItem('tripura_user', JSON.stringify(user));
+    if (user.isLoggedIn) {
+      localStorage.setItem('tripura_user', JSON.stringify(user));
+      if (!sessionExpiry || sessionExpiry <= Date.now()) {
+        startSession();
+      }
+    } else {
+      localStorage.removeItem('tripura_user');
+      localStorage.removeItem('tripura_session_expiry');
+    }
   }, [user]);
+
+  // Session Expiration Watcher & Countdown Timer (1-minute hold)
+  useEffect(() => {
+    if (!user.isLoggedIn || !sessionExpiry) {
+      setSessionSecondsLeft(0);
+      return;
+    }
+
+    const checkExpiration = () => {
+      const remainingMs = sessionExpiry - Date.now();
+      if (remainingMs <= 0) {
+        // 1-minute window expired!
+        endSession();
+        setUser(defaultGuestUser);
+        setSessionExpiredNotice(true);
+        if (onSessionExpiredRef.current) {
+          onSessionExpiredRef.current();
+        }
+      } else {
+        setSessionSecondsLeft(Math.ceil(remainingMs / 1000));
+      }
+    };
+
+    // Check immediately
+    checkExpiration();
+
+    const interval = setInterval(checkExpiration, 1000);
+
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible') {
+        checkExpiration();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    window.addEventListener('focus', handleVisibilityOrFocus);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+    };
+  }, [user.isLoggedIn, sessionExpiry]);
 
   // Admin Granular Overrides for User A vs User B
   const [adminOverrides, setAdminOverrides] = useState<Record<string, number[]>>(() => {
@@ -269,6 +435,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isLoggedIn: true,
         phone,
         name: name || `Seeker (${phone.slice(-4)})`,
+        role: 'ROLE_SEEKER',
         subscription: {
           hasActivePlan: false,
           planId: null,
@@ -281,13 +448,48 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsAuthOpen(false);
   };
 
+  const switchDemoRole = (role: AppRole) => {
+    if (role === 'ROLE_ADMIN') {
+      setUser(defaultAdminUser);
+    } else if (role === 'ROLE_ENROLLED') {
+      setUser({
+        ...defaultSubscribedUser,
+        subscription: {
+          ...defaultSubscribedUser.subscription,
+          unlockedDays: adminOverrides[SUBSCRIBED_USER_PHONE] || [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        }
+      });
+    } else {
+      setUser({
+        ...defaultRestrictedUser,
+        subscription: {
+          ...defaultRestrictedUser.subscription,
+          unlockedDays: adminOverrides[RESTRICTED_USER_PHONE] || [1, 2]
+        }
+      });
+    }
+  };
+
+  const hasRole = (roles: AppRole | AppRole[]): boolean => {
+    if (!user.isLoggedIn) return false;
+    const currentRole = user.role || 'ROLE_SEEKER';
+    if (currentRole === 'ROLE_ADMIN') return true;
+    if (Array.isArray(roles)) {
+      return roles.includes(currentRole);
+    }
+    return roles === currentRole;
+  };
+
   const sendOtp = async (phone: string): Promise<{ success: boolean; message: string }> => {
     try {
       const data = await authApi.sendOtp({ phone, name: 'Seeker' });
       return { success: true, message: data?.message || `OTP sent successfully to +91 ${phone}. (Demo OTP: 123456)` };
-    } catch {
-      // Offline fallback
-      return { success: true, message: `OTP sent successfully to +91 ${phone}. (Demo OTP: 123456)` };
+    } catch (err: any) {
+      if (err.response && err.response.data) {
+        const errorMsg = err.response.data.message || err.response.data.error || 'Failed to send OTP.';
+        throw new Error(errorMsg);
+      }
+      throw new Error('Backend server is offline or unreachable (port 8080). Please start the backend server.');
     }
   };
 
@@ -295,11 +497,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const data = await authApi.verifyOtp({ phone, otpCode });
       if (data) {
+        const assignedRole: AppRole = data.role ? (data.role as AppRole) : (data.hasActivePlan ? 'ROLE_ENROLLED' : 'ROLE_SEEKER');
         setUser({
           isLoggedIn: true,
           email: data.email || undefined,
           phone: data.phone || phone,
           name: data.name || `Seeker (${phone.slice(-4)})`,
+          role: assignedRole,
           subscription: {
             hasActivePlan: data.hasActivePlan ?? false,
             planId: data.hasActivePlan ? 'hanuman-kriya-live' : null,
@@ -313,28 +517,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsAuthOpen(false);
         return true;
       }
-    } catch {
-      // Offline fallback
+    } catch (err: any) {
+      if (err.response && err.response.data) {
+        const errorMsg = err.response.data.message || err.response.data.error || 'Invalid OTP code. Use Demo OTP: 123456';
+        throw new Error(errorMsg);
+      }
+      throw new Error('Backend server is offline or unreachable (port 8080). Please start the backend server.');
     }
 
-    if (otpCode === '123456' || otpCode.length === 6) {
-      login(phone);
-      return true;
-    }
-    throw new Error('Invalid OTP code. Use Demo OTP: 123456');
+    throw new Error('OTP verification failed.');
   };
 
   const loginWithEmailPassword = async (email: string, password: string, rememberMe?: boolean): Promise<boolean> => {
-    let networkError = false;
-
     try {
       const data = await authApi.login({ email, password, rememberMe: !!rememberMe });
       if (data) {
+        const assignedRole: AppRole = data.role ? (data.role as AppRole) : (data.hasActivePlan ? 'ROLE_ENROLLED' : 'ROLE_SEEKER');
         setUser({
           isLoggedIn: true,
           email: data.email || email,
           phone: data.phone || '9999999999',
           name: data.name || email.split('@')[0],
+          role: assignedRole,
           subscription: {
             hasActivePlan: data.hasActivePlan ?? true,
             planId: data.hasActivePlan ? 'hanuman-kriya-live' : null,
@@ -349,62 +553,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     } catch (err: any) {
       if (err.response && err.response.data) {
-        const errorMsg = err.response.data.message || 'Invalid email or password. Please try again.';
+        const errorMsg = err.response.data.message || err.response.data.error || 'Invalid email/phone or password. Please try again.';
         throw new Error(errorMsg);
       }
-      networkError = true;
-    }
-
-    // Only if backend network fetch is completely offline (development / local fallback mode)
-    if (networkError) {
-      const registeredAccounts = JSON.parse(localStorage.getItem('tripura_registered_accounts') || '[]');
-      
-      const defaultAccounts = [
-        { email: 'suryateja@tripura.org', password: 'Password123!', name: 'Suryateja', phone: '9999999999', hasActivePlan: true },
-        { email: 'google.seeker@tripura.org', password: 'GoogleAuth2026!', name: 'Google Seeker', phone: '9999999999', hasActivePlan: true },
-        { email: 'demo@tripura.org', password: 'Password123!', name: 'Demo Seeker', phone: '8888888888', hasActivePlan: false }
-      ];
-
-      const allAccounts = [...defaultAccounts, ...registeredAccounts];
-      const normalizedEmail = email.trim().toLowerCase();
-
-      const matchedUser = allAccounts.find(
-        acc => acc.email.toLowerCase() === normalizedEmail && acc.password === password
-      );
-
-      if (matchedUser) {
-        setUser({
-          isLoggedIn: true,
-          email: matchedUser.email,
-          phone: matchedUser.phone || '9999999999',
-          name: matchedUser.name,
-          subscription: {
-            hasActivePlan: matchedUser.hasActivePlan ?? false,
-            planId: matchedUser.hasActivePlan ? 'hanuman-kriya-live' : null,
-            planName: matchedUser.hasActivePlan ? "Hanuman Kriya 11-Day Live Masterclass" : "Free Orientation Mode",
-            planType: 'live',
-            validUntil: "October 13, 2026",
-            unlockedDays: matchedUser.hasActivePlan ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] : [1, 2],
-            whatsappLink: TRIPURA_WHATSAPP_COMMUNITY_URL
-          }
-        });
-        return true;
-      } else {
-        const emailExists = allAccounts.some(acc => acc.email.toLowerCase() === normalizedEmail);
-        if (emailExists) {
-          throw new Error('Incorrect password. Please check your password and try again.');
-        } else {
-          throw new Error('No account found with this email. Please sign up for an account first.');
-        }
-      }
+      throw new Error('Backend server is offline or unreachable (port 8080). Please start the backend server.');
     }
 
     return false;
   };
 
   const signUpWithEmailPassword = async (name: string, email: string, password: string, phone?: string): Promise<boolean> => {
-    let networkError = false;
-
     try {
       const data = await authApi.signup({ name, email, password, phone: phone?.trim() || undefined });
       if (data) {
@@ -413,6 +571,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           email: data.email || email,
           phone: data.phone || phone?.trim() || '8888888888',
           name: data.name || name,
+          role: (data.role as AppRole) || 'ROLE_SEEKER',
           subscription: {
             hasActivePlan: false,
             planId: null,
@@ -422,59 +581,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           }
         };
         setUser(newUserRecord);
-
-        // Also update registered accounts cache for demo
-        const registered = JSON.parse(localStorage.getItem('tripura_registered_accounts') || '[]');
-        if (!registered.some((acc: any) => acc.email.toLowerCase() === email.toLowerCase())) {
-          registered.push({ email: email.toLowerCase(), password, name, phone: newUserRecord.phone, hasActivePlan: false });
-          localStorage.setItem('tripura_registered_accounts', JSON.stringify(registered));
-        }
         return true;
       }
     } catch (err: any) {
       if (err.response && err.response.data) {
-        const errorMsg = err.response.data.message || 'Could not create account. An account with this email may already exist.';
+        const errorMsg = err.response.data.message || err.response.data.error || 'Could not create account. An account with this email already exists.';
         throw new Error(errorMsg);
       }
-      networkError = true;
-    }
-
-    // Offline / Demo Fallback Mode
-    if (networkError) {
-      const registered = JSON.parse(localStorage.getItem('tripura_registered_accounts') || '[]');
-      const normalizedEmail = email.trim().toLowerCase();
-      const defaultEmails = ['suryateja@tripura.org', 'google.seeker@tripura.org', 'demo@tripura.org'];
-
-      if (registered.some((acc: any) => acc.email.toLowerCase() === normalizedEmail) || defaultEmails.includes(normalizedEmail)) {
-        throw new Error('An account with this email already exists. Please sign in instead.');
-      }
-
-      const userPhone = phone?.trim() || ('99' + String(Math.floor(10000000 + Math.random() * 90000000)));
-      const newUserRecord = { email: normalizedEmail, password, name, phone: userPhone, hasActivePlan: false };
-
-      registered.push(newUserRecord);
-      localStorage.setItem('tripura_registered_accounts', JSON.stringify(registered));
-
-      setUser({
-        isLoggedIn: true,
-        email: normalizedEmail,
-        phone: userPhone,
-        name: name,
-        subscription: {
-          hasActivePlan: false,
-          planId: null,
-          planName: "Free Orientation Mode",
-          validUntil: "Orientation Unlocked",
-          unlockedDays: [1, 2]
-        }
-      });
-      return true;
+      throw new Error('Backend server is offline or unreachable (port 8080). Please start the backend server.');
     }
 
     return false;
   };
 
   const logout = async () => {
+    endSession();
     try {
       await authApi.logout();
     } catch {
@@ -515,14 +636,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const activePhone = user.isLoggedIn ? user.phone : '9999999999';
     const allDays = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
-    let validUntilText = "October 13, 2026 (Day 13)";
+    let validUntilText = "Live Batch (1st–11th) • Recordings Active till 13th Day";
     let pType: 'live' | 'extension' | 'recordings-only' | 'demo' = 'live';
 
     if (pendingPlan.type === 'recording-extension' || pendingPlan.id.includes('extension')) {
-      validUntilText = "21 Days Extended Access from Purchase (Till October 24, 2026)";
+      validUntilText = "30 Days Extended Recording Access from Date of Purchase";
       pType = 'extension';
     } else if (pendingPlan.type === 'recordings-only' || pendingPlan.id.includes('recordings-only')) {
-      validUntilText = "21 Days Recording Access from Purchase Date";
+      validUntilText = "30 Days Complete Recording Access from Date of Purchase";
       pType = 'recordings-only';
     } else if (pendingPlan.type === 'book-audio') {
       unlockBookAudio(pendingPlan.id.replace('book-', ''));
@@ -544,6 +665,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isLoggedIn: true,
       phone: activePhone,
       name: prev.name || "Spiritual Seeker",
+      role: prev.role === 'ROLE_ADMIN' ? prev.role : 'ROLE_ENROLLED',
       subscription: updatedSubscription
     }));
 
@@ -611,13 +733,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
-  // Prevent background page / dashboard scrolling whenever any modal, drawer, audio player, or transition is active
-  const isAnyOverlayActive = isAuthOpen || isPaymentOpen || isVideoOpen || isBookDrawerOpen || isBookAudioOpen || isLoginTransitionActive;
+  // Prevent background page scrolling when active modals are open
+  const isModalOverlayActive = isAuthOpen || isPaymentOpen || isVideoOpen || isBookDrawerOpen || isBookAudioOpen;
 
   useEffect(() => {
-    if (isAnyOverlayActive) {
+    if (isModalOverlayActive) {
       document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
@@ -627,7 +748,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
     };
-  }, [isAnyOverlayActive]);
+  }, [isModalOverlayActive]);
 
 
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
@@ -689,6 +810,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         signUpWithEmailPassword,
         logout,
         switchDemoUser,
+        switchDemoRole,
+        hasRole,
         isAuthOpen,
         openAuthModal,
         closeAuthModal,
@@ -723,7 +846,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         completeLoginSuccessTransition,
         adminOverrides,
         toggleAdminUserDayAccess,
-        resetDemoState
+        resetDemoState,
+        sessionSecondsLeft,
+        sessionExpiredNotice,
+        clearSessionExpiredNotice,
+        setOnSessionExpiredCallback,
+        resetSessionTimer
       }}
     >
       {children}

@@ -1,47 +1,62 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { X, Smartphone, KeyRound, CheckCircle2, UserCheck, Lock } from 'lucide-react';
+import { X, Smartphone, KeyRound, CheckCircle2 } from 'lucide-react';
 
 interface AuthModalProps {
   onSuccessRedirect?: () => void;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRedirect }) => {
-  const { isAuthOpen, closeAuthModal, login, triggerLoginSuccessTransition, t } = useApp();
+  const { isAuthOpen, closeAuthModal, sendOtp, verifyOtpAndLogin, triggerLoginSuccessTransition, t } = useApp();
   const [mobile, setMobile] = useState('');
   const [step, setStep] = useState<'mobile' | 'otp'>('mobile');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!isAuthOpen) return null;
 
-  const handleSendOtp = (e: React.FormEvent) => {
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!mobile || mobile.length < 10) {
+    const cleanMobile = mobile.replace(/\D/g, '');
+    if (!cleanMobile || cleanMobile.length !== 10) {
       setError('Please enter a valid 10-digit mobile number');
-      return false;
+      return;
     }
     setError('');
-    setStep('otp');
-  };
-
-  const handleVerifyOtp = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otp === '123456' || otp.length === 6) {
-      login(mobile);
-      closeAuthModal();
-      triggerLoginSuccessTransition();
-      if (onSuccessRedirect) onSuccessRedirect();
-    } else {
-      setError('Invalid OTP. Use Demo OTP: 123456');
+    setIsLoading(true);
+    try {
+      await sendOtp(cleanMobile);
+      setStep('otp');
+    } catch (err: any) {
+      setError(err.message || 'Could not send OTP. Please ensure backend is running.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleQuickLogin = (phone: string) => {
-    login(phone);
-    closeAuthModal();
-    triggerLoginSuccessTransition();
-    if (onSuccessRedirect) onSuccessRedirect();
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanMobile = mobile.replace(/\D/g, '');
+    const cleanOtp = otp.trim();
+    if (!cleanOtp) {
+      setError('Please enter OTP (Demo OTP: 123456)');
+      return;
+    }
+    setError('');
+    setIsLoading(true);
+    try {
+      const success = await verifyOtpAndLogin(cleanMobile, cleanOtp);
+      if (success) {
+        closeAuthModal();
+        triggerLoginSuccessTransition();
+        if (onSuccessRedirect) onSuccessRedirect();
+      }
+    } catch (err: any) {
+      setError(err.message || 'Invalid OTP code.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -95,9 +110,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRedirect }) => {
 
             <button
               type="submit"
-              className="w-full py-4 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-semibold text-xs tracking-widest uppercase shadow-md transition"
+              disabled={isLoading}
+              className="w-full py-4 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-semibold text-xs tracking-widest uppercase shadow-md transition disabled:opacity-60"
             >
-              {t.auth.sendOtp}
+              {isLoading ? (
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
+              ) : (
+                t.auth.sendOtp
+              )}
             </button>
           </form>
         ) : (
@@ -131,51 +151,28 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRedirect }) => {
 
             <button
               type="submit"
-              className="w-full py-4 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-semibold text-xs tracking-widest uppercase shadow-md transition flex items-center justify-center gap-2"
+              disabled={isLoading}
+              className="w-full py-4 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-semibold text-xs tracking-widest uppercase shadow-md transition flex items-center justify-center gap-2 disabled:opacity-60"
             >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>{t.auth.verifyOtp}</span>
+              {isLoading ? (
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{t.auth.verifyOtp}</span>
+                </>
+              )}
             </button>
 
             <button
               type="button"
-              onClick={() => setStep('mobile')}
+              onClick={() => { setStep('mobile'); setError(''); }}
               className="w-full text-xs text-stone-500 hover:text-stone-800 underline text-center"
             >
               Change Mobile Number
             </button>
           </form>
         )}
-
-        {/* Quick Demo Login Buttons */}
-        <div className="mt-6 pt-5 border-t border-[#E6E0D2] space-y-2">
-          <p className="text-[11px] uppercase tracking-wider font-semibold text-stone-400 text-center">
-            {t.auth.quickDemoUsers}
-          </p>
-          <div className="grid grid-cols-1 gap-2">
-            <button
-              onClick={() => handleQuickLogin('9999999999')}
-              className="w-full py-2.5 px-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold hover:bg-emerald-100 transition flex items-center justify-between"
-            >
-              <span className="flex items-center gap-2">
-                <UserCheck className="w-4 h-4 text-emerald-600" />
-                <span>{t.auth.loginSubscribed}</span>
-              </span>
-              <span className="bg-emerald-600 text-white px-2 py-0.5 rounded text-[10px] uppercase font-bold">Active</span>
-            </button>
-
-            <button
-              onClick={() => handleQuickLogin('8888888888')}
-              className="w-full py-2.5 px-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold hover:bg-amber-100 transition flex items-center justify-between"
-            >
-              <span className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-amber-700" />
-                <span>{t.auth.loginRestricted}</span>
-              </span>
-              <span className="bg-amber-700 text-white px-2 py-0.5 rounded text-[10px] uppercase font-bold">New</span>
-            </button>
-          </div>
-        </div>
 
       </div>
     </div>

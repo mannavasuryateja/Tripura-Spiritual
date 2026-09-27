@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/mentor")
@@ -25,6 +26,9 @@ public class MentorController {
         this.mentorBookingRepository = mentorBookingRepository;
     }
 
+    /**
+     * Seeker: Book a 1-on-1 mentorship session.
+     */
     @PostMapping("/book")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MentorBooking> bookSession(
@@ -35,9 +39,42 @@ public class MentorController {
         return ResponseEntity.ok(booking);
     }
 
+    /**
+     * Seeker: View personal bookings.
+     */
     @GetMapping("/my-bookings")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<MentorBooking>> getMyBookings(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(mentorBookingRepository.findByUserId(user.getId()));
+    }
+
+    /**
+     * Admin: View all incoming 1-on-1 mentorship bookings.
+     */
+    @GetMapping("/all-bookings")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<MentorBooking>> getAllBookings() {
+        return ResponseEntity.ok(mentorBookingRepository.findAll());
+    }
+
+    /**
+     * Admin: Update mentorship status.
+     */
+    @PostMapping("/bookings/{bookingId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateBookingStatus(
+            @PathVariable Long bookingId,
+            @RequestBody Map<String, String> payload) {
+
+        MentorBooking booking = mentorBookingRepository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found with ID: " + bookingId));
+
+        if (payload.containsKey("status")) {
+            String statusStr = payload.get("status").trim().toUpperCase();
+            booking.setStatus(MentorBooking.BookingStatus.valueOf(statusStr));
+        }
+
+        mentorBookingRepository.save(booking);
+        return ResponseEntity.ok(Map.of("success", true, "message", "Booking status updated successfully", "booking", booking));
     }
 }

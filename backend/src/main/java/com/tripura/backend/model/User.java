@@ -1,7 +1,11 @@
 package com.tripura.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -17,6 +21,7 @@ public class User {
     @Column(unique = true, length = 100)
     private String email;
 
+    @JsonIgnore
     private String password;
 
     @Column(nullable = true, unique = true, length = 15)
@@ -69,6 +74,19 @@ public class User {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    @JsonIgnore
+    public List<SimpleGrantedAuthority> getAuthorities() {
+        return Role.fromString(this.role).getAuthorities();
+    }
+
+    public boolean isAdmin() {
+        return "ROLE_ADMIN".equalsIgnoreCase(this.role);
+    }
+
+    public boolean isEnrolled() {
+        return "ROLE_ENROLLED".equalsIgnoreCase(this.role) || isAdmin();
     }
 
     public Long getId() { return id; }

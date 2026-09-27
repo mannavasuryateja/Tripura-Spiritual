@@ -35,25 +35,42 @@ public class AuthService {
     }
 
     public void requestOtp(OtpRequestDto request) {
-        otpService.generateAndSendOtp(request.getPhone());
+        String phone = request.getPhone() != null ? request.getPhone().trim() : "";
+        otpService.generateAndSendOtp(phone);
     }
 
     public AuthResponseDto verifyOtpAndLogin(OtpVerifyDto verifyDto) {
-        if (!otpService.verifyOtp(verifyDto.getPhone(), verifyDto.getOtpCode())) {
+        String cleanPhone = verifyDto.getPhone() != null ? verifyDto.getPhone().trim() : "";
+        String cleanOtp = verifyDto.getOtpCode() != null ? verifyDto.getOtpCode().trim() : "";
+
+        if (!otpService.verifyOtp(cleanPhone, cleanOtp)) {
             throw new IllegalArgumentException("Invalid or expired OTP code");
         }
 
-        User user = userRepository.findByPhone(verifyDto.getPhone())
+        String suffix = cleanPhone.length() >= 4 ? cleanPhone.substring(cleanPhone.length() - 4) : cleanPhone;
+
+        User user = userRepository.findByPhone(cleanPhone)
                 .orElseGet(() -> userRepository.save(
                         User.builder()
-                                .name("Seeker (" + verifyDto.getPhone().substring(6) + ")")
-                                .phone(verifyDto.getPhone())
+                                .name("Seeker (" + suffix + ")")
+                                .phone(cleanPhone)
                                 .role("ROLE_SEEKER")
                                 .build()
                 ));
 
-        String token = tokenProvider.generateToken(user.getId(), user.getPhone(), user.getRole());
-        boolean hasEnrollments = !enrollmentRepository.findByUserId(user.getId()).isEmpty();
+        String principal = user.getPhone() != null ? user.getPhone() : (user.getEmail() != null ? user.getEmail() : "user");
+        String token = tokenProvider.generateToken(user.getId(), principal, user.getRole());
+
+        boolean hasActivePlan = !enrollmentRepository.findByUserId(user.getId()).isEmpty()
+                || "ROLE_ADMIN".equalsIgnoreCase(user.getRole())
+                || "ROLE_ENROLLED".equalsIgnoreCase(user.getRole());
+
+        String planName = "Free Orientation Mode";
+        if ("ROLE_ADMIN".equalsIgnoreCase(user.getRole())) {
+            planName = "Platform Admin Full Access";
+        } else if (hasActivePlan) {
+            planName = "Hanuman Kriya Masterclass";
+        }
 
         return AuthResponseDto.builder()
                 .token(token)
@@ -62,13 +79,18 @@ public class AuthService {
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .role(user.getRole())
-                .hasActivePlan(hasEnrollments)
-                .planName(hasEnrollments ? "Hanuman Kriya Masterclass" : "Free Orientation Mode")
+                .hasActivePlan(hasActivePlan)
+                .planName(planName)
                 .build();
     }
 
     public AuthResponseDto signUpWithEmailPassword(SignUpRequestDto dto) {
-        if (userRepository.existsByEmail(dto.getEmail())) {
+        String cleanEmail = dto.getEmail() != null ? dto.getEmail().trim().toLowerCase() : "";
+        if (cleanEmail.isEmpty()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+
+        if (userRepository.existsByEmailIgnoreCase(cleanEmail)) {
             throw new IllegalArgumentException("An account with this email already exists");
         }
 
@@ -78,8 +100,8 @@ public class AuthService {
 
         User user = userRepository.save(
                 User.builder()
-                        .name(dto.getName())
-                        .email(dto.getEmail())
+                        .name(dto.getName() != null ? dto.getName().trim() : "Seeker")
+                        .email(cleanEmail)
                         .phone(phone)
                         .password(passwordEncoder.encode(dto.getPassword()))
                         .role("ROLE_SEEKER")
@@ -101,15 +123,33 @@ public class AuthService {
     }
 
     public AuthResponseDto loginWithEmailPassword(LoginRequestDto dto) {
-        User user = userRepository.findByEmail(dto.getEmail())
+        String identifier = dto.getEmail() != null ? dto.getEmail().trim() : "";
+        if (identifier.isEmpty()) {
+            throw new IllegalArgumentException("Email or phone number is required");
+        }
+
+        // Support login by email (case-insensitive) OR phone number
+        User user = userRepository.findByEmailIgnoreCase(identifier)
+                .or(() -> userRepository.findByPhone(identifier))
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
 
         if (user.getPassword() == null || !passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Invalid email or password");
         }
 
-        String token = tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole());
-        boolean hasEnrollments = !enrollmentRepository.findByUserId(user.getId()).isEmpty();
+        String principal = user.getEmail() != null ? user.getEmail() : user.getPhone();
+        String token = tokenProvider.generateToken(user.getId(), principal, user.getRole());
+
+        boolean hasActivePlan = !enrollmentRepository.findByUserId(user.getId()).isEmpty()
+                || "ROLE_ADMIN".equalsIgnoreCase(user.getRole())
+                || "ROLE_ENROLLED".equalsIgnoreCase(user.getRole());
+
+        String planName = "Free Orientation Mode";
+        if ("ROLE_ADMIN".equalsIgnoreCase(user.getRole())) {
+            planName = "Platform Admin Full Access";
+        } else if (hasActivePlan) {
+            planName = "Hanuman Kriya Masterclass";
+        }
 
         return AuthResponseDto.builder()
                 .token(token)
@@ -118,8 +158,8 @@ public class AuthService {
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .role(user.getRole())
-                .hasActivePlan(hasEnrollments)
-                .planName(hasEnrollments ? "Hanuman Kriya Masterclass" : "Free Orientation Mode")
+                .hasActivePlan(hasActivePlan)
+                .planName(planName)
                 .build();
     }
 }

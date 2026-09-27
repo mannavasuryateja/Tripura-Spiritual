@@ -145,6 +145,41 @@ export const mentorApi = {
   getMyBookings: async () => {
     const response = await apiClient.get('/mentor/my-bookings');
     return response.data;
+  },
+  getAllBookings: async () => {
+    const response = await apiClient.get('/mentor/all-bookings');
+    return response.data;
+  },
+  updateBookingStatus: async (bookingId: number | string, status: string, notes?: string) => {
+    const response = await apiClient.post(`/mentor/bookings/${bookingId}/status`, { status, notes });
+    return response.data;
+  }
+};
+
+export const adminApi = {
+  getStats: async () => {
+    const response = await apiClient.get('/admin/stats');
+    return response.data;
+  },
+  getUsers: async () => {
+    const response = await apiClient.get('/admin/users');
+    return response.data;
+  },
+  getEnrollments: async () => {
+    const response = await apiClient.get('/admin/enrollments');
+    return response.data;
+  },
+  getPayments: async () => {
+    const response = await apiClient.get('/admin/payments');
+    return response.data;
+  },
+  updateUserRole: async (userId: number | string, role: string) => {
+    const response = await apiClient.post(`/admin/users/${userId}/role`, { role });
+    return response.data;
+  },
+  overrideUserDays: async (userId: number | string, days: number[]) => {
+    const response = await apiClient.post(`/admin/users/${userId}/override-days`, { days });
+    return response.data;
   }
 };
 

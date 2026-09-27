@@ -283,8 +283,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
                 <span className="text-stone-500">Access Validity</span>
                 <span className="font-bold text-emerald-700">
                   {pendingPlan.type === 'recording-extension' || pendingPlan.type === 'recordings-only'
-                    ? '21 Days from Today'
-                    : 'October 13, 2026 (Day 13 12 PM)'}
+                    ? '30 Days from Date of Purchase'
+                    : pendingPlan.type === 'book-audio'
+                    ? 'Permanent / Lifetime Access'
+                    : 'Live Batch (1st–11th) • Recordings Valid till 13th Day'}
                 </span>
               </div>
             </div>

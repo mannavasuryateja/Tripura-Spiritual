@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp, TRIPURA_WHATSAPP_COMMUNITY_URL } from '../context/AppContext';
 import { Play, Lock, User, Calendar, MessageCircle, Sparkles, Clock, ArrowUpRight, LogOut } from 'lucide-react';
 import { ScrollReveal, StaggerContainer } from '../components/ScrollReveal';
+import type { AppRole } from '../context/AppContext';
 
 interface DashboardProps {
   setActiveTab: (tab: string) => void;
@@ -20,14 +21,22 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
           </div>
           <h2 className="font-serif text-3xl font-bold text-[#2C2421]">Sign In to Access Your Portal</h2>
           <p className="text-stone-600 text-sm max-w-lg mx-auto">
-            Please log in with your registered 10-digit mobile number to view active session recordings, validity, and WhatsApp live links.
+            Please log in with your registered mobile number or email credentials to access your masterclass recordings and live classes.
           </p>
-          <button
-            onClick={openAuthModal}
-            className="mt-6 px-8 py-3.5 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-xs tracking-widest uppercase shadow-md transition hover:-translate-y-0.5"
-          >
-            Sign In / Quick Demo Login
-          </button>
+          <div className="flex flex-wrap justify-center gap-3 pt-4">
+            <button
+              onClick={openAuthModal}
+              className="px-8 py-3.5 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-xs tracking-widest uppercase shadow-md transition hover:-translate-y-0.5"
+            >
+              Sign In with OTP
+            </button>
+            <button
+              onClick={() => setActiveTab('login')}
+              className="px-8 py-3.5 rounded-full border border-[#3B234A] text-[#3B234A] hover:bg-[#3B234A]/10 font-bold text-xs tracking-widest uppercase transition hover:-translate-y-0.5"
+            >
+              Email & Password Sign In
+            </button>
+          </div>
         </ScrollReveal>
       </div>
     );
@@ -68,28 +77,43 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
   const handleBuyExtension = () => {
     openPaymentModal({
       id: 'hanuman-kriya-recording-extension',
-      name: "21-Day Recording Extension (49% Live Seeker Discount)",
+      name: "30-Day Recording Extension (Live Seeker Loyalty Upgrade)",
       price: 555,
       type: 'recording-extension',
-      details: "Exclusive to Live Batch Seekers • 21 Days Extended Access"
+      details: "Exclusive to Live Batch Seekers • 30 Days Extended Access from Date of Purchase"
     });
   };
 
+  const currentRole = user.role || 'ROLE_SEEKER';
+
+  const rolePillStyles: Record<AppRole, { bg: string; text: string; label: string }> = {
+    'ROLE_ADMIN': { bg: 'bg-purple-600 text-white', text: 'text-purple-700', label: 'Platform Admin' },
+    'ROLE_ENROLLED': { bg: 'bg-emerald-600 text-white', text: 'text-emerald-700', label: 'Enrolled Seeker' },
+    'ROLE_SEEKER': { bg: 'bg-stone-600 text-white', text: 'text-stone-700', label: 'Guest Seeker' }
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10 animate-fadeIn text-[#2C2421]">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-fadeIn text-[#2C2421]">
       
-      {/* Welcome Banner & Active Enrollment Status */}
+      {/* 1. Welcome Banner & Active Enrollment Status */}
       <ScrollReveal variant="hero-zoom">
         <div className="glass-panel p-8 sm:p-10 rounded-3xl border border-[#E6E0D2] shadow-lg space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="space-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#8B5E34]">
-                {t.dashboard.welcome}
-              </span>
+              <div className="flex items-center gap-2.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#8B5E34]">
+                  {t.dashboard.welcome}
+                </span>
+                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${rolePillStyles[currentRole]?.bg || 'bg-stone-600 text-white'}`}>
+                  {rolePillStyles[currentRole]?.label || currentRole}
+                </span>
+              </div>
               <h1 className="font-serif text-3xl font-bold text-[#2C2421]">
                 {user.name}
               </h1>
-              <p className="text-xs text-stone-500 font-mono">Mobile: +91 {user.phone}</p>
+              <p className="text-xs text-stone-500 font-mono">
+                {user.email ? `Email: ${user.email}` : `Mobile: +91 ${user.phone}`}
+              </p>
             </div>
 
             <div className="flex items-center gap-3">
@@ -121,7 +145,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                 <span>{user.subscription.planName}</span>
                 {user.subscription.hasActivePlan ? (
                   <span className="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] uppercase font-bold tracking-wider">
-                    Active Enrollment
+                    Full Access Granted
                   </span>
                 ) : (
                   <span className="px-2.5 py-0.5 rounded-full bg-stone-500 text-white text-[10px] uppercase font-bold tracking-wider">
@@ -147,10 +171,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                   <button
                     onClick={handleBuyExtension}
                     className="px-4 py-2.5 rounded-xl bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm hover:-translate-y-0.5"
-                    title="Extend recordings for 21 days"
+                    title="Extend recordings for 30 days"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>21-Day Extension (₹555)</span>
+                    <span>30-Day Extension (₹555)</span>
                   </button>
                 </>
               ) : (
@@ -166,33 +190,33 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
         </div>
       </ScrollReveal>
 
-      {/* 2 PROMINENT CARDS / TABS: RECORDED CLASSES & UPCOMING LIVE CLASSES */}
+      {/* 2. TAB NAVIGATION */}
       <div className="space-y-6">
         
-        {/* Navigation Switcher between Card 1 and Card 2 */}
-        <div className="flex border-b border-[#E6E0D2]">
+        {/* Navigation Switcher between Recordings, Live Schedule, and Admin */}
+        <div className="flex flex-wrap border-b border-[#E6E0D2] gap-1">
           <button
             onClick={() => setActivePortalTab('recordings')}
-            className={`px-6 py-3 font-serif text-lg font-bold transition border-b-2 flex items-center gap-2 ${
+            className={`px-5 py-3 font-serif text-base sm:text-lg font-bold transition border-b-2 flex items-center gap-2 ${
               activePortalTab === 'recordings'
                 ? 'border-[#3B234A] text-[#3B234A]'
                 : 'border-transparent text-stone-400 hover:text-stone-700'
             }`}
           >
             <Play className="w-4 h-4" />
-            <span>1. Recorded Classes ({user.subscription.unlockedDays.length}/11)</span>
+            <span>Recorded Classes ({user.subscription.unlockedDays.length}/11)</span>
           </button>
 
           <button
             onClick={() => setActivePortalTab('upcoming')}
-            className={`px-6 py-3 font-serif text-lg font-bold transition border-b-2 flex items-center gap-2 ${
+            className={`px-5 py-3 font-serif text-base sm:text-lg font-bold transition border-b-2 flex items-center gap-2 ${
               activePortalTab === 'upcoming'
                 ? 'border-[#3B234A] text-[#3B234A]'
-                : 'border-[#3B234A]/0 text-stone-400 hover:text-stone-700'
+                : 'border-transparent text-stone-400 hover:text-stone-700'
             }`}
           >
             <Calendar className="w-4 h-4" />
-            <span>2. Upcoming Live Classes (Daily 6:30 AM)</span>
+            <span>Upcoming Live Classes</span>
           </button>
         </div>
 
@@ -216,7 +240,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                     className="px-4 py-1.5 rounded-lg bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs shadow-xs transition shrink-0 flex items-center gap-1 hover:-translate-y-0.5"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Keep for 21 Days (49% Off @ ₹555)</span>
+                    <span>Keep for 30 Days (₹555 Loyalty Upgrade)</span>
                   </button>
                 )}
               </div>
@@ -358,3 +382,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
     </div>
   );
 };
+
+export default Dashboard;
+
