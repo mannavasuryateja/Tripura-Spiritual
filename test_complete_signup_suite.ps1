@@ -204,9 +204,13 @@ try {
 
 # TEST 11: Direct PostgreSQL password hash verification (check bcrypt prefix $2a$ or $2b$)
 Write-Host "`n[TEST 11] PostgreSQL verification of user record and BCrypt password hash..." -ForegroundColor Yellow
-$env:PGPASSWORD = 'Srinivasnani123'
-$sqlQuery = "SELECT id, name, email, phone, role, substring(password from 1 for 7) as hash_prefix FROM users WHERE email = '$testEmail';"
-& 'C:\Program Files\PostgreSQL\18\bin\psql.exe' -U postgres -d 'Tripura-Spiritual' -c $sqlQuery
+if ([string]::IsNullOrWhiteSpace($env:DB_PASSWORD)) {
+    Write-Host "FAIL: DB_PASSWORD environment variable is required." -ForegroundColor Red
+} else {
+    $env:PGPASSWORD = $env:DB_PASSWORD
+    $sqlQuery = "SELECT id, name, email, phone, role, substring(password from 1 for 7) as hash_prefix FROM users WHERE email = '$testEmail';"
+    & 'C:\Program Files\PostgreSQL\18\bin\psql.exe' -U postgres -d 'tripuradb' -c $sqlQuery
+}
 
 Write-Host "`n==========================================" -ForegroundColor Cyan
 Write-Host "ALL TESTS EXECUTED" -ForegroundColor Cyan

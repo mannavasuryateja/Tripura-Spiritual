@@ -76,7 +76,7 @@ export const SignUp: React.FC<SignUpProps> = ({ setActiveTab }) => {
 
     const cleanOtp = otp.trim();
     if (!cleanOtp || cleanOtp.length < 4) {
-      setError('Please enter the OTP sent to your phone (Demo OTP: 123456)');
+      setError(import.meta.env.DEV ? 'Please enter the OTP sent to your phone (Demo OTP: 123456)' : 'Please enter the OTP sent to your phone');
       return;
     }
 
@@ -88,11 +88,11 @@ export const SignUp: React.FC<SignUpProps> = ({ setActiveTab }) => {
         setSuccessMsg('Account created successfully! Welcome to Tripura Spiritual.');
         triggerLoginSuccessTransition();
       } else {
-        setError('Invalid OTP. Use Demo OTP: 123456');
+        setError(import.meta.env.DEV ? 'Invalid OTP. Use Demo OTP: 123456' : 'Invalid OTP. Please check the code sent to your phone.');
         setIsLoading(false);
       }
     } catch (err: any) {
-      setError(err.message || 'OTP verification failed. Use Demo OTP: 123456');
+      setError(err.message || (import.meta.env.DEV ? 'OTP verification failed. Use Demo OTP: 123456' : 'OTP verification failed.'));
       setIsLoading(false);
     }
   };
@@ -155,15 +155,15 @@ export const SignUp: React.FC<SignUpProps> = ({ setActiveTab }) => {
   };
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col justify-between font-sans selection:bg-amber-200 selection:text-amber-900">
+    <div className="relative min-h-screen w-full flex flex-col justify-between font-sans selection:bg-amber-200 selection:text-amber-900 bg-gradient-to-br from-[#1C1613] via-[#2A1E2B] to-[#120D16] overflow-hidden">
       
-      {/* Full-Screen Background Image */}
+      {/* Full-Screen Background Image with motion-safe animation */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 scale-105"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 motion-safe:animate-kenburns opacity-90"
         style={{ backgroundImage: `url('/auth_bg_lotus.jpg')` }}
       />
       {/* Dark Ambient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/60" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/65" />
 
       {/* Top Header Bar */}
       <header className="relative z-20 w-full px-6 sm:px-12 py-4 flex items-center justify-between shrink-0">
@@ -179,7 +179,7 @@ export const SignUp: React.FC<SignUpProps> = ({ setActiveTab }) => {
 
         <button
           onClick={() => setActiveTab('home')}
-          className="text-xs font-medium text-stone-200 hover:text-white transition-colors flex items-center gap-2 bg-black/20 hover:bg-black/40 px-3.5 py-1.5 rounded-full backdrop-blur-sm border border-white/10"
+          className="btn-spiritual text-xs font-medium text-stone-200 hover:text-white transition-colors flex items-center gap-2 bg-black/20 hover:bg-black/40 px-3.5 py-1.5 rounded-full backdrop-blur-sm border border-white/10"
         >
           <span>←</span> Back to Home
         </button>
@@ -190,7 +190,7 @@ export const SignUp: React.FC<SignUpProps> = ({ setActiveTab }) => {
         
         {/* Left Side Hero Tagline */}
         <div className="lg:col-span-6 space-y-6 max-w-lg hidden sm:block">
-          <ScrollReveal variant="hero-zoom">
+          <ScrollReveal animation="hero-zoom">
             <div className="space-y-3">
               <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-white font-normal leading-[1.15] drop-shadow-lg">
                 Begin your<br />
@@ -216,12 +216,12 @@ export const SignUp: React.FC<SignUpProps> = ({ setActiveTab }) => {
 
         {/* Right Side Form Card */}
         <div className="lg:col-span-6 flex justify-center lg:justify-end">
-          <ScrollReveal variant="fade-up" delay={100}>
+          <ScrollReveal animation="fade-up" delay={100}>
             <div className="w-full max-w-md bg-[#FAF8F3]/95 backdrop-blur-md rounded-3xl p-6 sm:p-7 shadow-2xl border border-white/30 text-[#2C2421]">
               
               {/* Card Header */}
               <div className="space-y-1 mb-3">
-                <h2 className="font-serif text-xl sm:text-2xl font-semibold text-[#2C2421]">
+                <h2 className="heading-card font-serif text-xl sm:text-2xl font-semibold text-[#2C2421]">
                   Create an account
                 </h2>
                 <p className="text-xs text-stone-600 font-normal">
@@ -234,7 +234,7 @@ export const SignUp: React.FC<SignUpProps> = ({ setActiveTab }) => {
                 <button
                   type="button"
                   onClick={() => { setAuthMethod('otp'); setError(''); setSuccessMsg(''); }}
-                  className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                  className={`btn-spiritual flex-1 py-1.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
                     authMethod === 'otp'
                       ? 'bg-white text-[#2C2421] shadow-xs font-bold border border-amber-200/50'
                       : 'text-stone-600 hover:text-stone-900'
@@ -247,7 +247,7 @@ export const SignUp: React.FC<SignUpProps> = ({ setActiveTab }) => {
                 <button
                   type="button"
                   onClick={() => { setAuthMethod('email'); setError(''); setSuccessMsg(''); }}
-                  className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                  className={`btn-spiritual flex-1 py-1.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
                     authMethod === 'email'
                       ? 'bg-white text-[#2C2421] shadow-xs font-bold border border-amber-200/50'
                       : 'text-stone-600 hover:text-stone-900'
@@ -300,13 +300,13 @@ export const SignUp: React.FC<SignUpProps> = ({ setActiveTab }) => {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full py-2.5 px-5 rounded-full bg-[#A3733A] hover:bg-[#8E612B] active:bg-[#785122] text-white font-medium text-xs transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed group mt-1"
+                      className="btn-spiritual btn-primary w-full py-2.5 px-5 rounded-full text-white font-medium text-xs transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed group mt-1"
                     >
                       {isLoading ? (
-                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full motion-safe:animate-spin" />
                       ) : (
                         <>
-                          <span>Get OTP / ఓటీపీ పొందండి</span>
+                          <span>Get Verification OTP / ఓటీపీ పొందండి</span>
                           <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
                         </>
                       )}
@@ -316,9 +316,11 @@ export const SignUp: React.FC<SignUpProps> = ({ setActiveTab }) => {
                   <form onSubmit={handleVerifyOtp} className="space-y-3">
                     <div className="p-2.5 bg-[#EFE9DD] rounded-2xl border border-[#D8CFBF] text-center space-y-1">
                       <span className="text-[11px] text-stone-600 block">OTP Sent to <strong>+91 {mobile}</strong></span>
-                      <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#3B234A] text-white text-[10px] font-bold font-mono tracking-wider">
-                        Demo OTP: 123456
-                      </span>
+                      {import.meta.env.DEV && (
+                        <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#3B234A] text-white text-[10px] font-bold font-mono tracking-wider">
+                          Demo OTP: 123456
+                        </span>
+                      )}
                     </div>
 
                     <div>
@@ -331,7 +333,7 @@ export const SignUp: React.FC<SignUpProps> = ({ setActiveTab }) => {
                           type="text"
                           maxLength={6}
                           required
-                          placeholder="123456"
+                          placeholder={import.meta.env.DEV ? "123456" : "••••••"}
                           value={otp}
                           onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                           className="w-full pl-10 pr-4 py-2 rounded-full border border-stone-300 bg-white text-[#2C2421] font-mono tracking-widest text-center text-base font-bold outline-none transition"
@@ -342,10 +344,10 @@ export const SignUp: React.FC<SignUpProps> = ({ setActiveTab }) => {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full py-2.5 px-5 rounded-full bg-[#A3733A] hover:bg-[#8E612B] text-white font-medium text-xs transition-all duration-200 shadow-md flex items-center justify-center gap-2 disabled:opacity-70 group"
+                      className="btn-spiritual btn-primary w-full py-2.5 px-5 rounded-full text-white font-medium text-xs transition-all duration-200 shadow-md flex items-center justify-center gap-2 disabled:opacity-70 group"
                     >
                       {isLoading ? (
-                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full motion-safe:animate-spin" />
                       ) : (
                         <>
                           <CheckCircle2 className="w-3.5 h-3.5" />
@@ -357,7 +359,7 @@ export const SignUp: React.FC<SignUpProps> = ({ setActiveTab }) => {
                     <button
                       type="button"
                       onClick={() => { setOtpStep('mobile'); setError(''); }}
-                      className="w-full text-[11px] text-stone-500 hover:text-stone-800 underline text-center block pt-1"
+                      className="btn-spiritual w-full text-[11px] text-stone-500 hover:text-stone-800 underline text-center block pt-1"
                     >
                       Change Mobile Number
                     </button>
@@ -479,10 +481,10 @@ export const SignUp: React.FC<SignUpProps> = ({ setActiveTab }) => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full py-2.5 px-5 rounded-full bg-[#A3733A] hover:bg-[#8E612B] active:bg-[#785122] text-white font-medium text-xs transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed group mt-1"
+                    className="btn-spiritual btn-primary w-full py-2.5 px-5 rounded-full text-white font-medium text-xs transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed group mt-1"
                   >
                     {isLoading ? (
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full motion-safe:animate-spin" />
                     ) : (
                       <>
                         <span>Sign Up</span>
@@ -510,7 +512,7 @@ export const SignUp: React.FC<SignUpProps> = ({ setActiveTab }) => {
                 type="button"
                 onClick={handleGoogleSignUp}
                 disabled={isLoading}
-                className="w-full py-2 px-4 rounded-full border border-stone-300 bg-white hover:bg-stone-50 text-stone-700 text-xs font-semibold flex items-center justify-center gap-2.5 transition shadow-xs"
+                className="btn-spiritual w-full py-2 px-4 rounded-full border border-stone-300 bg-white hover:bg-stone-50 text-stone-700 text-xs font-semibold flex items-center justify-center gap-2.5 transition shadow-xs"
               >
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
                   <path

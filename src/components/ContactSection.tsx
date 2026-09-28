@@ -219,7 +219,7 @@ export const ContactSection: React.FC = () => {
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin text-black" />
+                        <Loader2 className="w-4 h-4 motion-safe:animate-spin text-black" />
                         <span>{t.contactSection?.sendingBtn || 'Sending...'}</span>
                       </>
                     ) : (

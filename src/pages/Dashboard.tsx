@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
-import { Play, Lock, User, Calendar, MessageCircle, Sparkles, Clock, LogOut, CreditCard, Loader2 } from 'lucide-react';
+import { Play, Lock, User, Calendar, MessageCircle, Sparkles, Clock, LogOut, CreditCard, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { ScrollReveal, StaggerContainer } from '../components/ScrollReveal';
 import { recordingsApi, sessionsApi, paymentsApi, mentorApi } from '../api/client';
 
@@ -12,55 +12,107 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
   const { user, logout, openPaymentModal, openVideoModal, openAuthModal, t } = useApp();
   const [activePortalTab, setActivePortalTab] = useState<'recordings' | 'upcoming' | 'purchases' | 'bookings'>('recordings');
 
-  // Dynamic server data
+  // Dynamic server data with individual loading and error states
   const [recordings, setRecordings] = useState<any[]>([]);
+  const [isLoadingRecordings, setIsLoadingRecordings] = useState(false);
+  const [recordingsError, setRecordingsError] = useState<string | null>(null);
+
   const [sessionInfo, setSessionInfo] = useState<any>(null);
+  const [isLoadingSession, setIsLoadingSession] = useState(false);
+  const [sessionError, setSessionError] = useState<string | null>(null);
+
   const [myPurchases, setMyPurchases] = useState<any[]>([]);
+  const [isLoadingPurchases, setIsLoadingPurchases] = useState(false);
+  const [purchasesError, setPurchasesError] = useState<string | null>(null);
+
   const [myBookings, setMyBookings] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingBookings, setIsLoadingBookings] = useState(false);
+  const [bookingsError, setBookingsError] = useState<string | null>(null);
+
+  const fetchRecordings = useCallback(async () => {
+    setIsLoadingRecordings(true);
+    setRecordingsError(null);
+    try {
+      const recs = await recordingsApi.getSessionRecordings(1);
+      setRecordings(recs || []);
+    } catch (err: any) {
+      setRecordingsError(err?.message || 'Unable to load recordings.');
+    } finally {
+      setIsLoadingRecordings(false);
+    }
+  }, []);
+
+  const fetchSession = useCallback(async () => {
+    setIsLoadingSession(true);
+    setSessionError(null);
+    try {
+      const sessions = await sessionsApi.getSessions();
+      if (sessions && sessions.length > 0) {
+        setSessionInfo(sessions[0]);
+      }
+    } catch (err: any) {
+      setSessionError(err?.message || 'Unable to load session schedule.');
+    } finally {
+      setIsLoadingSession(false);
+    }
+  }, []);
+
+  const fetchPurchases = useCallback(async () => {
+    setIsLoadingPurchases(true);
+    setPurchasesError(null);
+    try {
+      const purchases = await paymentsApi.getMyPurchases();
+      setMyPurchases(purchases || []);
+    } catch (err: any) {
+      setPurchasesError(err?.message || 'Unable to load purchases.');
+    } finally {
+      setIsLoadingPurchases(false);
+    }
+  }, []);
+
+  const fetchBookings = useCallback(async () => {
+    setIsLoadingBookings(true);
+    setBookingsError(null);
+    try {
+      const bookings = await mentorApi.getMyBookings();
+      setMyBookings(bookings || []);
+    } catch (err: any) {
+      setBookingsError(err?.message || 'Unable to load 1-on-1 bookings.');
+    } finally {
+      setIsLoadingBookings(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (user.isLoggedIn) {
-      setIsLoading(true);
-      Promise.all([
-        recordingsApi.getSessionRecordings(1).catch(() => []),
-        sessionsApi.getSessions().catch(() => []),
-        paymentsApi.getMyPurchases().catch(() => []),
-        mentorApi.getMyBookings().catch(() => [])
-      ]).then(([recs, sessions, purchases, bookings]) => {
-        setRecordings(recs || []);
-        if (sessions && sessions.length > 0) {
-          setSessionInfo(sessions[0]);
-        }
-        setMyPurchases(purchases || []);
-        setMyBookings(bookings || []);
-      }).finally(() => {
-        setIsLoading(false);
-      });
+      fetchRecordings();
+      fetchSession();
+      fetchPurchases();
+      fetchBookings();
     }
-  }, [user.isLoggedIn]);
+  }, [user.isLoggedIn, fetchRecordings, fetchSession, fetchPurchases, fetchBookings]);
 
   if (!user.isLoggedIn) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-20 text-center space-y-6 animate-fadeIn text-[#2C2421]">
-        <ScrollReveal variant="hero-zoom">
+      <div className="section-container max-w-2xl py-20 text-center space-y-6 animate-fadeIn text-[#2C2421]">
+        <ScrollReveal animation="hero-zoom">
           <div className="w-16 h-16 rounded-full bg-[#EFE9DD] text-[#3B234A] flex items-center justify-center mx-auto mb-4">
             <User className="w-8 h-8" />
           </div>
-          <h2 className="font-serif text-3xl font-bold text-[#2C2421]">Sign In to Access Your Portal</h2>
+          <h2 className="heading-section font-bold text-[#2C2421]">Sign In to Access Your Portal</h2>
           <p className="text-stone-600 text-sm max-w-lg mx-auto">
             Please log in with your registered mobile number or email credentials to access your masterclass recordings and live classes.
           </p>
           <div className="flex flex-wrap justify-center gap-3 pt-4">
             <button
               onClick={openAuthModal}
-              className="px-8 py-3.5 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-xs tracking-widest uppercase shadow-md transition hover:-translate-y-0.5"
+              className="btn-spiritual btn-primary px-8 py-3.5 rounded-full text-xs tracking-widest uppercase shadow-md transition"
             >
               Sign In with OTP
             </button>
             <button
               onClick={() => setActiveTab('login')}
-              className="px-8 py-3.5 rounded-full border border-[#3B234A] text-[#3B234A] hover:bg-[#3B234A]/10 font-bold text-xs tracking-widest uppercase transition hover:-translate-y-0.5"
+              className="btn-spiritual btn-outline px-8 py-3.5 rounded-full text-[#3B234A] border-[#3B234A] hover:bg-[#3B234A]/10 text-xs tracking-widest uppercase transition"
             >
               Email & Password Sign In
             </button>
@@ -104,22 +156,22 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-fadeIn text-[#2C2421]">
+    <div className="section-container py-10 space-y-8 animate-fadeIn text-[#2C2421]">
       
       {/* 1. Welcome Banner & Active Enrollment Status */}
-      <ScrollReveal variant="hero-zoom">
+      <ScrollReveal animation="hero-zoom">
         <div className="glass-panel p-8 sm:p-10 rounded-3xl border border-[#E6E0D2] shadow-lg space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2.5">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#8B5E34]">
+                <span className="section-eyebrow">
                   {t.dashboard.welcome}
                 </span>
                 <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${rolePillStyles[currentRole]?.bg || 'bg-stone-600 text-white'}`}>
                   {rolePillStyles[currentRole]?.label || currentRole}
                 </span>
               </div>
-              <h1 className="font-serif text-3xl font-bold text-[#2C2421]">
+              <h1 className="heading-section font-bold text-[#2C2421]">
                 {user.name}
               </h1>
               <p className="text-xs text-stone-500 font-mono">
@@ -130,13 +182,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setActiveTab('profile')}
-                className="px-4 py-2 rounded-xl bg-white border border-stone-200 text-stone-700 text-xs font-semibold hover:bg-stone-50 transition hover:-translate-y-0.5"
+                className="btn-spiritual px-4 py-2 rounded-xl bg-white border border-stone-200 text-stone-700 text-xs font-semibold hover:bg-stone-50 transition"
               >
                 Account Details
               </button>
               <button
                 onClick={() => { logout(); setActiveTab('home'); }}
-                className="px-4 py-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 text-xs font-semibold transition flex items-center gap-1.5 hover:-translate-y-0.5"
+                className="btn-spiritual px-4 py-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 text-xs font-semibold transition flex items-center gap-1.5"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Log Out</span>
@@ -174,14 +226,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                 <>
                   <button
                     onClick={handleJoinWhatsApp}
-                    className="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm hover:-translate-y-0.5"
+                    className="btn-spiritual px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm"
                   >
                     <MessageCircle className="w-4 h-4" />
                     <span>WhatsApp Community</span>
                   </button>
                   <button
                     onClick={handleBuyExtension}
-                    className="px-4 py-2.5 rounded-xl bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm hover:-translate-y-0.5"
+                    className="btn-spiritual px-4 py-2.5 rounded-xl bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm"
                     title="Extend recordings for 30 days"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
@@ -191,7 +243,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
               ) : (
                 <button
                   onClick={() => setActiveTab('sessions')}
-                  className="px-6 py-3 rounded-xl bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-xs shadow-md transition uppercase tracking-wider hover:-translate-y-0.5"
+                  className="btn-spiritual btn-primary px-6 py-3 rounded-xl font-bold text-xs shadow-md transition uppercase tracking-wider"
                 >
                   Enroll in Masterclass (₹{sessionInfo?.priceLive || 1111})
                 </button>
@@ -204,11 +256,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
       {/* 2. TAB NAVIGATION */}
       <div className="space-y-6">
         
-        {/* Navigation Switcher */}
-        <div className="flex flex-wrap border-b border-[#E6E0D2] gap-1">
+        {/* Navigation Switcher with ARIA Tablist Roles */}
+        <div role="tablist" aria-label="Seeker Portal Tabs" className="flex flex-wrap border-b border-[#E6E0D2] gap-1">
           <button
+            role="tab"
+            id="tab-recordings"
+            aria-selected={activePortalTab === 'recordings'}
+            aria-controls="panel-recordings"
             onClick={() => setActivePortalTab('recordings')}
-            className={`px-5 py-3 font-serif text-base sm:text-lg font-bold transition border-b-2 flex items-center gap-2 ${
+            className={`px-5 py-3 font-serif text-base sm:text-lg font-bold transition border-b-2 flex items-center gap-2 cursor-pointer ${
               activePortalTab === 'recordings'
                 ? 'border-[#3B234A] text-[#3B234A]'
                 : 'border-transparent text-stone-400 hover:text-stone-700'
@@ -219,8 +275,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
           </button>
 
           <button
+            role="tab"
+            id="tab-upcoming"
+            aria-selected={activePortalTab === 'upcoming'}
+            aria-controls="panel-upcoming"
             onClick={() => setActivePortalTab('upcoming')}
-            className={`px-5 py-3 font-serif text-base sm:text-lg font-bold transition border-b-2 flex items-center gap-2 ${
+            className={`px-5 py-3 font-serif text-base sm:text-lg font-bold transition border-b-2 flex items-center gap-2 cursor-pointer ${
               activePortalTab === 'upcoming'
                 ? 'border-[#3B234A] text-[#3B234A]'
                 : 'border-transparent text-stone-400 hover:text-stone-700'
@@ -231,8 +291,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
           </button>
 
           <button
+            role="tab"
+            id="tab-purchases"
+            aria-selected={activePortalTab === 'purchases'}
+            aria-controls="panel-purchases"
             onClick={() => setActivePortalTab('purchases')}
-            className={`px-5 py-3 font-serif text-base sm:text-lg font-bold transition border-b-2 flex items-center gap-2 ${
+            className={`px-5 py-3 font-serif text-base sm:text-lg font-bold transition border-b-2 flex items-center gap-2 cursor-pointer ${
               activePortalTab === 'purchases'
                 ? 'border-[#3B234A] text-[#3B234A]'
                 : 'border-transparent text-stone-400 hover:text-stone-700'
@@ -243,8 +307,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
           </button>
 
           <button
+            role="tab"
+            id="tab-bookings"
+            aria-selected={activePortalTab === 'bookings'}
+            aria-controls="panel-bookings"
             onClick={() => setActivePortalTab('bookings')}
-            className={`px-5 py-3 font-serif text-base sm:text-lg font-bold transition border-b-2 flex items-center gap-2 ${
+            className={`px-5 py-3 font-serif text-base sm:text-lg font-bold transition border-b-2 flex items-center gap-2 cursor-pointer ${
               activePortalTab === 'bookings'
                 ? 'border-[#3B234A] text-[#3B234A]'
                 : 'border-transparent text-stone-400 hover:text-stone-700'
@@ -257,10 +325,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
 
         {/* TAB 1: RECORDED CLASSES */}
         {activePortalTab === 'recordings' && (
-          <div className="space-y-6 animate-fadeIn">
+          <div role="tabpanel" id="panel-recordings" aria-labelledby="tab-recordings" className="space-y-6 animate-fadeIn">
             
             {/* Policy Bar */}
-            <ScrollReveal variant="fade-up">
+            <ScrollReveal animation="fade-up">
               <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs">
                 <div className="flex items-center gap-2 text-stone-700">
                   <Clock className="w-4 h-4 text-amber-700 shrink-0" />
@@ -272,7 +340,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                 {user.subscription.hasActivePlan && (
                   <button
                     onClick={handleBuyExtension}
-                    className="px-4 py-1.5 rounded-lg bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs shadow-xs transition shrink-0 flex items-center gap-1 hover:-translate-y-0.5"
+                    className="btn-spiritual px-4 py-1.5 rounded-lg bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs shadow-xs transition shrink-0 flex items-center gap-1 cursor-pointer"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Keep for 30 Days (₹{sessionInfo?.priceExtension || 555} Loyalty Upgrade)</span>
@@ -281,16 +349,33 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
               </div>
             </ScrollReveal>
 
+            {/* Error & Retry State */}
+            {recordingsError && (
+              <div className="p-6 rounded-2xl bg-rose-50 border border-rose-200 text-center space-y-3">
+                <div className="flex items-center justify-center gap-2 text-rose-700 text-xs font-semibold">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{recordingsError}</span>
+                </div>
+                <button
+                  onClick={fetchRecordings}
+                  className="btn-spiritual btn-primary px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Retry Loading Recordings</span>
+                </button>
+              </div>
+            )}
+
             {/* Loading */}
-            {isLoading && (
+            {isLoadingRecordings && (
               <div className="py-12 text-center">
-                <Loader2 className="w-8 h-8 text-amber-700 animate-spin mx-auto" />
+                <Loader2 className="w-8 h-8 text-amber-700 motion-safe:animate-spin mx-auto" />
                 <p className="text-xs text-stone-500 mt-2 font-serif">Loading recordings...</p>
               </div>
             )}
 
             {/* Recordings Grid */}
-            {!isLoading && (
+            {!isLoadingRecordings && !recordingsError && (
               <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-4" staggerDelay={80}>
                 {recordings.map((rec) => {
                   const isUnlocked = isRecordingUnlocked(rec.dayNumber);
@@ -338,7 +423,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                                   streamUrl: rec.bunnyVideoId ? `/api/media/stream/${rec.bunnyVideoId}` : undefined
                                 });
                               }}
-                              className="p-3 rounded-2xl bg-[#8B5E34] hover:bg-[#6e4623] text-white shadow-md transition transform hover:scale-105"
+                              className="btn-spiritual p-3 rounded-2xl bg-[#8B5E34] hover:bg-[#6e4623] text-white shadow-md transition transform hover:scale-105"
                               title="Play Recording"
                             >
                               <Play className="w-5 h-5 fill-white" />
@@ -354,7 +439,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                                   details: "Unlock all 11 daily recordings & live zoom classes"
                                 });
                               }}
-                              className="p-3 rounded-2xl bg-stone-200 hover:bg-stone-300 text-stone-500 transition"
+                              className="btn-spiritual p-3 rounded-2xl bg-stone-200 hover:bg-stone-300 text-stone-500 transition"
                               title="Locked - Enroll to Access"
                             >
                               <Lock className="w-5 h-5" />
@@ -372,144 +457,213 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
 
         {/* TAB 2: UPCOMING LIVE CLASSES */}
         {activePortalTab === 'upcoming' && (
-          <div className="space-y-6 animate-fadeIn">
-            <div className="p-6 rounded-3xl bg-[#FAF7F0] border border-[#E6E0D2] space-y-4">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[#E6E0D2] pb-4">
-                <div>
-                  <h3 className="font-serif text-xl font-bold text-[#2C2421]">
-                    {sessionInfo?.title || 'Hanuman Kriya 11-Day Live Masterclass'}
-                  </h3>
-                  <p className="text-xs text-stone-500">
-                    Daily Schedule: 6:30 AM – 7:30 AM IST • Live on Zoom with Master Gorli Peddi Raju Garu
-                  </p>
+          <div role="tabpanel" id="panel-upcoming" aria-labelledby="tab-upcoming" className="space-y-6 animate-fadeIn">
+            {sessionError && (
+              <div className="p-6 rounded-2xl bg-rose-50 border border-rose-200 text-center space-y-3">
+                <div className="flex items-center justify-center gap-2 text-rose-700 text-xs font-semibold">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{sessionError}</span>
                 </div>
                 <button
-                  onClick={handleJoinWhatsApp}
-                  className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition"
+                  onClick={fetchSession}
+                  className="btn-spiritual btn-primary px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer"
                 >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Join Live Community</span>
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Retry Loading Schedule</span>
                 </button>
               </div>
+            )}
 
-              <div className="divide-y divide-[#E6E0D2]">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((dayNum) => (
-                  <div key={dayNum} className="py-3 flex justify-between items-center text-xs">
-                    <div className="flex items-center gap-3">
-                      <span className="w-7 h-7 rounded-full bg-[#EFE9DD] text-[#3B234A] font-mono font-bold flex items-center justify-center shrink-0">
-                        {dayNum}
-                      </span>
-                      <div>
-                        <span className="font-bold text-stone-800 block">Day {dayNum} Live Guided Practice</span>
-                        <span className="text-[10px] text-stone-500 font-mono">6:30 AM – 7:30 AM IST</span>
-                      </div>
-                    </div>
-
-                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
-                      {user.subscription.hasActivePlan ? 'Confirmed' : 'Enrollment Required'}
-                    </span>
-                  </div>
-                ))}
+            {isLoadingSession ? (
+              <div className="py-12 text-center">
+                <Loader2 className="w-8 h-8 text-amber-700 motion-safe:animate-spin mx-auto" />
+                <p className="text-xs text-stone-500 mt-2 font-serif">Loading live schedule...</p>
               </div>
-            </div>
+            ) : (
+              <div className="p-6 rounded-3xl bg-[#FAF7F0] border border-[#E6E0D2] space-y-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[#E6E0D2] pb-4">
+                  <div>
+                    <h3 className="font-serif text-xl font-bold text-[#2C2421]">
+                      {sessionInfo?.title || 'Hanuman Kriya 11-Day Live Masterclass'}
+                    </h3>
+                    <p className="text-xs text-stone-500">
+                      Daily Schedule: 6:30 AM – 7:30 AM IST • Live on Zoom with Master Gorli Peddi Raju Garu
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleJoinWhatsApp}
+                    className="btn-spiritual px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Join Live Community</span>
+                  </button>
+                </div>
+
+                <div className="divide-y divide-[#E6E0D2]">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((dayNum) => (
+                    <div key={dayNum} className="py-3 flex justify-between items-center text-xs">
+                      <div className="flex items-center gap-3">
+                        <span className="w-7 h-7 rounded-full bg-[#EFE9DD] text-[#3B234A] font-mono font-bold flex items-center justify-center shrink-0">
+                          {dayNum}
+                        </span>
+                        <div>
+                          <span className="font-bold text-stone-800 block">Day {dayNum} Live Guided Practice</span>
+                          <span className="text-[10px] text-stone-500 font-mono">6:30 AM – 7:30 AM IST</span>
+                        </div>
+                      </div>
+
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
+                        {user.subscription.hasActivePlan ? 'Confirmed' : 'Enrollment Required'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         {/* TAB 3: MY PURCHASES */}
         {activePortalTab === 'purchases' && (
-          <div className="space-y-6 animate-fadeIn">
+          <div role="tabpanel" id="panel-purchases" aria-labelledby="tab-purchases" className="space-y-6 animate-fadeIn">
             <div>
               <h3 className="font-serif text-xl font-bold text-[#2C2421]">My Purchases & Invoices</h3>
               <p className="text-xs text-stone-500">Official ledger of your active entitlements and transactions.</p>
             </div>
 
-            <div className="rounded-3xl bg-white border border-[#E6E0D2] overflow-hidden shadow-xs">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-[#FAF7F0] text-stone-500 uppercase tracking-wider text-[10px] border-b border-[#E6E0D2]">
-                  <tr>
-                    <th className="p-4">Order ID</th>
-                    <th className="p-4">Product / Purpose</th>
-                    <th className="p-4">Amount Paid</th>
-                    <th className="p-4">Status</th>
-                    <th className="p-4">Date</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#E6E0D2]">
-                  {myPurchases.map((p, idx) => (
-                    <tr key={idx} className="hover:bg-amber-50/30">
-                      <td className="p-4 font-mono text-stone-500">{p.razorpayOrderId}</td>
-                      <td className="p-4 font-medium text-stone-900">{p.purpose}</td>
-                      <td className="p-4 font-bold text-stone-900">₹{p.amount}</td>
-                      <td className="p-4">
-                        <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                          {p.status}
-                        </span>
-                      </td>
-                      <td className="p-4 text-stone-500 font-mono">
-                        {p.createdAt ? String(p.createdAt).substring(0, 10) : 'Recent'}
-                      </td>
-                    </tr>
-                  ))}
-                  {myPurchases.length === 0 && (
+            {purchasesError && (
+              <div className="p-6 rounded-2xl bg-rose-50 border border-rose-200 text-center space-y-3">
+                <div className="flex items-center justify-center gap-2 text-rose-700 text-xs font-semibold">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{purchasesError}</span>
+                </div>
+                <button
+                  onClick={fetchPurchases}
+                  className="btn-spiritual btn-primary px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Retry Loading Purchases</span>
+                </button>
+              </div>
+            )}
+
+            {isLoadingPurchases ? (
+              <div className="py-12 text-center">
+                <Loader2 className="w-8 h-8 text-amber-700 motion-safe:animate-spin mx-auto" />
+                <p className="text-xs text-stone-500 mt-2 font-serif">Loading purchase history...</p>
+              </div>
+            ) : (
+              <div className="rounded-3xl bg-white border border-[#E6E0D2] overflow-hidden shadow-xs">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#FAF7F0] text-stone-500 uppercase tracking-wider text-[10px] border-b border-[#E6E0D2]">
                     <tr>
-                      <td colSpan={5} className="p-8 text-center text-stone-500">
-                        No purchases found. Explore our sacred sessions or book library to enroll.
-                      </td>
+                      <th className="p-4">Order ID</th>
+                      <th className="p-4">Product / Purpose</th>
+                      <th className="p-4">Amount Paid</th>
+                      <th className="p-4">Status</th>
+                      <th className="p-4">Date</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-[#E6E0D2]">
+                    {myPurchases.map((p, idx) => (
+                      <tr key={idx} className="hover:bg-amber-50/30">
+                        <td className="p-4 font-mono text-stone-500">{p.razorpayOrderId}</td>
+                        <td className="p-4 font-medium text-stone-900">{p.purpose}</td>
+                        <td className="p-4 font-bold text-stone-900">₹{p.amount}</td>
+                        <td className="p-4">
+                          <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                            {p.status}
+                          </span>
+                        </td>
+                        <td className="p-4 text-stone-500 font-mono">
+                          {p.createdAt ? String(p.createdAt).substring(0, 10) : 'Recent'}
+                        </td>
+                      </tr>
+                    ))}
+                    {myPurchases.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="p-8 text-center text-stone-500">
+                          No purchases found. Explore our sacred sessions or book library to enroll.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 
         {/* TAB 4: 1-ON-1 BOOKINGS */}
         {activePortalTab === 'bookings' && (
-          <div className="space-y-6 animate-fadeIn">
+          <div role="tabpanel" id="panel-bookings" aria-labelledby="tab-bookings" className="space-y-6 animate-fadeIn">
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="font-serif text-xl font-bold text-[#2C2421]">1-on-1 Guidance Appointments</h3>
                 <p className="text-xs text-stone-500">Your direct mentoring inquiries with Master Gorli Peddi Raju Garu.</p>
               </div>
               <button
-                onClick={() => setActiveTab('one-to-one')}
-                className="px-4 py-2 rounded-xl bg-[#3B234A] text-white font-bold text-xs uppercase tracking-wider"
+                onClick={() => setActiveTab('onetoone')}
+                className="btn-spiritual px-4 py-2 rounded-xl bg-[#3B234A] text-white font-bold text-xs uppercase tracking-wider"
               >
                 Book New Session
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {myBookings.map((b) => (
-                <div key={b.id} className="p-5 rounded-2xl bg-white border border-[#E6E0D2] shadow-xs space-y-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="text-[10px] font-bold text-[#8B5E34] uppercase tracking-wider font-mono">
-                        Booking #{b.id}
-                      </span>
-                      <h4 className="font-serif font-bold text-base text-stone-900">{b.category}</h4>
-                    </div>
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                      b.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                    }`}>
-                      {b.status}
-                    </span>
-                  </div>
+            {bookingsError && (
+              <div className="p-6 rounded-2xl bg-rose-50 border border-rose-200 text-center space-y-3">
+                <div className="flex items-center justify-center gap-2 text-rose-700 text-xs font-semibold">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{bookingsError}</span>
+                </div>
+                <button
+                  onClick={fetchBookings}
+                  className="btn-spiritual btn-primary px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Retry Loading Bookings</span>
+                </button>
+              </div>
+            )}
 
-                  <div className="text-xs text-stone-600 space-y-1 font-mono">
-                    <p>Primary Date: <strong>{b.primaryDate}</strong></p>
-                    {b.secondaryDate && <p>Alternative Date: {b.secondaryDate}</p>}
-                    <p>Time Slot: {b.preferredTimeSlot || '6:30 AM IST'}</p>
-                    <p>Duration: {b.durationMinutes} Minutes</p>
+            {isLoadingBookings ? (
+              <div className="py-12 text-center">
+                <Loader2 className="w-8 h-8 text-amber-700 motion-safe:animate-spin mx-auto" />
+                <p className="text-xs text-stone-500 mt-2 font-serif">Loading guidance bookings...</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {myBookings.map((b) => (
+                  <div key={b.id} className="p-5 rounded-2xl bg-white border border-[#E6E0D2] shadow-xs space-y-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="text-[10px] font-bold text-[#8B5E34] uppercase tracking-wider font-mono">
+                          Booking #{b.id}
+                        </span>
+                        <h4 className="font-serif font-bold text-base text-stone-900">{b.category}</h4>
+                      </div>
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                        b.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {b.status}
+                      </span>
+                    </div>
+
+                    <div className="text-xs text-stone-600 space-y-1 font-mono">
+                      <p>Primary Date: <strong>{b.primaryDate}</strong></p>
+                      {b.secondaryDate && <p>Alternative Date: {b.secondaryDate}</p>}
+                      <p>Time Slot: {b.preferredTimeSlot || '6:30 AM IST'}</p>
+                      <p>Duration: {b.durationMinutes} Minutes</p>
+                    </div>
                   </div>
-                </div>
-              ))}
-              {myBookings.length === 0 && (
-                <div className="col-span-2 p-8 text-center bg-stone-50 rounded-2xl border border-stone-200 text-stone-500 text-xs">
-                  You have not scheduled any 1-on-1 guidance appointments yet.
-                </div>
-              )}
-            </div>
+                ))}
+                {myBookings.length === 0 && (
+                  <div className="col-span-2 p-8 text-center bg-stone-50 rounded-2xl border border-stone-200 text-stone-500 text-xs">
+                    You have not scheduled any 1-on-1 guidance appointments yet.
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 

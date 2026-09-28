@@ -2,8 +2,15 @@ import React from 'react';
 import { AdminPanel } from '../components/AdminPanel';
 import { Shield } from 'lucide-react';
 import { RoleGuard } from '../components/RoleGuard';
+import { useApp } from '../context/AppContext';
 
-export const Admin: React.FC = () => {
+interface AdminProps {
+  setActiveTab?: (tab: string) => void;
+}
+
+export const Admin: React.FC<AdminProps> = ({ setActiveTab }) => {
+  const { openAuthModal } = useApp();
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <RoleGuard
@@ -15,6 +22,24 @@ export const Admin: React.FC = () => {
             <p className="text-xs text-purple-700 leading-relaxed">
               This portal is strictly restricted to platform administrators. Please sign in with your administrative credentials to access this matrix.
             </p>
+            <div className="flex flex-wrap justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (setActiveTab) setActiveTab('login');
+                }}
+                className="btn-spiritual btn-primary px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
+              >
+                Sign In to Admin
+              </button>
+              <button
+                type="button"
+                onClick={openAuthModal}
+                className="btn-spiritual btn-outline px-6 py-2.5 rounded-full text-purple-900 border-purple-300 hover:bg-purple-100 text-xs font-bold uppercase tracking-wider cursor-pointer"
+              >
+                Sign In with OTP
+              </button>
+            </div>
           </div>
         }
       >

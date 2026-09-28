@@ -11,10 +11,10 @@ spring:
 
   # Database Configuration (PostgreSQL with Environment Variable Overrides & Least-Privilege Support)
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/Tripura-Spiritual}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/tripuradb}
     driver-class-name: org.postgresql.Driver
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:Srinivasnani123}
+    password: ${DB_PASSWORD}
     hikari:
       maximum-pool-size: 20
       minimum-idle: 5

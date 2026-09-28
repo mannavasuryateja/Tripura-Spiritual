@@ -19,6 +19,7 @@ export const en = {
     subtitle: "A quiet space to slow down, reconnect with yourself, and explore sacred non-dual and yogic practices — taught directly and simply for modern life by Master Gorli Peddi Raju Garu.",
     exploreSessions: "UPCOMING MASTERCLASSES",
     watchDemo: "FREE ORIENTATION CLASS",
+    scrollCue: "Scroll to explore",
     liveSessions: "Live Zoom Immersions",
     recordedClasses: "Easy Video Archive Access",
     flexibleLearning: "Learn At Your Own Pace",
@@ -64,7 +65,14 @@ export const en = {
   bookLibrary: {
     title: "Sacred Spiritual Book Library & Audio",
     subtitle: "Explore timeless scriptures, non-dual masterworks, and audio commentaries curated by Master Gorli Peddi Raju Garu.",
+    badge: "Sacred Discourses & Library",
+    listenDiscourse: "Listen to Audio Discourse",
     listenRadio: "Spiritual Radio Player",
+    radioPlayerTitle: "Spiritual Radio Player",
+    radioPlayerSubtitle: "Audio commentaries and sacred chapters by Master Garu",
+    viewAllBooks: "View All Curated Books",
+    loadingDiscourses: "Loading sacred discourses...",
+    loadError: "Unable to connect to the sacred book library.",
     listenAudio: "Listen to Sacred Audio / Radio",
     episodes: "Episodes",
     duration: "Duration",
@@ -80,23 +88,50 @@ export const en = {
   },
   upcomingSessions: {
     title: "Featured Upcoming Masterclass",
+    featuredTag: "Featured Live Immersion",
     subtitle: "Join our signature 11-day live spiritual immersion starting in a few days. Daily Zoom classes + exclusive WhatsApp community access.",
     session11Title: "Hanuman Kriya: 11-Day Divine Awakening Masterclass",
     dates: "October 1 – October 11, 2026 (Daily 6:30 AM IST)",
     liveGuidance: "Daily Live Zoom Guided Classes",
     recordingsIncluded: "Recordings Available Next Day 12 PM till Day 13",
     languages: "Taught in Bilingual English & తెలుగు",
+    whatsappCommunity: "WhatsApp Live Community Access",
+    cardBadge: "11-Day Live Masterclass",
+    per11Days: "/ 11 Days",
     viewDetails: "ENROLL & JOIN WHATSAPP COMMUNITY",
     statusLive: "Starting in 5 Days • Coming Soon"
   },
   demoSection: {
     title: "Free Orientation Class for Everyone",
+    freeBadge: "100% Free • Open to All",
     subtitle: "No registration and no payment required. Watch our sample orientation class instantly.",
     demoClassTitle: "Introduction to Inner Silence & Prana",
     duration: "45 Minutes Full Class",
     price: "100% FREE",
     watchPreview: "WATCH FREE ORIENTATION CLASS",
+    learnWhatsCovered: "Learn What's Covered",
     buyDemo: "EXPLORE LIVE SESSIONS"
+  },
+  testimonials: {
+    tag: "Seeker Stories",
+    title: "Voices of Peace"
+  },
+  common: {
+    retry: "Retry",
+    loading: "Loading...",
+    signIn: "Sign In",
+    signInPrompt: "Sign in to access your account",
+    errorOccurred: "An error occurred while loading. Please try again.",
+    sampleData: "Sample Data"
+  },
+  profilePage: {
+    signedOutTitle: "Sign in to view your profile and enrolled courses.",
+    sampleNotice: "Sample purchase history for demonstration."
+  },
+  adminPage: {
+    unauthorizedTitle: "Access Restricted",
+    unauthorizedDesc: "This section requires Administrator privileges. Your current account does not have permission to access the Tripura Spiritual administrative workspace.",
+    signInAsAdmin: "Sign In with Admin Account"
   },
   oneToOne: {
     title: "Private 1-on-1 Guidance with the Master",

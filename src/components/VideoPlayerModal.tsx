@@ -16,6 +16,20 @@ export const VideoPlayerModal: React.FC = () => {
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const playerContainerRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+
+  // Focus management on open/close
+  useEffect(() => {
+    if (isVideoOpen) {
+      triggerRef.current = document.activeElement as HTMLElement;
+      const timer = setTimeout(() => {
+        playerContainerRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    } else {
+      triggerRef.current?.focus();
+    }
+  }, [isVideoOpen]);
 
   // Check if current video URL is an iframe embed (e.g., YouTube / Vimeo)
   const streamSource = currentVideo?.streamUrl || currentVideo?.videoUrl || '';
@@ -185,10 +199,21 @@ export const VideoPlayerModal: React.FC = () => {
   const progressPercent = durationSec > 0 ? (currentTimeSec / durationSec) * 100 : 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-stone-950/85 backdrop-blur-md animate-fadeIn">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-stone-950/85 backdrop-blur-md animate-backdrop-fade"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isFullscreen) {
+          handleClose();
+        }
+      }}
+    >
       <div 
         ref={playerContainerRef}
-        className={`bg-stone-900 rounded-3xl w-full border border-stone-800 shadow-2xl overflow-hidden relative text-white flex flex-col justify-between ${
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="video-modal-title"
+        tabIndex={-1}
+        className={`bg-stone-900 rounded-3xl w-full border border-stone-800 shadow-2xl overflow-hidden relative text-white flex flex-col justify-between animate-modal-scale-in focus:outline-none ${
           isFullscreen ? 'fixed inset-0 max-w-none h-screen rounded-none z-50' : 'max-w-4xl'
         }`}
       >
@@ -200,7 +225,7 @@ export const VideoPlayerModal: React.FC = () => {
               {currentVideo.day === 0 ? 'Orientation' : `Day ${currentVideo.day || 1}`}
             </span>
             <div>
-              <h3 className="font-serif text-lg font-bold text-stone-100">
+              <h3 id="video-modal-title" className="font-serif text-lg font-bold text-stone-100">
                 {currentVideo.title}
               </h3>
               <p className="text-xs text-stone-400">
@@ -211,16 +236,20 @@ export const VideoPlayerModal: React.FC = () => {
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={toggleFullscreen}
-              className="p-2 rounded-full text-stone-400 hover:text-amber-300 hover:bg-stone-800 transition"
+              className="p-2 rounded-full text-stone-400 hover:text-amber-300 hover:bg-stone-800 transition cursor-pointer"
               title={isFullscreen ? "Exit Fullscreen (F / Esc)" : "Fullscreen (F)"}
+              aria-label={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
             >
               {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
             </button>
             <button
+              type="button"
               onClick={handleClose}
-              className="p-2 rounded-full text-stone-400 hover:text-white hover:bg-stone-800 transition"
+              className="p-2 rounded-full text-stone-400 hover:text-white hover:bg-stone-800 transition cursor-pointer"
               title="Close Recording"
+              aria-label="Close Video Player"
             >
               <X className="w-6 h-6" />
             </button>
@@ -263,7 +292,7 @@ export const VideoPlayerModal: React.FC = () => {
               {/* Buffering/Loading Indicator */}
               {isLoading && !hasError && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10 pointer-events-none">
-                  <Loader2 className="w-12 h-12 text-amber-400 animate-spin" />
+                  <Loader2 className="w-12 h-12 text-amber-400 motion-safe:animate-spin" />
                 </div>
               )}
 

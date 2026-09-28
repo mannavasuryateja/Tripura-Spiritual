@@ -107,23 +107,25 @@ export const Plans: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12 animate-fadeIn text-[#2C2421]">
+    <div className="section-container py-10 space-y-12 animate-fadeIn text-[#2C2421]">
 
-      {/* Header */}
-      <ScrollReveal variant="hero-zoom">
-        <div className="text-center space-y-3 max-w-3xl mx-auto">
-          <span className="px-3.5 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-            <span>Transparent Spiritual Pathways</span>
-          </span>
-          <h1 className="font-serif text-4xl sm:text-5xl font-bold text-stone-900">
-            Tripura Masterclass & Recording Offerings
-          </h1>
-          <p className="text-stone-600 text-sm sm:text-base font-light leading-relaxed">
-            Choose the pathway tailored to your schedule, whether you are starting fresh on the 1st, joining mid-month, or extending your sadhana.
-          </p>
-        </div>
-      </ScrollReveal>
+      {/* Short Page Header Band */}
+      <div className="rounded-3xl bg-gradient-to-r from-[#FAF7F0] via-[#F5EFE6] to-[#FAF7F0] mandala-bg border border-[#E6E0D2] py-10 px-6 sm:px-12 text-center shadow-xs">
+        <ScrollReveal animation="fade-up">
+          <div className="section-header">
+            <span className="section-eyebrow inline-flex items-center justify-center gap-1.5 mx-auto">
+              <Sparkles className="w-3.5 h-3.5 text-[#8B5E34]" />
+              <span>Transparent Spiritual Pathways</span>
+            </span>
+            <h1 className="heading-section font-bold text-[#2C2421]">
+              Tripura Masterclass & Recording Offerings
+            </h1>
+            <p className="text-stone-600 text-sm sm:text-base font-light leading-relaxed max-w-2xl mx-auto">
+              Choose the pathway tailored to your schedule, whether you are starting fresh on the 1st, joining mid-month, or extending your sadhana.
+            </p>
+          </div>
+        </ScrollReveal>
+      </div>
 
       {/* Grid of Plans */}
       <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-8" staggerDelay={100}>
@@ -149,13 +151,13 @@ export const Plans: React.FC = () => {
             <div className="space-y-6">
               <div className="space-y-2 pt-2">
                 <h3 className="font-serif text-2xl font-bold text-[#2C2421]">{plan.name}</h3>
-                <p className="text-xs text-stone-500 font-mono">{plan.period}</p>
-                <p className="text-xs text-stone-600 pt-1 leading-relaxed">{plan.desc}</p>
+                <p className="text-xs text-stone-700 font-mono font-medium">{plan.period}</p>
+                <p className="text-xs text-stone-700 pt-1 leading-relaxed font-light">{plan.desc}</p>
               </div>
 
               <div className="flex items-baseline gap-2 pt-2 border-t border-[#F2ECE1]">
                 <span className="font-serif font-bold text-4xl text-[#2C2421]">₹{plan.price}</span>
-                <span className="text-xs text-stone-500 uppercase tracking-wider font-semibold">Taxes Included</span>
+                <span className="text-xs text-stone-700 uppercase tracking-wider font-semibold">Taxes Included</span>
               </div>
 
               {/* Feature List */}
@@ -163,7 +165,7 @@ export const Plans: React.FC = () => {
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#8B5E34] block">Included Features</span>
                 {plan.features.map((f, i) => (
                   <div key={i} className="flex items-start gap-2.5 text-xs text-stone-700">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-800 shrink-0 mt-0.5" />
                     <span>{f}</span>
                   </div>
                 ))}
@@ -172,7 +174,7 @@ export const Plans: React.FC = () => {
 
             <button
               onClick={() => handleSelectPlan(plan)}
-              className={`w-full mt-8 py-3.5 rounded-full font-bold text-xs tracking-wider uppercase transition shadow-md flex items-center justify-center gap-2 ${
+              className={`btn-spiritual w-full mt-8 py-3.5 rounded-full font-bold text-xs tracking-wider uppercase transition shadow-md flex items-center justify-center gap-2 cursor-pointer ${
                 plan.popular
                   ? 'bg-[#3B234A] hover:bg-[#2C1838] text-white'
                   : 'bg-[#8B5E34] hover:bg-[#6e4623] text-white'
@@ -186,7 +188,7 @@ export const Plans: React.FC = () => {
       </StaggerContainer>
 
       {/* Trust banner */}
-      <ScrollReveal variant="fade-up">
+      <ScrollReveal animation="fade-up">
         <div className="p-8 rounded-3xl bg-[#FAF7F0] border border-[#E6E0D2] flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-[#EFE9DD] text-[#8B5E34] flex items-center justify-center shrink-0">

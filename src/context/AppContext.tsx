@@ -121,7 +121,8 @@ interface AppContextType {
   setSelectedBook: (book: BookItem | null) => void;
   isBookAudioOpen: boolean;
   currentBookAudio: BookItem | null;
-  openBookAudioPlayer: (book: BookItem) => void;
+  initialEpisodeId?: string | number | null;
+  openBookAudioPlayer: (book: BookItem, initialEpisodeId?: string | number) => void;
   closeBookAudioPlayer: () => void;
   unlockedBooks: (string | number)[];
   refreshUnlockedBooks: () => Promise<void>;
@@ -400,6 +401,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedBook, setSelectedBook] = useState<BookItem | null>(null);
   const [isBookAudioOpen, setIsBookAudioOpen] = useState(false);
   const [currentBookAudio, setCurrentBookAudio] = useState<BookItem | null>(null);
+  const [initialEpisodeId, setInitialEpisodeId] = useState<string | number | null>(null);
 
   const openBookDrawer = (book?: BookItem) => {
     if (book) setSelectedBook(book);
@@ -410,8 +412,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsBookDrawerOpen(false);
   };
 
-  const openBookAudioPlayer = (book: BookItem) => {
+  const openBookAudioPlayer = (book: BookItem, episodeId?: string | number) => {
     setCurrentBookAudio(book);
+    setInitialEpisodeId(episodeId !== undefined ? episodeId : null);
     setIsBookAudioOpen(true);
     ambientEngine.onVideoPlay();
   };
@@ -419,6 +422,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const closeBookAudioPlayer = () => {
     setIsBookAudioOpen(false);
     setCurrentBookAudio(null);
+    setInitialEpisodeId(null);
     ambientEngine.onVideoPauseOrEnded();
   };
 
@@ -493,6 +497,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setSelectedBook,
         isBookAudioOpen,
         currentBookAudio,
+        initialEpisodeId,
         openBookAudioPlayer,
         closeBookAudioPlayer,
         unlockedBooks,

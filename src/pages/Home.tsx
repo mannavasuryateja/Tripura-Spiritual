@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
-import { Calendar, CheckCircle2, ArrowRight, Star, BookOpen, Radio, Sparkles, Play } from 'lucide-react';
+import { Calendar, CheckCircle2, ArrowRight, Star, BookOpen, Radio, Sparkles, Play, ChevronDown, RefreshCw, AlertCircle } from 'lucide-react';
 import { ScrollReveal, StaggerContainer } from '../components/ScrollReveal';
 import { ContactSection } from '../components/ContactSection';
-import { productsApi, booksApi } from '../api/client';
+import { productsApi, booksApi, settingsApi } from '../api/client';
 
 interface HomeProps {
   setActiveTab: (tab: string) => void;
@@ -13,15 +13,56 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
   const { t, openPaymentModal, openBookDrawer, openBookAudioPlayer, openVideoModal } = useApp();
   const [products, setProducts] = useState<any[]>([]);
   const [books, setBooks] = useState<any[]>([]);
+  const [isLoadingBooks, setIsLoadingBooks] = useState(true);
+  const [booksError, setBooksError] = useState<string | null>(null);
+  const [orientationUrl, setOrientationUrl] = useState<string>('');
+
+  const fetchProducts = useCallback(async () => {
+    try {
+      const res = await productsApi.getActiveProducts();
+      setProducts(Array.isArray(res) ? res : res.data || []);
+    } catch {
+      // Keep fallbacks
+    }
+  }, []);
+
+  const fetchBooks = useCallback(async () => {
+    setIsLoadingBooks(true);
+    setBooksError(null);
+    try {
+      const res = await booksApi.getAllBooks();
+      const list = Array.isArray(res) ? res : res.data || [];
+      const normalized = list.map((b: any) => ({
+        ...b,
+        chapters: b.episodes || b.chapters || [],
+        episodesCount: b.episodesCount || (b.episodes ? b.episodes.length : 0),
+        price: Number(b.price || 199)
+      }));
+      setBooks(normalized);
+    } catch {
+      setBooksError(t.bookLibrary?.loadError || 'Unable to connect to the sacred book library.');
+    } finally {
+      setIsLoadingBooks(false);
+    }
+  }, [t]);
+
+  const fetchSettings = useCallback(async () => {
+    try {
+      const res = await settingsApi.getPublicSettings();
+      const data = res.data || res;
+      if (data?.free_orientation_video_url) {
+        setOrientationUrl(data.free_orientation_video_url);
+      }
+    } catch {
+      // Fallback
+    }
+  }, []);
 
   useEffect(() => {
-    productsApi.getActiveProducts()
-      .then((res: any) => setProducts(Array.isArray(res) ? res : res.data || []))
-      .catch(() => {});
-    booksApi.getAllBooks()
-      .then((res: any) => setBooks(Array.isArray(res) ? res : res.data || []))
-      .catch(() => {});
-  }, []);
+    fetchProducts();
+    fetchBooks();
+    fetchSettings();
+  }, [fetchProducts, fetchBooks, fetchSettings]);
 
   const getPrice = (slug: string, fallback: number) => {
     const prod = products.find(p => p.slug === slug);
@@ -79,23 +120,43 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
     }
   ];
 
+  const handleScrollToOfferings = () => {
+    const el = document.getElementById('offerings');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleFreePreviewClick = () => {
+    if (orientationUrl) {
+      openVideoModal({
+        day: 0,
+        title: t.demoSection.demoClassTitle,
+        duration: "45 mins",
+        streamUrl: orientationUrl
+      });
+    } else {
+      setActiveTab('demo');
+    }
+  };
+
   return (
-    <div className="space-y-24 pb-20 bg-[#FAF7F0] text-[#2C2421]">
+    <div className="space-y-20 sm:space-y-28 pb-20 bg-[#FAF7F0] text-[#2C2421]">
       
-      {/* HERO SECTION — Matching reference screenshot */}
-      <section className="relative min-h-[600px] lg:min-h-[680px] flex items-center overflow-hidden bg-stone-900">
+      {/* HERO SECTION — Slow Ken Burns + Mandala slow rotation + Staggered entrance */}
+      <section className="relative min-h-[620px] lg:min-h-[720px] flex items-center overflow-hidden bg-stone-900">
         
-        {/* Background Landscape Photo */}
+        {/* Background Landscape Photo with Ken Burns slow zoom */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 scale-105"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat motion-safe:animate-kenburns scale-105"
           style={{ backgroundImage: `url('/hero.jpg')` }}
         >
           {/* Subtle Warm Overlay for Contrast & Readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/35"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/35"></div>
         </div>
 
-        {/* Right Faint Sacred Geometric Mandala Overlay */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[650px] md:h-[650px] opacity-25 pointer-events-none text-amber-200">
+        {/* Right Faint Sacred Geometric Mandala Overlay with very slow rotation */}
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[520px] h-[520px] md:w-[680px] md:h-[680px] opacity-20 pointer-events-none text-amber-200 motion-safe:animate-[spin_120s_linear_infinite]">
           <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth="0.5" className="w-full h-full">
             <circle cx="100" cy="100" r="90" />
             <circle cx="100" cy="100" r="70" />
@@ -108,62 +169,81 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
           </svg>
         </div>
 
-        {/* Hero Main Content Box */}
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10 py-20">
-          <ScrollReveal animation="hero-zoom" duration={850}>
-            <div className="max-w-2xl space-y-6 text-left">
-              
-              {/* Tagline */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-amber-200 text-xs font-semibold tracking-[0.2em] uppercase">
-                <Sparkles className="w-3 h-3 text-[#D1A559]" />
+        {/* Hero Main Content Box with Staggered Elements */}
+        <div className="section-container relative z-10 py-20 w-full">
+          <div className="max-w-2xl space-y-6 text-left">
+            
+            {/* 1. Tagline */}
+            <ScrollReveal animation="fade-up" delay={60}>
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-amber-200 text-xs font-semibold tracking-[0.2em] uppercase">
+                <Sparkles className="w-3.5 h-3.5 text-[#D1A559]" />
                 <span>{t.hero.tagline}</span>
               </div>
+            </ScrollReveal>
 
-              {/* Main Headline */}
+            {/* 2. Main Headline */}
+            <ScrollReveal animation="fade-up" delay={140}>
               <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-light text-white leading-[1.1] tracking-tight">
                 {t.hero.title}
               </h1>
+            </ScrollReveal>
 
-              {/* Description */}
+            {/* 3. Description Subtitle */}
+            <ScrollReveal animation="fade-up" delay={220}>
               <p className="text-base sm:text-lg text-stone-200 font-light leading-relaxed max-w-xl">
                 {t.hero.subtitle}
               </p>
+            </ScrollReveal>
 
-              {/* Action Buttons */}
+            {/* 4. Action Buttons */}
+            <ScrollReveal animation="fade-up" delay={300}>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
                 <button
+                  type="button"
                   onClick={() => setActiveTab('sessions')}
-                  className="btn-spiritual px-8 py-4 rounded-full bg-[#D1A559] hover:bg-[#C29548] text-[#201812] font-semibold text-xs sm:text-sm tracking-[0.18em] uppercase shadow-lg flex items-center justify-center gap-2"
+                  className="btn-spiritual btn-gold px-8 py-4 font-semibold text-xs sm:text-sm tracking-[0.18em] uppercase shadow-lg flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>{t.hero.exploreSessions}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => setActiveTab('demo')}
-                  className="btn-spiritual px-8 py-4 rounded-full bg-transparent hover:bg-white/10 text-white font-semibold text-xs sm:text-sm tracking-[0.18em] uppercase border border-white/80 flex items-center justify-center gap-2"
+                  className="btn-spiritual px-8 py-4 rounded-full bg-transparent hover:bg-white/10 text-white font-semibold text-xs sm:text-sm tracking-[0.18em] uppercase border border-white/80 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Play className="w-4 h-4 text-[#D1A559] fill-[#D1A559]" />
                   <span>{t.hero.watchDemo}</span>
                 </button>
               </div>
+            </ScrollReveal>
 
-            </div>
-          </ScrollReveal>
+          </div>
         </div>
+
+        {/* Hero Scroll Cue */}
+        <button
+          type="button"
+          onClick={handleScrollToOfferings}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 text-stone-300 hover:text-amber-200 flex flex-col items-center gap-1.5 text-xs font-semibold uppercase tracking-widest transition cursor-pointer z-10 group"
+          aria-label={t.hero.scrollCue || "Scroll to explore offerings"}
+        >
+          <span className="opacity-80 group-hover:opacity-100">{t.hero.scrollCue || "Scroll to explore"}</span>
+          <ChevronDown className="w-4 h-4 motion-safe:animate-bounce" />
+        </button>
 
       </section>
 
       {/* 4 CARDS GRID — Masterclasses, Recordings & Free Orientation */}
-      <section className="max-w-7xl mx-auto px-6 sm:px-8 space-y-10">
+      <section id="offerings" className="section-container space-y-10 scroll-mt-24">
         
         {/* Section Header */}
         <ScrollReveal animation="fade-up">
-          <div className="text-center space-y-2 max-w-2xl mx-auto">
-            <span className="text-xs font-semibold tracking-[0.25em] uppercase text-[#8B5E34]">
+          <div className="section-header">
+            <span className="section-eyebrow">
               {t.offeringsGrid.sectionTag}
             </span>
-            <h2 className="font-serif text-3xl sm:text-4xl font-normal text-[#2C2421]">
+            <h2 className="heading-serif text-3xl sm:text-4xl text-[#2C2421]">
               {t.offeringsGrid.sectionTitle}
             </h2>
             <p className="text-stone-600 text-sm sm:text-base font-light">
@@ -172,11 +252,12 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
           </div>
         </ScrollReveal>
 
-        {/* 4 Column Cards Grid */}
-        <StaggerContainer staggerDelay={120} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+        {/* 4 Column Cards Grid (Accessible Native Buttons) */}
+        <StaggerContainer staggerDelay={100} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {offerings.map((item) => (
-            <div
+            <button
               key={item.id}
+              type="button"
               onClick={() => {
                 if (item.action === 'session-details') setActiveTab('session-details');
                 else if (item.action === 'demo') setActiveTab('demo');
@@ -184,68 +265,77 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
                   openPaymentModal({
                     id: 'recordings-pack-11day',
                     name: 'Full 11-Day Hanuman Kriya Recordings Pack',
-                    price: 1500,
+                    price: item.numPrice,
                     type: 'recordings-only'
                   });
                 } else if (item.action === 'buy-extension') {
                   openPaymentModal({
                     id: 'hanuman-kriya-ext-21',
                     name: '21-Day Live Session Recording Extension (49% OFF)',
-                    price: 555,
+                    price: item.numPrice,
                     type: 'recording-extension'
                   });
                 }
               }}
-              className="group bg-white rounded-2xl overflow-hidden border border-[#E6E0D2] shadow-xs hover:shadow-xl hover:-translate-y-2 transition-all duration-500 cursor-pointer flex flex-col justify-between"
+              className="group bg-white rounded-2xl overflow-hidden border border-[#E6E0D2] shadow-xs hover:shadow-xl hover:-translate-y-2 transition-all duration-500 cursor-pointer flex flex-col justify-between text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8B5E34]"
+              aria-label={`${item.title} — ${item.price}`}
             >
               <div>
                 {/* Image Container with Top Pill Overlay */}
-                <div className="relative aspect-square overflow-hidden bg-stone-100">
+                <div className="relative aspect-[4/3] sm:aspect-square overflow-hidden bg-stone-100">
                   <img
                     src={item.image}
                     alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      target.onerror = () => {
+                        target.onerror = null;
+                        target.style.display = 'none';
+                      };
+                      target.src = '/card3.jpg';
+                    }}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
 
                   {/* Top Left Floating Tag Pill */}
-                  <span className="absolute top-4 left-4 px-3.5 py-1 rounded-full bg-white/90 backdrop-blur-md text-[#2C2421] text-[10px] font-semibold tracking-widest uppercase shadow-xs">
+                  <span className="absolute top-3.5 left-3.5 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md text-[#2C2421] text-[10px] font-bold tracking-wider uppercase shadow-xs border border-[#E6E0D2]">
                     {item.tag}
                   </span>
                 </div>
 
                 {/* Content Box */}
-                <div className="p-6 space-y-2">
-                  <span className="block text-[10px] font-semibold tracking-[0.2em] uppercase text-[#8B5E34]">
+                <div className="p-5 sm:p-6 space-y-2">
+                  <span className="block text-[10px] font-bold tracking-wider uppercase text-[#8B5E34]">
                     {item.category}
                   </span>
-                  <h3 className="font-serif text-xl font-normal text-[#2C2421] group-hover:text-[#8B5E34] transition-colors duration-300">
+                  <h3 className="font-serif text-lg sm:text-xl font-bold text-[#2C2421] group-hover:text-[#8B5E34] transition-colors duration-300 line-clamp-2">
                     {item.title}
                   </h3>
-                  <p className="text-xs text-stone-600 font-light leading-relaxed">
+                  <p className="text-xs text-stone-700 font-light leading-relaxed line-clamp-3">
                     {item.desc}
                   </p>
                 </div>
               </div>
 
               {/* Bottom Meta & Pricing Footer Line */}
-              <div className="px-6 pb-6 pt-3 border-t border-[#F0EBE1] flex items-center justify-between text-[11px] font-semibold text-[#7A7067] tracking-wider uppercase">
+              <div className="px-5 sm:px-6 pb-5 pt-3 border-t border-[#F0EBE1] flex items-center justify-between text-[11px] font-semibold text-stone-700 tracking-wider">
                 <span>{item.meta}</span>
                 <span className="text-sm font-serif text-[#2C2421] font-bold">{item.price}</span>
               </div>
-            </div>
+            </button>
           ))}
         </StaggerContainer>
 
       </section>
 
       {/* FEATURED UPCOMING SESSION: HANUMAN KRIYA IMMERSION */}
-      <section className="max-w-6xl mx-auto px-6 sm:px-8 space-y-8">
+      <section className="section-container space-y-8">
         <ScrollReveal animation="fade-up">
-          <div className="text-center space-y-2 max-w-xl mx-auto">
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8B5E34]">
-              Featured Live Immersion
+          <div className="section-header">
+            <span className="section-eyebrow">
+              {t.upcomingSessions.featuredTag || "Featured Live Immersion"}
             </span>
-            <h2 className="font-serif text-3xl font-normal text-[#2C2421]">
+            <h2 className="heading-serif text-3xl sm:text-4xl text-[#2C2421]">
               {t.upcomingSessions.title}
             </h2>
             <p className="text-stone-600 text-sm">{t.upcomingSessions.subtitle}</p>
@@ -283,19 +373,20 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
-                    <span>WhatsApp Live Community Access</span>
+                    <span>{t.upcomingSessions.whatsappCommunity}</span>
                   </div>
                 </div>
               </div>
 
               <div className="lg:col-span-4 bg-[#FAF7F0] p-6 rounded-2xl border border-[#E6E0D2] text-center space-y-4">
-                <span className="text-xs text-[#7A7067] uppercase tracking-wider font-semibold">11-Day Live Masterclass</span>
+                <span className="text-xs text-[#7A7067] uppercase tracking-wider font-semibold">{t.upcomingSessions.cardBadge}</span>
                 <div className="text-3xl font-serif text-[#2C2421]">
-                  ₹1,111 <span className="text-xs font-sans text-stone-500">/ 11 Days</span>
+                  ₹{getPrice('live-masterclass', 1111).toLocaleString('en-IN')} <span className="text-xs font-sans text-stone-500">{t.upcomingSessions.per11Days}</span>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setActiveTab('session-details')}
-                  className="btn-spiritual w-full py-3.5 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-semibold text-xs tracking-[0.15em] uppercase shadow-sm"
+                  className="btn-spiritual btn-primary w-full py-3.5 font-semibold text-xs tracking-[0.15em] uppercase shadow-sm cursor-pointer"
                 >
                   {t.upcomingSessions.viewDetails}
                 </button>
@@ -306,8 +397,8 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
         </ScrollReveal>
       </section>
 
-      {/* SACRED BOOK LIBRARY & PODCAST SPOTLIGHT */}
-      <section className="max-w-6xl mx-auto px-6 sm:px-8">
+      {/* SACRED BOOK LIBRARY & PODCAST SPOTLIGHT — Skeleton chips & retry on error */}
+      <section className="section-container">
         <ScrollReveal animation="fade-up" duration={800}>
           <div className="bg-radial from-[#3B234A] to-[#201526] text-white rounded-3xl p-8 sm:p-12 shadow-lg relative overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -315,7 +406,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
               <div className="lg:col-span-7 space-y-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#D1A559] text-xs font-semibold tracking-widest uppercase">
                   <BookOpen className="w-3.5 h-3.5" />
-                  <span>Sacred Discourses & Library</span>
+                  <span>{t.bookLibrary.badge}</span>
                 </div>
 
                 <h2 className="font-serif text-3xl sm:text-4xl font-light">
@@ -326,44 +417,75 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
                   {t.bookLibrary.subtitle}
                 </p>
 
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {books.slice(0, 3).map((book: any) => (
-                    <button
-                      key={book.id}
-                      onClick={() => openBookDrawer(book)}
-                      className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 text-xs text-stone-200 transition flex items-center gap-1.5"
-                    >
-                      <Radio className="w-3 h-3 text-[#D1A559]" />
-                      <span>{book.title}</span>
-                    </button>
-                  ))}
+                {/* Chips / Skeleton / Error State */}
+                <div className="pt-2">
+                  {isLoadingBooks ? (
+                    <div className="flex flex-wrap gap-2 motion-safe:animate-pulse">
+                      {[1, 2, 3].map(i => (
+                        <div key={i} className="h-8 w-32 bg-white/10 rounded-lg"></div>
+                      ))}
+                    </div>
+                  ) : booksError ? (
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-200 text-xs">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                      <span className="flex-1">{booksError}</span>
+                      <button
+                        type="button"
+                        onClick={fetchBooks}
+                        className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold flex items-center gap-1 cursor-pointer"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        <span>{t.common?.retry || "Retry"}</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {books.slice(0, 3).map((book: any) => (
+                        <button
+                          key={book.id}
+                          type="button"
+                          onClick={() => openBookDrawer(book)}
+                          className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 text-xs text-stone-200 transition flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Radio className="w-3 h-3 text-[#D1A559]" />
+                          <span>{book.title}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div className="lg:col-span-5 bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 text-center space-y-4">
                 <div className="w-12 h-12 mx-auto rounded-full bg-[#D1A559]/20 text-[#D1A559] flex items-center justify-center">
-                  <Radio className="w-6 h-6 animate-pulse" />
+                  <Radio className="w-6 h-6 motion-safe:animate-pulse" />
                 </div>
                 <div>
-                  <h3 className="font-serif text-xl text-white">Spiritual Radio Player</h3>
-                  <p className="text-stone-300 text-xs mt-1">Audio commentaries and sacred chapters by Master Garu</p>
+                  <h3 className="font-serif text-xl text-white">
+                    {t.bookLibrary.radioPlayerTitle || "Spiritual Radio Player"}
+                  </h3>
+                  <p className="text-stone-300 text-xs mt-1">
+                    {t.bookLibrary.radioPlayerSubtitle || "Audio commentaries and sacred chapters by Master Garu"}
+                  </p>
                 </div>
                 <div className="flex flex-col gap-2.5">
                   <button
+                    type="button"
                     onClick={() => {
                       if (books.length > 0) openBookAudioPlayer(books[0]);
                       else setActiveTab('book-library');
                     }}
-                    className="btn-spiritual w-full py-3 rounded-full bg-[#D1A559] hover:bg-[#C29548] text-[#201812] font-semibold text-xs tracking-widest uppercase shadow-md flex items-center justify-center gap-2"
+                    className="btn-spiritual btn-gold w-full py-3 font-semibold text-xs tracking-widest uppercase shadow-md flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Play className="w-3.5 h-3.5 fill-[#201812]" />
-                    <span>{books.length > 0 ? `Listen to ${books[0].title}` : 'Listen to Audio Discourse'}</span>
+                    <span>{books.length > 0 ? `Listen to ${books[0].title}` : (t.bookLibrary.listenDiscourse || 'Listen to Audio Discourse')}</span>
                   </button>
                   <button
+                    type="button"
                     onClick={() => setActiveTab('book-library')}
-                    className="btn-spiritual w-full py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-xs tracking-widest uppercase"
+                    className="btn-spiritual w-full py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-xs tracking-widest uppercase cursor-pointer"
                   >
-                    View All Curated Books
+                    {t.bookLibrary.viewAllBooks || "View All Curated Books"}
                   </button>
                 </div>
               </div>
@@ -373,14 +495,14 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
         </ScrollReveal>
       </section>
 
-      {/* 100% FREE ORIENTATION CLASS PREVIEW */}
-      <section className="max-w-6xl mx-auto px-6 sm:px-8">
+      {/* 100% FREE ORIENTATION CLASS PREVIEW — Using DemoClass orientation video source */}
+      <section className="section-container">
         <ScrollReveal animation="fade-up">
           <div className="bg-[#2C2421] text-white rounded-3xl p-8 sm:p-12 shadow-md relative overflow-hidden">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
               <div className="md:col-span-8 space-y-3">
                 <span className="px-3 py-1 rounded-full bg-emerald-900/60 text-emerald-300 text-xs font-semibold tracking-widest uppercase border border-emerald-500/30">
-                  100% Free • Open to All
+                  {t.demoSection.freeBadge}
                 </span>
                 <h3 className="font-serif text-3xl font-light">{t.demoSection.demoClassTitle}</h3>
                 <p className="text-stone-200 text-sm font-light leading-relaxed">{t.demoSection.subtitle}</p>
@@ -392,22 +514,19 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
               </div>
               <div className="md:col-span-4 flex flex-col gap-3">
                 <button
-                  onClick={() => openVideoModal({
-                    day: 0,
-                    title: t.demoSection.demoClassTitle,
-                    duration: "45 mins",
-                    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-                  })}
-                  className="btn-spiritual w-full py-3.5 rounded-full bg-[#D1A559] hover:bg-[#C29548] text-[#201812] font-semibold text-xs tracking-widest uppercase shadow-md flex items-center justify-center gap-2"
+                  type="button"
+                  onClick={handleFreePreviewClick}
+                  className="btn-spiritual btn-gold w-full py-3.5 font-semibold text-xs tracking-widest uppercase shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Play className="w-4 h-4 fill-[#201812]" />
                   <span>{t.demoSection.watchPreview}</span>
                 </button>
                 <button
+                  type="button"
                   onClick={() => setActiveTab('demo')}
-                  className="btn-spiritual w-full py-3.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold text-xs tracking-widest uppercase"
+                  className="btn-spiritual w-full py-3.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold text-xs tracking-widest uppercase cursor-pointer"
                 >
-                  Learn What's Covered
+                  {t.demoSection.learnWhatsCovered || "Learn What's Covered"}
                 </button>
               </div>
             </div>
@@ -416,13 +535,13 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
       </section>
 
       {/* ABOUT TRIPURA SPIRITUAL & MASTER */}
-      <section className="max-w-6xl mx-auto px-6 sm:px-8">
+      <section className="section-container">
         <ScrollReveal animation="fade-up">
           <div className="bg-[#FAF7F0] rounded-3xl p-8 sm:p-14 border border-[#E6E0D2] shadow-xs text-center max-w-3xl mx-auto space-y-6">
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8B5E34]">
+            <span className="section-eyebrow">
               {t.aboutSection.motto}
             </span>
-            <h2 className="font-serif text-3xl sm:text-4xl font-normal text-[#2C2421]">
+            <h2 className="heading-serif text-3xl sm:text-4xl text-[#2C2421]">
               {t.aboutSection.title}
             </h2>
             <p className="text-stone-700 text-base sm:text-lg leading-relaxed font-light">
@@ -430,8 +549,9 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
             </p>
             <div className="pt-2">
               <button
+                type="button"
                 onClick={() => setActiveTab('about')}
-                className="inline-flex items-center gap-2 font-semibold text-xs tracking-[0.15em] uppercase text-[#8B5E34] hover:text-[#5C3D1E] group"
+                className="inline-flex items-center gap-2 font-semibold text-xs tracking-[0.15em] uppercase text-[#8B5E34] hover:text-[#5C3D1E] group cursor-pointer"
               >
                 <span>{t.aboutSection.learnMore}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
@@ -441,16 +561,18 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
         </ScrollReveal>
       </section>
 
-      {/* TESTIMONIALS */}
-      <section className="max-w-6xl mx-auto px-6 sm:px-8 space-y-6">
+      {/* TESTIMONIALS — Small screen scroll-snap slider & 3-column on md+ */}
+      <section className="section-container space-y-6">
         <ScrollReveal animation="fade-up">
-          <div className="text-center space-y-2">
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8B5E34]">Seeker Stories</span>
-            <h2 className="font-serif text-3xl font-normal text-[#2C2421]">Voices of Peace</h2>
+          <div className="section-header">
+            <span className="section-eyebrow">{t.testimonials?.tag || "Seeker Stories"}</span>
+            <h2 className="heading-serif text-3xl sm:text-4xl text-[#2C2421]">
+              {t.testimonials?.title || "Voices of Peace"}
+            </h2>
           </div>
         </ScrollReveal>
 
-        <StaggerContainer staggerDelay={120} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 md:grid md:grid-cols-3 md:gap-8 scrollbar-thin">
           {[
             {
               name: "Sowmya R.",
@@ -468,20 +590,25 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
               text: "Wonderful, peaceful platform. The 1-on-1 session helped me resolve many personal questions with real guidance."
             }
           ].map((item, idx) => (
-            <div key={idx} className="bg-white rounded-2xl p-6 border border-[#E6E0D2] shadow-xs space-y-3 hover:shadow-md transition duration-300">
-              <div className="flex gap-1 text-[#D1A559]">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3.5 h-3.5 fill-[#D1A559]" />
-                ))}
+            <div 
+              key={idx} 
+              className="min-w-[85vw] sm:min-w-[340px] md:min-w-0 snap-center bg-white rounded-2xl p-6 border border-[#E6E0D2] shadow-xs space-y-3 hover:shadow-md transition duration-300 flex flex-col justify-between"
+            >
+              <div className="space-y-3">
+                <div className="flex gap-1 text-[#D1A559]">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-3.5 h-3.5 fill-[#D1A559]" />
+                  ))}
+                </div>
+                <p className="text-stone-700 text-sm font-light leading-relaxed italic">"{item.text}"</p>
               </div>
-              <p className="text-stone-700 text-sm font-light leading-relaxed italic">"{item.text}"</p>
-              <div className="pt-2 border-t border-[#E6E0D2]">
+              <div className="pt-3 border-t border-[#E6E0D2]">
                 <span className="block font-serif text-[#2C2421] text-sm font-normal">{item.name}</span>
                 <span className="text-xs text-stone-500">{item.city}</span>
               </div>
             </div>
           ))}
-        </StaggerContainer>
+        </div>
       </section>
 
       {/* GET IN TOUCH / CONTACT SECTION */}
@@ -490,4 +617,5 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
     </div>
   );
 };
+
 

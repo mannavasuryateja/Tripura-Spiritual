@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { X, Smartphone, KeyRound, CheckCircle2 } from 'lucide-react';
 
@@ -13,6 +13,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRedirect }) => {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const modalRef = useRef<HTMLDivElement | null>(null);
+
+  // Capture previous active element and manage focus on open/close
+  useEffect(() => {
+    if (isAuthOpen) {
+      triggerRef.current = document.activeElement as HTMLElement;
+      const timer = setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        } else {
+          modalRef.current?.focus();
+        }
+      }, 50);
+      return () => clearTimeout(timer);
+    } else {
+      triggerRef.current?.focus();
+    }
+  }, [isAuthOpen, step]);
 
   if (!isAuthOpen) return null;
 
@@ -60,13 +81,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRedirect }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-[#FAF7F0] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-[#E6E0D2] relative overflow-hidden text-[#2C2421]">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm animate-backdrop-fade"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) closeAuthModal();
+      }}
+    >
+      <div 
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="auth-modal-title"
+        tabIndex={-1}
+        className="bg-[#FAF7F0] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-[#E6E0D2] relative overflow-hidden text-[#2C2421] animate-modal-scale-in focus:outline-none"
+      >
         
         {/* Close Button */}
         <button
+          type="button"
           onClick={closeAuthModal}
-          className="absolute top-4 right-4 p-2 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 transition"
+          className="absolute top-4 right-4 p-2 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 transition cursor-pointer"
+          aria-label="Close Authentication Modal"
         >
           <X className="w-5 h-5" />
         </button>
@@ -76,7 +111,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRedirect }) => {
           <div className="w-12 h-12 rounded-full bg-[#EFE9DD] text-[#3B234A] mx-auto flex items-center justify-center mb-3">
             <Smartphone className="w-6 h-6" />
           </div>
-          <h3 className="font-serif text-2xl font-normal text-[#2C2421]">
+          <h3 id="auth-modal-title" className="font-serif text-2xl font-normal text-[#2C2421]">
             {t.auth.title}
           </h3>
           <p className="text-xs text-stone-600 mt-1">
@@ -96,6 +131,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRedirect }) => {
                   +91
                 </span>
                 <input
+                  ref={inputRef}
                   type="tel"
                   maxLength={10}
                   placeholder="9999999999"
@@ -111,7 +147,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRedirect }) => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-semibold text-xs tracking-widest uppercase shadow-md transition disabled:opacity-60"
+              className="w-full py-4 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-semibold text-xs tracking-widest uppercase shadow-md transition disabled:opacity-60 cursor-pointer"
             >
               {isLoading ? (
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
@@ -137,6 +173,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRedirect }) => {
               <div className="relative">
                 <KeyRound className="absolute left-4 top-3.5 w-5 h-5 text-stone-400" />
                 <input
+                  ref={inputRef}
                   type="text"
                   maxLength={6}
                   placeholder="123456"
@@ -152,7 +189,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRedirect }) => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-semibold text-xs tracking-widest uppercase shadow-md transition flex items-center justify-center gap-2 disabled:opacity-60"
+              className="w-full py-4 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-semibold text-xs tracking-widest uppercase shadow-md transition flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
             >
               {isLoading ? (
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -167,7 +204,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRedirect }) => {
             <button
               type="button"
               onClick={() => { setStep('mobile'); setError(''); }}
-              className="w-full text-xs text-stone-500 hover:text-stone-800 underline text-center"
+              className="w-full text-xs text-stone-500 hover:text-stone-800 underline text-center cursor-pointer"
             >
               Change Mobile Number
             </button>

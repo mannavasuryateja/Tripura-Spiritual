@@ -4,7 +4,7 @@ import { X, Play, Pause, RotateCcw, RotateCw, Volume2, VolumeX, Radio, Sparkles,
 import { booksApi } from '../api/client';
 
 export const BookAudioPlayerModal: React.FC = () => {
-  const { isBookAudioOpen, closeBookAudioPlayer, currentBookAudio, unlockedBooks, openPaymentModal } = useApp();
+  const { isBookAudioOpen, closeBookAudioPlayer, currentBookAudio, initialEpisodeId, unlockedBooks, openPaymentModal } = useApp();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoadingMedia, setIsLoadingMedia] = useState(false);
   const [mediaError, setMediaError] = useState<string | null>(null);
@@ -17,6 +17,21 @@ export const BookAudioPlayerModal: React.FC = () => {
   const [activeStreamUrl, setActiveStreamUrl] = useState<string | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const modalRef = useRef<HTMLDivElement | null>(null);
+
+  // Focus management on open/close
+  useEffect(() => {
+    if (isBookAudioOpen) {
+      triggerRef.current = document.activeElement as HTMLElement;
+      const timer = setTimeout(() => {
+        modalRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    } else {
+      triggerRef.current?.focus();
+    }
+  }, [isBookAudioOpen]);
 
   const rawChapters = currentBookAudio?.chapters || currentBookAudio?.episodes || [];
   const isBookUnlocked = currentBookAudio ? unlockedBooks.some(id => String(id) === String(currentBookAudio.id)) : false;
@@ -63,10 +78,20 @@ export const BookAudioPlayerModal: React.FC = () => {
 
   useEffect(() => {
     if (isBookAudioOpen && currentBookAudio) {
-      setCurrentChapterIdx(0);
+      const chapters = currentBookAudio.chapters || currentBookAudio.episodes || [];
+      let startIdx = 0;
+      if (initialEpisodeId !== undefined && initialEpisodeId !== null) {
+        const foundIdx = chapters.findIndex(
+          (ch, i) => String(ch.id) === String(initialEpisodeId) || String(i) === String(initialEpisodeId)
+        );
+        if (foundIdx >= 0) {
+          startIdx = foundIdx;
+        }
+      }
+      setCurrentChapterIdx(startIdx);
       setCurrentTimeSec(0);
       setActiveTab('player');
-      loadStreamForChapter(currentBookAudio.id, 0);
+      loadStreamForChapter(currentBookAudio.id, startIdx);
     } else {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -74,7 +99,7 @@ export const BookAudioPlayerModal: React.FC = () => {
       setIsPlaying(false);
       setActiveStreamUrl(null);
     }
-  }, [isBookAudioOpen, currentBookAudio, loadStreamForChapter]);
+  }, [isBookAudioOpen, currentBookAudio, initialEpisodeId, loadStreamForChapter]);
 
   // Handle stream URL change on audio element
   useEffect(() => {
@@ -217,7 +242,7 @@ export const BookAudioPlayerModal: React.FC = () => {
   return (
     <div 
       onClick={(e) => { if (e.target === e.currentTarget) closeBookAudioPlayer(); }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/85 backdrop-blur-md animate-fadeIn overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/85 backdrop-blur-md animate-backdrop-fade overflow-y-auto"
     >
       {/* Real HTML5 Audio Element */}
       <audio
@@ -238,37 +263,51 @@ export const BookAudioPlayerModal: React.FC = () => {
         }}
       />
 
-      <div className="bg-[#241C1A] text-white rounded-3xl max-w-2xl w-full border border-amber-500/30 shadow-2xl overflow-hidden relative flex flex-col my-auto max-h-[92vh]">
+      <div 
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="book-audio-player-title"
+        tabIndex={-1}
+        className="bg-[#241C1A] text-white rounded-3xl max-w-2xl w-full border border-amber-500/30 shadow-2xl overflow-hidden relative flex flex-col my-auto max-h-[92vh] animate-modal-scale-in focus:outline-none"
+      >
         
         {/* Top Header */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-stone-800 bg-[#1D1615] shrink-0">
           <div className="flex items-center gap-2.5">
             <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center text-xs">
-              <Radio className={`w-4 h-4 text-amber-400 ${isPlaying ? 'animate-pulse' : ''}`} />
+              <Radio className={`w-4 h-4 text-amber-400 ${isPlaying ? 'motion-safe:animate-pulse' : ''}`} />
             </span>
             <div>
               <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 block">
                 Tripura Spiritual Audio Discourse
               </span>
-              <h3 className="font-serif text-base font-bold text-stone-100 truncate max-w-xs sm:max-w-md">
+              <h3 id="book-audio-player-title" className="font-serif text-base font-bold text-stone-100 truncate max-w-xs sm:max-w-md">
                 {currentBookAudio.title}
               </h3>
             </div>
           </div>
 
           <button
+            type="button"
             onClick={closeBookAudioPlayer}
-            className="p-2 rounded-full text-stone-400 hover:text-white hover:bg-stone-800 transition"
+            className="p-2 rounded-full text-stone-400 hover:text-white hover:bg-stone-800 transition cursor-pointer"
+            aria-label="Close Audio Discourse Player"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab Selector */}
-        <div className="flex border-b border-stone-800 bg-[#1F1816] px-6">
+        <div className="flex border-b border-stone-800 bg-[#1F1816] px-6" role="tablist" aria-label="Book Audio Discourse Tabs">
           <button
+            id="book-tab-player"
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'player'}
+            aria-controls="book-tabpanel-player"
             onClick={() => setActiveTab('player')}
-            className={`py-3 px-4 text-xs font-bold uppercase tracking-wider flex items-center gap-2 border-b-2 transition ${
+            className={`py-3 px-4 text-xs font-bold uppercase tracking-wider flex items-center gap-2 border-b-2 transition cursor-pointer ${
               activeTab === 'player'
                 ? 'border-amber-400 text-amber-300'
                 : 'border-transparent text-stone-400 hover:text-stone-200'
@@ -279,8 +318,13 @@ export const BookAudioPlayerModal: React.FC = () => {
           </button>
 
           <button
+            id="book-tab-summary"
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'summary'}
+            aria-controls="book-tabpanel-summary"
             onClick={() => setActiveTab('summary')}
-            className={`py-3 px-4 text-xs font-bold uppercase tracking-wider flex items-center gap-2 border-b-2 transition ${
+            className={`py-3 px-4 text-xs font-bold uppercase tracking-wider flex items-center gap-2 border-b-2 transition cursor-pointer ${
               activeTab === 'summary'
                 ? 'border-amber-400 text-amber-300'
                 : 'border-transparent text-stone-400 hover:text-stone-200'
@@ -293,13 +337,18 @@ export const BookAudioPlayerModal: React.FC = () => {
 
         {/* Tab 1: Audio Player */}
         {activeTab === 'player' && (
-          <div className="p-6 sm:p-8 space-y-6 flex-1 overflow-y-auto">
+          <div 
+            id="book-tabpanel-player" 
+            role="tabpanel" 
+            aria-labelledby="book-tab-player" 
+            className="p-6 sm:p-8 space-y-6 flex-1 overflow-y-auto"
+          >
             
             {/* Free 5-Min Preview Notice Banner */}
             {!isChapterUnlocked && (
               <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-950/80 to-stone-900 border border-amber-500/40 flex items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-2 text-amber-300">
-                  <Sparkles className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
+                  <Sparkles className="w-4 h-4 text-amber-400 shrink-0 motion-safe:animate-pulse" />
                   <span>
                     <strong>5-Minute Free Preview Active:</strong> Enjoy the first 5 mins of master commentary at zero cost.
                   </span>
@@ -520,7 +569,12 @@ export const BookAudioPlayerModal: React.FC = () => {
 
         {/* Tab 2: Free Problem Statement & Summary */}
         {activeTab === 'summary' && (
-          <div className="p-6 sm:p-8 space-y-6 flex-1 overflow-y-auto animate-fadeIn text-stone-200 text-xs">
+          <div 
+            id="book-tabpanel-summary" 
+            role="tabpanel" 
+            aria-labelledby="book-tab-summary" 
+            className="p-6 sm:p-8 space-y-6 flex-1 overflow-y-auto animate-fadeIn text-stone-200 text-xs"
+          >
             
             {/* Problem Statement Card */}
             <div className="p-5 rounded-2xl bg-amber-950/40 border border-amber-500/30 space-y-2">

@@ -12,19 +12,19 @@ export const FloatingBookButton: React.FC = () => {
     <aside aria-label="Sacred Books & Audio Podcasts Quick Access">
       <button
         onClick={() => openBookDrawer()}
-        className="fixed right-0 top-1/2 -translate-y-1/2 z-40 bg-[#FAF7F0]/95 hover:bg-[#3B234A] text-[#8B5E34] hover:text-white border-l-2 border-y border-[#D8CFBF] hover:border-[#3B234A] pl-3 pr-2.5 py-3.5 rounded-l-2xl shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col items-center gap-2 group backdrop-blur-md cursor-pointer transform hover:-translate-x-1"
+        className="fixed right-2 sm:right-3 top-1/2 -translate-y-1/2 z-40 bg-[#FAF7F0]/95 hover:bg-[#3B234A] text-[#8B5E34] hover:text-white border border-[#D8CFBF] hover:border-[#3B234A] px-2.5 py-3.5 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col items-center gap-2 group backdrop-blur-md cursor-pointer transform hover:-translate-x-1.5 active:scale-95"
         title="Sacred Book Library & Audio Podcasts"
         aria-label="Open Sacred Book Library & Audio Podcasts"
       >
         {/* Book Icon with Aura Badge */}
         <div className="relative">
           <BookOpen className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
-          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#D1A559] animate-ping" />
+          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#D1A559] motion-safe:animate-ping" />
           <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#D1A559]" />
         </div>
 
         {/* Small Audio Indicator */}
-        <Radio className="w-3.5 h-3.5 text-[#D1A559] opacity-80 group-hover:opacity-100 animate-pulse" />
+        <Radio className="w-3.5 h-3.5 text-[#D1A559] opacity-80 group-hover:opacity-100 motion-safe:animate-pulse" />
 
         {/* Vertical Text Label */}
         <span 

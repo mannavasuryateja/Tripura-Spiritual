@@ -49,23 +49,25 @@ export const DemoClass: React.FC = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12 text-[#2C2421]">
+    <div className="section-container py-10 space-y-12 text-[#2C2421]">
       
-      {/* Header */}
-      <ScrollReveal animation="fade-up">
-        <div className="text-center space-y-4 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-900 text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
-            <span>100% Free for Everyone • No Login Required</span>
+      {/* Short Page Header Band */}
+      <div className="rounded-3xl bg-gradient-to-r from-[#FAF7F0] via-[#F5EFE6] to-[#FAF7F0] mandala-bg border border-[#E6E0D2] py-10 px-6 sm:px-12 text-center shadow-xs">
+        <ScrollReveal animation="fade-up">
+          <div className="section-header">
+            <div className="inline-flex items-center justify-center gap-2 px-4 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold uppercase tracking-wider mx-auto">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
+              <span>100% Free for Everyone • No Login Required</span>
+            </div>
+            <h1 className="heading-section font-bold text-[#2C2421]">
+              Free Orientation Masterclass
+            </h1>
+            <p className="text-stone-600 text-sm sm:text-base leading-relaxed font-light max-w-2xl mx-auto">
+              Experience Master Gorli Peddi Raju Garu's direct teaching style, foundational breath awareness, and guided meditation with complete freedom.
+            </p>
           </div>
-          <h1 className="font-serif text-4xl sm:text-5xl font-bold text-[#2C2421]">
-            Free Orientation Masterclass
-          </h1>
-          <p className="text-stone-600 text-base leading-relaxed font-light">
-            Experience Master Gorli Peddi Raju Garu's direct teaching style, foundational breath awareness, and guided meditation with complete freedom.
-          </p>
-        </div>
-      </ScrollReveal>
+        </ScrollReveal>
+      </div>
 
       {/* Main Video Demo Card */}
       <ScrollReveal animation="image-zoom" duration={850}>
@@ -73,7 +75,7 @@ export const DemoClass: React.FC = () => {
           
           <div className="relative aspect-video bg-stone-950 rounded-2xl overflow-hidden flex items-center justify-center border border-amber-500/30 group">
             <div className="absolute inset-0 bg-gradient-to-tr from-amber-950 via-stone-900 to-orange-950 flex flex-col items-center justify-center p-6 text-center">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-amber-500 to-orange-400 flex items-center justify-center text-4xl shadow-2xl shadow-amber-500/40 mb-4 animate-float">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-amber-500 to-orange-400 flex items-center justify-center text-4xl shadow-2xl shadow-amber-500/40 mb-4 motion-safe:animate-float">
                 🪷
               </div>
               <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">

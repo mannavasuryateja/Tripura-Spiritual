@@ -283,7 +283,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onPreviewSite }) => {
     e.preventDefault();
     if (!selectedBookForEpisodes) return;
     const formData = new FormData(e.currentTarget);
-    
+
     const mediaType = (formData.get('mediaType') as string) || 'AUDIO';
     let audioUrl = formData.get('audioUrl') as string;
     let videoUrl = formData.get('videoUrl') as string;
@@ -437,7 +437,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onPreviewSite }) => {
 
   return (
     <div className="min-h-screen bg-[#110D16] text-[#FAF7F0] font-sans antialiased selection:bg-amber-500 selection:text-black">
-      
+
       {/* 1. Header */}
       <header className="sticky top-0 z-40 bg-[#191421]/95 backdrop-blur-md border-b border-purple-900/40 shadow-xl px-4 sm:px-8 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
@@ -514,7 +514,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onPreviewSite }) => {
 
       {/* 2. Top Navigation Tabs */}
       <div className="border-b border-purple-900/30 bg-[#15101C] px-4 sm:px-8 overflow-x-auto">
-        <div className="flex gap-1 py-2 min-w-max text-xs font-semibold">
+        <div className="flex gap-1 py-2 min-w-max text-xs font-semibold" role="tablist" aria-label="Admin Workspace Tabs">
           {[
             { id: 'overview', label: 'Dashboard Overview', icon: Layers },
             { id: 'books', label: 'Book Library & CMS', icon: BookOpen },
@@ -532,12 +532,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onPreviewSite }) => {
             return (
               <button
                 key={tab.id}
+                id={`admin-tab-${tab.id}`}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={`admin-tabpanel-${tab.id}`}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`px-3.5 py-2 rounded-xl flex items-center gap-2 transition ${
-                  isActive
+                className={`px-3.5 py-2 rounded-xl flex items-center gap-2 transition cursor-pointer ${isActive
                     ? 'bg-purple-600 text-white shadow-md'
                     : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900'
-                }`}
+                  }`}
               >
                 <Icon className="w-3.5 h-3.5" />
                 <span>{tab.label}</span>
@@ -549,10 +553,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onPreviewSite }) => {
 
       {/* 3. Main Workspace Tab Contents */}
       <main className="max-w-7xl mx-auto p-4 sm:p-8 space-y-8">
-        
+
         {/* TAB 1: OVERVIEW */}
         {activeTab === 'overview' && (
-          <div className="space-y-8 animate-fadeIn">
+          <div id="admin-tabpanel-overview" role="tabpanel" aria-labelledby="admin-tab-overview" className="space-y-8 animate-fadeIn">
             {/* Header info */}
             <div>
               <h2 className="font-serif text-2xl font-bold text-white">Platform Health & Live Statistics</h2>
@@ -613,9 +617,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onPreviewSite }) => {
                         <td className="p-3 text-stone-300">{p.purpose}</td>
                         <td className="p-3 font-bold text-amber-300">₹{p.amount}</td>
                         <td className="p-3">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            p.status === 'PAID' || p.status === 'SUCCESS' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'
-                          }`}>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${p.status === 'PAID' || p.status === 'SUCCESS' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'
+                            }`}>
                             {p.status}
                           </span>
                         </td>
@@ -735,9 +738,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onPreviewSite }) => {
                         {s.startDate} to {s.endDate}
                       </p>
                     </div>
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                      s.active ? 'bg-emerald-500/20 text-emerald-300' : 'bg-stone-800 text-stone-400'
-                    }`}>
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${s.active ? 'bg-emerald-500/20 text-emerald-300' : 'bg-stone-800 text-stone-400'
+                      }`}>
                       {s.active ? 'Active Batch' : 'Archived'}
                     </span>
                   </div>
@@ -903,9 +905,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onPreviewSite }) => {
                       <td className="p-3 text-stone-300">{p.purpose}</td>
                       <td className="p-3 font-bold text-amber-300">₹{p.amount}</td>
                       <td className="p-3">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          p.status === 'PAID' || p.status === 'SUCCESS' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'
-                        }`}>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${p.status === 'PAID' || p.status === 'SUCCESS' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'
+                          }`}>
                           {p.status}
                         </span>
                       </td>
@@ -976,13 +977,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onPreviewSite }) => {
                       <td className="p-3 font-bold text-white">{u.name}</td>
                       <td className="p-3 text-stone-300 font-mono">{u.phone || u.email || 'N/A'}</td>
                       <td className="p-3">
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                          u.role === 'ROLE_ADMIN' || u.role === 'ROLE_MASTER'
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${u.role === 'ROLE_ADMIN' || u.role === 'ROLE_MASTER'
                             ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
                             : u.role === 'ROLE_ENROLLED'
-                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                            : 'bg-stone-800 text-stone-300'
-                        }`}>
+                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                              : 'bg-stone-800 text-stone-300'
+                          }`}>
                           {u.role}
                         </span>
                       </td>
@@ -1044,11 +1044,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onPreviewSite }) => {
                       </td>
                       <td className="p-3 text-stone-400 font-mono">{b.preferredTimeSlot || '6:30 AM'}</td>
                       <td className="p-3">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          b.status === 'CONFIRMED' ? 'bg-emerald-500/20 text-emerald-300' :
-                          b.status === 'COMPLETED' ? 'bg-blue-500/20 text-blue-300' :
-                          b.status === 'REJECTED' ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-500/20 text-amber-300'
-                        }`}>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${b.status === 'CONFIRMED' ? 'bg-emerald-500/20 text-emerald-300' :
+                            b.status === 'COMPLETED' ? 'bg-blue-500/20 text-blue-300' :
+                              b.status === 'REJECTED' ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-500/20 text-amber-300'
+                          }`}>
                           {b.status}
                         </span>
                       </td>

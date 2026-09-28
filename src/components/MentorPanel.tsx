@@ -79,7 +79,7 @@ export const MentorPanel: React.FC = () => {
 
       {isLoading && (
         <div className="p-8 text-center text-xs text-stone-500">
-          <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-amber-700" />
+          <RefreshCw className="w-5 h-5 motion-safe:animate-spin mx-auto mb-2 text-amber-700" />
           Loading mentorship requests from backend...
         </div>
       )}

@@ -83,22 +83,24 @@ export const OneToOne: React.FC = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12 text-[#2C2421]">
+    <div className="section-container py-10 space-y-12 text-[#2C2421]">
       
-      {/* Header */}
-      <ScrollReveal animation="fade-up">
-        <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <span className="px-3.5 py-1 rounded-full bg-[#EFE9DD] text-[#3B234A] text-xs font-bold uppercase tracking-wider border border-[#D8CFBF]">
-            Direct Mentorship with Gorli Peddi Raju Garu
-          </span>
-          <h1 className="font-serif text-4xl font-bold text-[#2C2421]">
-            {t.oneToOne.title}
-          </h1>
-          <p className="text-stone-600 text-sm">
-            {t.oneToOne.subtitle}
-          </p>
-        </div>
-      </ScrollReveal>
+      {/* Short Page Header Band */}
+      <div className="rounded-3xl bg-gradient-to-r from-[#FAF7F0] via-[#F5EFE6] to-[#FAF7F0] mandala-bg border border-[#E6E0D2] py-10 px-6 sm:px-12 text-center shadow-xs">
+        <ScrollReveal animation="fade-up">
+          <div className="section-header">
+            <span className="section-eyebrow">
+              Direct Mentorship with Gorli Peddi Raju Garu
+            </span>
+            <h1 className="heading-section font-bold text-[#2C2421]">
+              {t.oneToOne.title}
+            </h1>
+            <p className="text-stone-600 text-sm sm:text-base font-light max-w-2xl mx-auto leading-relaxed">
+              {t.oneToOne.subtitle}
+            </p>
+          </div>
+        </ScrollReveal>
+      </div>
 
       {/* IMPORTANT CALENDAR LOCK NOTICE BANNER */}
       <ScrollReveal animation="fade-up" delay={100}>
@@ -142,7 +144,7 @@ export const OneToOne: React.FC = () => {
                     }`}
                   >
                     <span className="block text-sm font-serif font-bold text-stone-900 mb-1">{cat.label}</span>
-                    <span className="text-xs text-stone-500 block leading-snug">{cat.desc}</span>
+                    <span className="text-xs text-stone-700 block leading-snug font-light">{cat.desc}</span>
                   </button>
                 ))}
               </div>
@@ -157,7 +159,7 @@ export const OneToOne: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedDuration(30)}
-                  className={`p-4 rounded-2xl border text-center font-bold text-sm transition ${
+                  className={`p-4 rounded-2xl border text-center font-bold text-sm transition cursor-pointer min-h-[44px] ${
                     selectedDuration === 30
                       ? 'border-[#3B234A] bg-[#3B234A] text-white shadow-md'
                       : 'border-stone-200 bg-white text-stone-800 hover:bg-stone-50'
@@ -170,7 +172,7 @@ export const OneToOne: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedDuration(60)}
-                  className={`p-4 rounded-2xl border text-center font-bold text-sm transition ${
+                  className={`p-4 rounded-2xl border text-center font-bold text-sm transition cursor-pointer min-h-[44px] ${
                     selectedDuration === 60
                       ? 'border-[#3B234A] bg-[#3B234A] text-white shadow-md'
                       : 'border-stone-200 bg-white text-stone-800 hover:bg-stone-50'
@@ -188,7 +190,7 @@ export const OneToOne: React.FC = () => {
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#8B5E34]">
                   3. Pick 2 Preferred Dates (13th to 31st)
                 </label>
-                <span className="text-[11px] text-stone-400 font-medium">Days 1–12 Disabled</span>
+                <span className="text-[11px] text-stone-700 font-medium">Days 1–12 Disabled</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

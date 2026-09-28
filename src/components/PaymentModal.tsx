@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { X, CheckCircle2, QrCode, CreditCard, Landmark, Smartphone, Loader2, ShieldCheck, MessageCircle, ExternalLink, AlertCircle, LogIn } from 'lucide-react';
 import { paymentsApi } from '../api/client';
@@ -14,6 +14,21 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
   const [txnId, setTxnId] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [whatsappCommunityUrl, setWhatsappCommunityUrl] = useState<string>('https://chat.whatsapp.com/TripuraSpiritualCommunityLive2026');
+
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const modalRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (isPaymentOpen) {
+      triggerRef.current = document.activeElement as HTMLElement;
+      const timer = setTimeout(() => {
+        modalRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    } else {
+      triggerRef.current?.focus();
+    }
+  }, [isPaymentOpen]);
 
   if (!isPaymentOpen || !pendingPlan) return null;
 
@@ -152,14 +167,31 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/75 backdrop-blur-md animate-fadeIn">
-      <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-amber-100 relative overflow-hidden">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/75 backdrop-blur-md animate-backdrop-fade"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && paymentState !== 'processing') {
+          closePaymentModal();
+          setPaymentState('form');
+        }
+      }}
+    >
+      <div 
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="payment-modal-title"
+        tabIndex={-1}
+        className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-amber-100 relative overflow-hidden animate-modal-scale-in focus:outline-none"
+      >
         
         {/* Close Button */}
         {paymentState !== 'processing' && (
           <button
+            type="button"
             onClick={() => { closePaymentModal(); setPaymentState('form'); }}
-            className="absolute top-4 right-4 p-2 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition"
+            className="absolute top-4 right-4 p-2 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition cursor-pointer"
+            aria-label="Close Checkout Modal"
           >
             <X className="w-5 h-5" />
           </button>
@@ -174,7 +206,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
               <span className="text-[11px] font-bold tracking-wider uppercase text-amber-700 block">
                 Secure Checkout
               </span>
-              <h3 className="font-serif text-xl font-bold text-stone-900">
+              <h3 id="payment-modal-title" className="font-serif text-xl font-bold text-stone-900">
                 Tripura Spiritual Gateway
               </h3>
             </div>
@@ -358,7 +390,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
         {/* STATE 2: PROCESSING SCREEN */}
         {paymentState === 'processing' && (
           <div className="py-12 text-center space-y-4">
-            <Loader2 className="w-12 h-12 text-[#8B5E34] animate-spin mx-auto" />
+            <Loader2 className="w-12 h-12 text-[#8B5E34] motion-safe:animate-spin mx-auto" />
             <h4 className="font-serif text-xl font-bold text-stone-900">
               {t.payment.processing}
             </h4>
