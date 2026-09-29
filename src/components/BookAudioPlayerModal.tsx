@@ -120,7 +120,7 @@ export const BookAudioPlayerModal: React.FC = () => {
       audioRef.current.removeAttribute('src');
       setIsPlaying(false);
     }
-  }, [activeStreamUrl]);
+  }, [activeStreamUrl, playbackSpeed, isMuted]);
 
   // Audio event listeners
   const onTimeUpdate = () => {
@@ -274,15 +274,15 @@ export const BookAudioPlayerModal: React.FC = () => {
         
         {/* Top Header */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-stone-800 bg-[#1D1615] shrink-0">
-          <div className="flex items-center gap-2.5">
-            <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center text-xs">
+          <div className="flex items-center gap-3 min-w-0 mr-2">
+            <span className="w-9 h-9 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center text-xs shrink-0">
               <Radio className={`w-4 h-4 text-amber-400 ${isPlaying ? 'motion-safe:animate-pulse' : ''}`} />
             </span>
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 block">
+            <div className="min-w-0">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#D1A559] block">
                 Tripura Spiritual Audio Discourse
               </span>
-              <h3 id="book-audio-player-title" className="font-serif text-base font-bold text-stone-100 truncate max-w-xs sm:max-w-md">
+              <h3 id="book-audio-player-title" className="font-serif text-base font-bold text-stone-100 truncate">
                 {currentBookAudio.title}
               </h3>
             </div>
@@ -291,7 +291,7 @@ export const BookAudioPlayerModal: React.FC = () => {
           <button
             type="button"
             onClick={closeBookAudioPlayer}
-            className="p-2 rounded-full text-stone-400 hover:text-white hover:bg-stone-800 transition cursor-pointer"
+            className="p-2.5 rounded-full text-stone-400 hover:text-white hover:bg-stone-800 transition cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0"
             aria-label="Close Audio Discourse Player"
           >
             <X className="w-5 h-5" />
@@ -307,7 +307,7 @@ export const BookAudioPlayerModal: React.FC = () => {
             aria-selected={activeTab === 'player'}
             aria-controls="book-tabpanel-player"
             onClick={() => setActiveTab('player')}
-            className={`py-3 px-4 text-xs font-bold uppercase tracking-wider flex items-center gap-2 border-b-2 transition cursor-pointer ${
+            className={`py-3.5 px-4 text-xs font-bold uppercase tracking-wider flex items-center gap-2 border-b-2 transition cursor-pointer min-h-[44px] ${
               activeTab === 'player'
                 ? 'border-amber-400 text-amber-300'
                 : 'border-transparent text-stone-400 hover:text-stone-200'
@@ -324,7 +324,7 @@ export const BookAudioPlayerModal: React.FC = () => {
             aria-selected={activeTab === 'summary'}
             aria-controls="book-tabpanel-summary"
             onClick={() => setActiveTab('summary')}
-            className={`py-3 px-4 text-xs font-bold uppercase tracking-wider flex items-center gap-2 border-b-2 transition cursor-pointer ${
+            className={`py-3.5 px-4 text-xs font-bold uppercase tracking-wider flex items-center gap-2 border-b-2 transition cursor-pointer min-h-[44px] ${
               activeTab === 'summary'
                 ? 'border-amber-400 text-amber-300'
                 : 'border-transparent text-stone-400 hover:text-stone-200'
@@ -346,14 +346,14 @@ export const BookAudioPlayerModal: React.FC = () => {
             
             {/* Free 5-Min Preview Notice Banner */}
             {!isChapterUnlocked && (
-              <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-950/80 to-stone-900 border border-amber-500/40 flex items-center justify-between gap-3 text-xs">
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-950/80 to-stone-900 border border-amber-500/40 flex items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-2 text-amber-300">
                   <Sparkles className="w-4 h-4 text-amber-400 shrink-0 motion-safe:animate-pulse" />
                   <span>
                     <strong>5-Minute Free Preview Active:</strong> Enjoy the first 5 mins of master commentary at zero cost.
                   </span>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-amber-400 text-stone-950 text-[10px] font-bold uppercase tracking-wider shrink-0 font-mono">
+                <span className="px-3 py-1 rounded-full bg-amber-400 text-stone-950 text-[10px] font-bold uppercase tracking-wider shrink-0 font-mono">
                   {formatSeconds(Math.max(0, 300 - currentTimeSec))} Left
                 </span>
               </div>
@@ -361,14 +361,14 @@ export const BookAudioPlayerModal: React.FC = () => {
 
             {/* Error banner if media fails */}
             {mediaError && (
-              <div className="p-3 rounded-xl bg-rose-950/70 border border-rose-500/40 text-rose-200 text-xs flex items-center gap-2">
+              <div className="p-3.5 rounded-2xl bg-rose-950/70 border border-rose-500/40 text-rose-200 text-xs flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
                 <span>{mediaError}</span>
               </div>
             )}
 
             {/* Visualizer & Cover */}
-            <div className="relative rounded-2xl bg-gradient-to-br from-amber-950/60 via-stone-900 to-orange-950/60 border border-amber-500/20 p-6 flex flex-col items-center justify-center text-center overflow-hidden">
+            <div className="relative rounded-3xl bg-gradient-to-br from-amber-950/60 via-stone-900 to-orange-950/60 border border-amber-500/20 p-6 flex flex-col items-center justify-center text-center overflow-hidden">
               <div className={`relative flex items-center justify-center mb-3 transition-transform duration-700 ${isPlaying ? 'scale-105' : 'scale-95 opacity-80'}`}>
                 <div className={`absolute w-32 h-32 rounded-full bg-amber-500/15 blur-xl ${isPlaying ? 'animate-ping' : ''}`}></div>
                 <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-amber-700 to-amber-500 flex items-center justify-center text-3xl shadow-xl border border-amber-300/30">
@@ -377,7 +377,7 @@ export const BookAudioPlayerModal: React.FC = () => {
               </div>
 
               {/* Audio Wave Bars */}
-              <div className="flex items-center justify-center gap-1 h-7 my-2">
+              <div className="flex items-center justify-center gap-1.5 h-7 my-2">
                 {[40, 65, 85, 45, 95, 70, 50, 80, 60, 90, 75, 55, 80, 45, 60].map((h, i) => (
                   <span
                     key={i}
@@ -413,7 +413,7 @@ export const BookAudioPlayerModal: React.FC = () => {
                 </div>
                 <button
                   onClick={handleUnlockFull}
-                  className="px-5 py-2.5 rounded-xl bg-white text-stone-900 font-bold text-xs uppercase tracking-wider shadow-md hover:bg-stone-100 transition shrink-0"
+                  className="px-5 py-2.5 rounded-xl bg-white text-stone-900 font-bold text-xs uppercase tracking-wider shadow-md hover:bg-stone-100 transition shrink-0 min-h-[40px]"
                 >
                   Unlock Discourse (₹{currentBookAudio.price})
                 </button>
@@ -431,7 +431,7 @@ export const BookAudioPlayerModal: React.FC = () => {
                 className="h-2.5 bg-stone-800 rounded-full overflow-hidden cursor-pointer relative"
               >
                 <div
-                  className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-150"
+                  className="h-full bg-gradient-to-r from-[#D1A559] to-[#e19543] rounded-full transition-all duration-150"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -444,25 +444,27 @@ export const BookAudioPlayerModal: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => changeSpeed(playbackSpeed === 1 ? 1.25 : playbackSpeed === 1.25 ? 1.5 : 1)}
-                  className="px-2.5 py-1 rounded bg-stone-800 hover:bg-stone-700 text-xs font-mono font-bold text-amber-300 transition"
+                  className="px-3 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-xs font-mono font-bold text-amber-300 transition cursor-pointer min-h-[40px]"
                   title="Playback Speed"
                 >
                   {playbackSpeed}x
                 </button>
                 <button
                   onClick={toggleMute}
-                  className="p-2 rounded-full hover:bg-stone-800 text-stone-300 transition"
+                  className="p-2.5 rounded-full hover:bg-stone-800 text-stone-300 transition cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  aria-label={isMuted ? "Unmute Audio" : "Mute Audio"}
                 >
                   {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4 text-stone-300" />}
                 </button>
               </div>
 
               {/* Center Main Controls */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => skipTime(-15)}
-                  className="p-2 rounded-full text-stone-400 hover:text-white hover:bg-stone-800 transition"
+                  className="p-2.5 rounded-full text-stone-400 hover:text-white hover:bg-stone-800 transition cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
                   title="Rewind 15 Seconds"
+                  aria-label="Rewind 15 Seconds"
                 >
                   <RotateCcw className="w-5 h-5" />
                 </button>
@@ -470,21 +472,23 @@ export const BookAudioPlayerModal: React.FC = () => {
                 <button
                   onClick={togglePlay}
                   disabled={isLoadingMedia}
-                  className="p-4 rounded-full bg-amber-600 hover:bg-amber-500 text-white shadow-xl transition transform hover:scale-105 disabled:opacity-50"
+                  className="p-4 rounded-full bg-[#8B5E34] hover:bg-[#A3733A] text-white shadow-xl transition transform hover:scale-105 disabled:opacity-50 min-h-[56px] min-w-[56px] flex items-center justify-center cursor-pointer"
+                  aria-label={isPlaying ? "Pause Audio" : "Play Audio"}
                 >
                   {isLoadingMedia ? (
                     <Loader2 className="w-6 h-6 animate-spin" />
                   ) : isPlaying ? (
                     <Pause className="w-6 h-6" />
                   ) : (
-                    <Play className="w-6 h-6 ml-0.5" />
+                    <Play className="w-6 h-6 ml-0.5 fill-white" />
                   )}
                 </button>
 
                 <button
                   onClick={() => skipTime(15)}
-                  className="p-2 rounded-full text-stone-400 hover:text-white hover:bg-stone-800 transition"
+                  className="p-2.5 rounded-full text-stone-400 hover:text-white hover:bg-stone-800 transition cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
                   title="Forward 15 Seconds"
+                  aria-label="Forward 15 Seconds"
                 >
                   <RotateCw className="w-5 h-5" />
                 </button>
@@ -495,14 +499,14 @@ export const BookAudioPlayerModal: React.FC = () => {
                 <button
                   disabled={currentChapterIdx === 0}
                   onClick={() => selectChapter(Math.max(0, currentChapterIdx - 1))}
-                  className="px-2.5 py-1 rounded bg-stone-800 hover:bg-stone-700 disabled:opacity-40 transition"
+                  className="px-3 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 disabled:opacity-40 transition cursor-pointer min-h-[40px]"
                 >
                   Prev
                 </button>
                 <button
                   disabled={currentChapterIdx === rawChapters.length - 1}
                   onClick={() => selectChapter(Math.min(rawChapters.length - 1, currentChapterIdx + 1))}
-                  className="px-2.5 py-1 rounded bg-stone-800 hover:bg-stone-700 disabled:opacity-40 transition"
+                  className="px-3 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 disabled:opacity-40 transition cursor-pointer min-h-[40px]"
                 >
                   Next
                 </button>
@@ -519,14 +523,14 @@ export const BookAudioPlayerModal: React.FC = () => {
                 {!isBookUnlocked && (
                   <button
                     onClick={handleUnlockFull}
-                    className="text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1"
+                    className="text-[#D1A559] hover:text-amber-300 font-bold flex items-center gap-1 cursor-pointer min-h-[32px] py-1"
                   >
                     <span>Unlock All for ₹{currentBookAudio.price}</span>
                   </button>
                 )}
               </div>
 
-              <div className="space-y-1 max-h-40 overflow-y-auto pr-1 text-xs">
+              <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1 text-xs">
                 {rawChapters.map((ch, idx) => {
                   const isSelected = idx === currentChapterIdx;
                   const isItemAccessible = isBookUnlocked || ch.isFree;
@@ -535,7 +539,7 @@ export const BookAudioPlayerModal: React.FC = () => {
                     <button
                       key={idx}
                       onClick={() => selectChapter(idx)}
-                      className={`w-full p-2.5 rounded-xl text-left flex items-center justify-between transition ${
+                      className={`w-full p-3 rounded-2xl text-left flex items-center justify-between transition cursor-pointer min-h-[44px] ${
                         isSelected
                           ? 'bg-amber-500/20 text-amber-200 border border-amber-500/40'
                           : 'bg-stone-900/60 hover:bg-stone-800/80 text-stone-300'
@@ -549,11 +553,11 @@ export const BookAudioPlayerModal: React.FC = () => {
                       <span className="flex items-center gap-2 shrink-0 font-mono text-[11px]">
                         <span>{ch.duration}</span>
                         {!isItemAccessible ? (
-                          <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] uppercase font-bold flex items-center gap-1">
+                          <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[9px] uppercase font-bold flex items-center gap-1">
                             <Lock className="w-2.5 h-2.5" /> 5m Free
                           </span>
                         ) : (
-                          <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[9px] uppercase font-bold">
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[9px] uppercase font-bold">
                             Full
                           </span>
                         )}
@@ -577,11 +581,11 @@ export const BookAudioPlayerModal: React.FC = () => {
           >
             
             {/* Problem Statement Card */}
-            <div className="p-5 rounded-2xl bg-amber-950/40 border border-amber-500/30 space-y-2">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 block">
+            <div className="p-5 rounded-3xl bg-amber-950/40 border border-amber-500/30 space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#D1A559] block">
                 The Core Problem Statement Solved
               </span>
-              <p className="text-sm text-stone-100 font-serif leading-relaxed">
+              <p className="text-sm text-stone-100 font-serif leading-relaxed font-normal">
                 "{currentBookAudio.problemStatement || 'Discover liberation from existential suffering through the master’s inquiry.'}"
               </p>
             </div>
@@ -591,15 +595,15 @@ export const BookAudioPlayerModal: React.FC = () => {
               <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400 block">
                 Narrative Summary & Methodology
               </span>
-              <p className="text-stone-300 leading-relaxed font-light text-xs sm:text-sm">
+              <p className="text-stone-300 leading-relaxed font-normal text-xs sm:text-sm">
                 {currentBookAudio.summaryStory || currentBookAudio.synopsis || 'Direct, uncompromising discourses revealing non-dual consciousness.'}
               </p>
             </div>
 
             {/* Master's Key Direct Pointer */}
-            <div className="p-4 rounded-2xl bg-[#1A1413] border border-stone-800 italic text-amber-200 leading-relaxed">
+            <div className="p-4 rounded-2xl bg-[#1A1413] border border-stone-800 italic text-amber-200 leading-relaxed font-serif">
               "{currentBookAudio.masterQuote || 'You are the awareness in which thoughts arise and subside.'}"
-              <span className="block not-italic text-stone-400 text-[10px] uppercase font-bold mt-2">
+              <span className="block not-italic text-stone-400 text-[10px] uppercase font-bold mt-2 font-sans">
                 — Master Gorli Peddi Raju Garu
               </span>
             </div>
@@ -607,7 +611,7 @@ export const BookAudioPlayerModal: React.FC = () => {
             <div className="pt-2 flex justify-between items-center border-t border-stone-800">
               <button
                 onClick={() => setActiveTab('player')}
-                className="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold text-xs transition flex items-center gap-1.5"
+                className="px-5 py-3 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer min-h-[44px]"
               >
                 <Play className="w-3.5 h-3.5" />
                 <span>Listen to Discourse</span>
@@ -616,7 +620,7 @@ export const BookAudioPlayerModal: React.FC = () => {
               {!isBookUnlocked && (
                 <button
                   onClick={handleUnlockFull}
-                  className="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs uppercase tracking-wider transition shadow-md"
+                  className="px-6 py-3 rounded-full bg-[#8B5E34] hover:bg-[#A3733A] text-white font-bold text-xs uppercase tracking-wider transition shadow-md cursor-pointer min-h-[44px]"
                 >
                   Unlock Full Audio (₹{currentBookAudio.price})
                 </button>

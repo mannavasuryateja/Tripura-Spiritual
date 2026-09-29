@@ -30,7 +30,7 @@ export const DemoClass: React.FC = () => {
       title: "Orientation Class: Introduction to Inner Silence & Prana",
       duration: "45 mins",
       desc: "Full free orientation class introducing Tripura Spiritual guided meditation, pranayama, and teaching methodology.",
-      streamUrl: orientationUrl || undefined
+      streamUrl: orientationUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
     });
   };
 
@@ -52,14 +52,14 @@ export const DemoClass: React.FC = () => {
     <div className="section-container py-10 space-y-12 text-[#2C2421]">
       
       {/* Short Page Header Band */}
-      <div className="rounded-3xl bg-gradient-to-r from-[#FAF7F0] via-[#F5EFE6] to-[#FAF7F0] mandala-bg border border-[#E6E0D2] py-10 px-6 sm:px-12 text-center shadow-xs">
+      <div className="card-spiritual bg-gradient-to-r from-[#FAF7F0] via-[#F5EFE6] to-[#FAF7F0] mandala-bg py-10 px-6 sm:px-12 text-center shadow-xs">
         <ScrollReveal animation="fade-up">
           <div className="section-header">
-            <div className="inline-flex items-center justify-center gap-2 px-4 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold uppercase tracking-wider mx-auto">
+            <div className="badge-spiritual bg-emerald-50 text-emerald-800 border border-emerald-200 mx-auto">
               <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
               <span>100% Free for Everyone • No Login Required</span>
             </div>
-            <h1 className="heading-section font-bold text-[#2C2421]">
+            <h1 className="heading-section text-[#2C2421]">
               Free Orientation Masterclass
             </h1>
             <p className="text-stone-600 text-sm sm:text-base leading-relaxed font-light max-w-2xl mx-auto">
@@ -71,36 +71,37 @@ export const DemoClass: React.FC = () => {
 
       {/* Main Video Demo Card */}
       <ScrollReveal animation="image-zoom" duration={850}>
-        <div className="glass-panel rounded-3xl p-6 sm:p-10 border border-[#E6E0D2] shadow-2xl space-y-8">
+        <div className="card-spiritual glass-panel p-6 sm:p-10 shadow-2xl space-y-8">
           
-          <div className="relative aspect-video bg-stone-950 rounded-2xl overflow-hidden flex items-center justify-center border border-amber-500/30 group">
-            <div className="absolute inset-0 bg-gradient-to-tr from-amber-950 via-stone-900 to-orange-950 flex flex-col items-center justify-center p-6 text-center">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-amber-500 to-orange-400 flex items-center justify-center text-4xl shadow-2xl shadow-amber-500/40 mb-4 motion-safe:animate-float">
+          <div className="relative aspect-video bg-stone-950 rounded-2xl overflow-hidden flex items-center justify-center border border-[#D1A559]/30 group">
+            <div className="absolute inset-0 bg-gradient-to-tr from-stone-950 via-stone-900 to-[#2A1836] flex flex-col items-center justify-center p-6 text-center">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#D1A559] to-[#8B5E34] flex items-center justify-center text-3xl sm:text-4xl shadow-2xl shadow-amber-500/40 mb-4 motion-safe:animate-float">
                 🪷
               </div>
-              <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">
+              <h3 className="heading-section text-white font-serif">
                 Introduction to Inner Silence & Prana
               </h3>
-              <p className="text-xs text-amber-200 font-mono mt-1">
+              <p className="text-xs text-[#D1A559] font-mono mt-1">
                 Duration: 45 Minutes Full Class • HD 1080p • English & Telugu
               </p>
             </div>
 
             {/* Action Trigger */}
             <button
+              type="button"
               onClick={handlePlayFreeOrientation}
-              className="btn-spiritual z-10 px-8 py-4 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-stone-950 font-bold text-base shadow-2xl flex items-center gap-3 cursor-pointer"
+              className="btn-spiritual btn-gold z-10 px-8 py-4 font-bold text-sm sm:text-base shadow-2xl flex items-center gap-3 cursor-pointer min-h-[44px]"
             >
-              <Play className="w-6 h-6 fill-stone-950" />
+              <Play className="w-5 h-5 fill-[#201812]" />
               <span>Watch Full Orientation Class (Free)</span>
             </button>
           </div>
 
           {/* Next Step: Join Hanuman Kriya Batch */}
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-6 p-6 sm:p-8 bg-gradient-to-br from-[#FAF7F0] to-[#EFE9DD] rounded-2xl border border-[#D8CFBF]">
+          <div className="card-surface flex flex-col sm:flex-row justify-between items-center gap-6 p-6 sm:p-8">
             <div className="space-y-1.5 text-center sm:text-left">
               <span className="text-xs font-bold uppercase tracking-wider text-[#8B5E34]">Ready to Begin Your Daily Sadhana?</span>
-              <h4 className="font-serif font-bold text-[#2C2421] text-2xl">
+              <h4 className="heading-card text-2xl text-[#2C2421]">
                 Join the 11-Day Hanuman Kriya Live Batch
               </h4>
               <p className="text-xs text-stone-600 max-w-md">
@@ -110,12 +111,13 @@ export const DemoClass: React.FC = () => {
 
             <div className="flex items-center gap-4 shrink-0">
               <div className="text-right">
-                <span className="text-3xl font-bold font-sans text-[#2C2421]">₹{livePrice}</span>
-                <span className="text-[10px] text-stone-500 block">11-Day Live Pass</span>
+                <span className="text-3xl font-bold font-serif text-[#2C2421]">₹{livePrice}</span>
+                <span className="text-[10px] text-stone-500 block uppercase tracking-wider font-semibold">11-Day Live Pass</span>
               </div>
               <button
+                type="button"
                 onClick={handleJoinLive}
-                className="btn-spiritual px-6 py-3.5 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-xs tracking-wider uppercase shadow-md cursor-pointer"
+                className="btn-spiritual btn-primary px-6 py-3.5 font-bold text-xs tracking-wider uppercase shadow-md cursor-pointer min-h-[44px]"
               >
                 Enroll in Live Batch
               </button>
@@ -132,10 +134,10 @@ export const DemoClass: React.FC = () => {
           { title: "Sakshi Bhava Stillness", desc: "Experience witness consciousness without mental strain or suppression of thoughts." },
           { title: "Live Master Q&A", desc: "Understand the roadmap of the upcoming 11-day masterclass and daily practice routine." }
         ].map((item, idx) => (
-          <div key={idx} className="p-6 rounded-2xl bg-white border border-[#E6E0D2] shadow-xs space-y-2">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-            <h4 className="font-serif font-bold text-base text-stone-900">{item.title}</h4>
-            <p className="text-xs text-stone-600 leading-relaxed">{item.desc}</p>
+          <div key={idx} className="card-spiritual p-6 space-y-2 shadow-xs">
+            <CheckCircle2 className="w-5 h-5 text-emerald-700" />
+            <h4 className="heading-card text-base text-[#2C2421]">{item.title}</h4>
+            <p className="text-xs text-stone-600 leading-relaxed font-light">{item.desc}</p>
           </div>
         ))}
       </div>
@@ -143,3 +145,4 @@ export const DemoClass: React.FC = () => {
     </div>
   );
 };
+

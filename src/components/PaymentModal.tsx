@@ -118,7 +118,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
             contact: user.phone || ''
           },
           theme: {
-            color: '#B45309'
+            color: '#8B5E34'
           },
           modal: {
             ondismiss: () => {
@@ -168,7 +168,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/75 backdrop-blur-md animate-backdrop-fade"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/70 backdrop-blur-md animate-backdrop-fade overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget && paymentState !== 'processing') {
           closePaymentModal();
@@ -182,7 +182,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
         aria-modal="true"
         aria-labelledby="payment-modal-title"
         tabIndex={-1}
-        className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-amber-100 relative overflow-hidden animate-modal-scale-in focus:outline-none"
+        className="bg-[#FAF8F5] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-[#E6E0D2] relative overflow-hidden animate-modal-scale-in focus:outline-none my-auto"
       >
         
         {/* Close Button */}
@@ -190,7 +190,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
           <button
             type="button"
             onClick={() => { closePaymentModal(); setPaymentState('form'); }}
-            className="absolute top-4 right-4 p-2 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition cursor-pointer"
+            className="absolute top-4 right-4 p-2.5 rounded-full text-stone-400 hover:text-stone-800 hover:bg-stone-200/60 transition cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
             aria-label="Close Checkout Modal"
           >
             <X className="w-5 h-5" />
@@ -203,17 +203,17 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
             
             {/* Header */}
             <div>
-              <span className="text-[11px] font-bold tracking-wider uppercase text-amber-700 block">
+              <span className="text-[11px] font-bold tracking-wider uppercase text-[#8B5E34] block">
                 Secure Checkout
               </span>
-              <h3 id="payment-modal-title" className="font-serif text-xl font-bold text-stone-900">
+              <h3 id="payment-modal-title" className="font-serif text-2xl font-bold text-[#2C2421]">
                 Tripura Spiritual Gateway
               </h3>
             </div>
 
             {/* Error banner */}
             {errorMessage && (
-              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2 animate-fadeIn">
                 <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
                 <span>{errorMessage}</span>
               </div>
@@ -228,7 +228,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
                 </div>
                 <button
                   onClick={openAuthModal}
-                  className="px-4 py-1.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs uppercase tracking-wider shrink-0 transition"
+                  className="px-4 py-2 rounded-xl bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs uppercase tracking-wider shrink-0 transition min-h-[40px]"
                 >
                   Sign In
                 </button>
@@ -236,18 +236,18 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
             )}
 
             {/* Order Summary */}
-            <div className="p-4 rounded-2xl bg-[#FAF7F0] border border-[#E6E0D2]">
+            <div className="card-surface p-4 bg-white border border-[#E6E0D2] rounded-2xl shadow-xs">
               <h4 className="text-xs font-bold text-[#8B5E34] uppercase tracking-wider mb-2">
                 {t.payment.title}
               </h4>
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start gap-4">
                 <div>
-                  <p className="font-serif font-bold text-stone-900 text-base">{pendingPlan.name}</p>
-                  <p className="text-xs text-stone-500 mt-0.5">{pendingPlan.details || 'Includes authorized access and recordings'}</p>
+                  <p className="font-serif font-bold text-[#2C2421] text-base">{pendingPlan.name}</p>
+                  <p className="text-xs text-stone-600 mt-0.5">{pendingPlan.details || 'Includes authorized access and recordings'}</p>
                 </div>
-                <div className="text-right shrink-0 ml-3">
+                <div className="text-right shrink-0">
                   <p className="font-bold text-[#2C2421] text-2xl font-sans">₹{pendingPlan.price}</p>
-                  <span className="text-[10px] text-emerald-600 font-bold block">Taxes Included</span>
+                  <span className="text-[10px] text-emerald-700 font-bold block">Taxes Included</span>
                 </div>
               </div>
             </div>
@@ -262,13 +262,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('qr')}
-                  className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition ${
+                  className={`p-3.5 rounded-2xl border text-left flex items-center gap-2.5 transition cursor-pointer min-h-[48px] ${
                     paymentMethod === 'qr'
                       ? 'border-[#3B234A] bg-[#EFE9DD] text-[#3B234A] font-bold shadow-xs'
-                      : 'border-stone-200 text-stone-700 hover:bg-stone-50'
+                      : 'border-[#E6E0D2] bg-white text-stone-700 hover:bg-[#F3EDE0]'
                   }`}
                 >
-                  <QrCode className="w-5 h-5 text-[#8B5E34]" />
+                  <QrCode className="w-5 h-5 text-[#8B5E34] shrink-0" />
                   <div>
                     <span className="block text-xs">UPI QR Code</span>
                     <span className="text-[10px] text-stone-500 font-normal">GPay / PhonePe / Paytm</span>
@@ -278,13 +278,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('upi')}
-                  className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition ${
+                  className={`p-3.5 rounded-2xl border text-left flex items-center gap-2.5 transition cursor-pointer min-h-[48px] ${
                     paymentMethod === 'upi'
                       ? 'border-[#3B234A] bg-[#EFE9DD] text-[#3B234A] font-bold shadow-xs'
-                      : 'border-stone-200 text-stone-700 hover:bg-stone-50'
+                      : 'border-[#E6E0D2] bg-white text-stone-700 hover:bg-[#F3EDE0]'
                   }`}
                 >
-                  <Smartphone className="w-5 h-5 text-[#8B5E34]" />
+                  <Smartphone className="w-5 h-5 text-[#8B5E34] shrink-0" />
                   <div>
                     <span className="block text-xs">UPI ID / App</span>
                     <span className="text-[10px] text-stone-500 font-normal">Direct Mobile UPI</span>
@@ -294,13 +294,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('card')}
-                  className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition ${
+                  className={`p-3.5 rounded-2xl border text-left flex items-center gap-2.5 transition cursor-pointer min-h-[48px] ${
                     paymentMethod === 'card'
                       ? 'border-[#3B234A] bg-[#EFE9DD] text-[#3B234A] font-bold shadow-xs'
-                      : 'border-stone-200 text-stone-700 hover:bg-stone-50'
+                      : 'border-[#E6E0D2] bg-white text-stone-700 hover:bg-[#F3EDE0]'
                   }`}
                 >
-                  <CreditCard className="w-5 h-5 text-[#8B5E34]" />
+                  <CreditCard className="w-5 h-5 text-[#8B5E34] shrink-0" />
                   <div>
                     <span className="block text-xs">Debit / Credit</span>
                     <span className="text-[10px] text-stone-500 font-normal">Visa / MasterCard / RuPay</span>
@@ -310,13 +310,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('netbanking')}
-                  className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition ${
+                  className={`p-3.5 rounded-2xl border text-left flex items-center gap-2.5 transition cursor-pointer min-h-[48px] ${
                     paymentMethod === 'netbanking'
                       ? 'border-[#3B234A] bg-[#EFE9DD] text-[#3B234A] font-bold shadow-xs'
-                      : 'border-stone-200 text-stone-700 hover:bg-stone-50'
+                      : 'border-[#E6E0D2] bg-white text-stone-700 hover:bg-[#F3EDE0]'
                   }`}
                 >
-                  <Landmark className="w-5 h-5 text-[#8B5E34]" />
+                  <Landmark className="w-5 h-5 text-[#8B5E34] shrink-0" />
                   <div>
                     <span className="block text-xs">Net Banking</span>
                     <span className="text-[10px] text-stone-500 font-normal">All Major Indian Banks</span>
@@ -328,7 +328,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
             {/* Method Details View */}
             {paymentMethod === 'qr' && (
               <div className="p-4 bg-[#FAF7F0] rounded-2xl border border-[#E6E0D2] text-center space-y-2">
-                <div className="bg-white p-3 inline-block rounded-xl shadow-sm border border-stone-200">
+                <div className="bg-white p-3 inline-block rounded-2xl shadow-sm border border-[#E6E0D2]">
                   <svg className="w-32 h-32 mx-auto" viewBox="0 0 100 100" fill="none">
                     <rect width="100" height="100" fill="white" />
                     <path d="M10 10h30v30H10zM15 15v20h20V15zM20 20h10v10H20z" fill="#2C2421"/>
@@ -341,7 +341,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
                     <rect x="75" y="80" width="15" height="10" fill="#2C2421"/>
                   </svg>
                 </div>
-                <p className="text-xs text-stone-600 font-medium">Scan QR with GPay / PhonePe / Paytm / BHIM</p>
+                <p className="text-xs text-stone-700 font-medium">Scan QR with GPay / PhonePe / Paytm / BHIM</p>
                 <p className="text-[10px] text-[#8B5E34] font-semibold font-mono">UPI ID: tripuraspiritual@upi</p>
               </div>
             )}
@@ -352,23 +352,23 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
                   type="text"
                   placeholder="yourname@upi"
                   defaultValue={user.phone ? `${user.phone}@upi` : "seeker@upi"}
-                  className="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm font-mono focus:border-[#3B234A] outline-none"
+                  className="w-full px-4 py-3 rounded-2xl border border-[#D8CFBF] bg-white text-sm font-mono focus:border-[#3B234A] outline-none min-h-[48px]"
                 />
               </div>
             )}
 
             {paymentMethod === 'card' && (
               <div className="space-y-2.5 text-xs">
-                <input type="text" placeholder="Card Number (4111 2222 3333 4444)" defaultValue="4111 •••• •••• 9876" className="w-full px-4 py-2 rounded-lg border text-sm font-mono border-stone-300" />
+                <input type="text" placeholder="Card Number (4111 2222 3333 4444)" defaultValue="4111 •••• •••• 9876" className="w-full px-4 py-3 rounded-2xl border border-[#D8CFBF] bg-white text-sm font-mono min-h-[48px]" />
                 <div className="grid grid-cols-2 gap-2">
-                  <input type="text" placeholder="MM/YY (12/28)" defaultValue="12/28" className="px-3 py-2 rounded-lg border text-sm font-mono border-stone-300" />
-                  <input type="password" placeholder="CVV (123)" defaultValue="123" className="px-3 py-2 rounded-lg border text-sm font-mono border-stone-300" />
+                  <input type="text" placeholder="MM/YY (12/28)" defaultValue="12/28" className="px-3 py-2.5 rounded-xl border border-[#D8CFBF] bg-white text-sm font-mono min-h-[44px]" />
+                  <input type="password" placeholder="CVV (123)" defaultValue="123" className="px-3 py-2.5 rounded-xl border border-[#D8CFBF] bg-white text-sm font-mono min-h-[44px]" />
                 </div>
               </div>
             )}
 
             {paymentMethod === 'netbanking' && (
-              <select className="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm">
+              <select className="w-full px-4 py-3 rounded-2xl border border-[#D8CFBF] bg-white text-sm min-h-[48px]">
                 <option>State Bank of India (SBI)</option>
                 <option>HDFC Bank</option>
                 <option>ICICI Bank</option>
@@ -379,7 +379,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
             {/* Submit Button */}
             <button
               onClick={handlePay}
-              className="w-full py-4 rounded-2xl bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-sm tracking-wider uppercase shadow-lg transition flex items-center justify-center gap-2"
+              className="btn-spiritual btn-primary w-full py-4 text-white font-bold text-sm tracking-wider uppercase shadow-lg transition flex items-center justify-center gap-2 min-h-[48px]"
             >
               <ShieldCheck className="w-5 h-5 text-amber-300" />
               <span>{t.payment.payButton} ₹{pendingPlan.price}</span>
@@ -389,12 +389,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
 
         {/* STATE 2: PROCESSING SCREEN */}
         {paymentState === 'processing' && (
-          <div className="py-12 text-center space-y-4">
+          <div className="py-14 text-center space-y-4">
             <Loader2 className="w-12 h-12 text-[#8B5E34] motion-safe:animate-spin mx-auto" />
-            <h4 className="font-serif text-xl font-bold text-stone-900">
+            <h4 className="font-serif text-xl font-bold text-[#2C2421]">
               {t.payment.processing}
             </h4>
-            <p className="text-xs text-stone-500 max-w-xs mx-auto">
+            <p className="text-xs text-stone-600 max-w-xs mx-auto font-normal">
               Connecting securely to Tripura Spiritual gateway. Please do not close or refresh this window.
             </p>
           </div>
@@ -408,7 +408,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
             </div>
 
             <div>
-              <h4 className="font-serif text-2xl font-bold text-stone-900">
+              <h4 className="font-serif text-2xl font-bold text-[#2C2421]">
                 {t.payment.successTitle}
               </h4>
               <p className="text-xs text-emerald-700 font-semibold mt-1">
@@ -416,10 +416,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
               </p>
             </div>
 
-            {/* WHATSAPP COMMUNITY INVITATION CARD (TOP PRIORITY) */}
-            <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg space-y-3 text-left">
+            {/* WHATSAPP COMMUNITY INVITATION CARD */}
+            <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-lg space-y-3 text-left">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-full bg-white text-emerald-600 flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-full bg-white text-emerald-700 flex items-center justify-center shrink-0">
                   <MessageCircle className="w-5 h-5" />
                 </div>
                 <div>
@@ -438,7 +438,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
 
               <button
                 onClick={handleJoinWhatsApp}
-                className="w-full py-3 rounded-xl bg-white text-emerald-800 hover:bg-emerald-50 font-bold text-xs tracking-wider uppercase shadow-md transition flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-xl bg-white text-emerald-800 hover:bg-emerald-50 font-bold text-xs tracking-wider uppercase shadow-md transition flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
               >
                 <span>Join WhatsApp Group Now</span>
                 <ExternalLink className="w-4 h-4" />
@@ -447,15 +447,15 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
 
             {/* Transaction Details */}
             <div className="bg-[#FAF7F0] rounded-2xl p-4 border border-[#E6E0D2] text-left text-xs space-y-2 font-mono">
-              <div className="flex justify-between border-b pb-2">
+              <div className="flex justify-between border-b border-[#E6E0D2] pb-2">
                 <span className="text-stone-500">{t.payment.txnId}</span>
                 <span className="font-bold text-stone-900">{txnId}</span>
               </div>
-              <div className="flex justify-between border-b pb-2">
+              <div className="flex justify-between border-b border-[#E6E0D2] pb-2">
                 <span className="text-stone-500">Amount Paid</span>
                 <span className="font-bold text-stone-900">₹{pendingPlan.price}</span>
               </div>
-              <div className="flex justify-between border-b pb-2">
+              <div className="flex justify-between border-b border-[#E6E0D2] pb-2">
                 <span className="text-stone-500">Gateway Status</span>
                 <span className="font-bold text-emerald-700">VERIFIED & PAID</span>
               </div>
@@ -473,7 +473,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onSuccessNavigate })
 
             <button
               onClick={handleFinish}
-              className="w-full py-3.5 rounded-2xl bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-sm tracking-wider uppercase shadow-md transition"
+              className="btn-spiritual btn-primary w-full py-3.5 text-white font-bold text-sm tracking-wider uppercase shadow-md transition cursor-pointer min-h-[48px]"
             >
               {t.payment.goToDashboard}
             </button>

@@ -2,16 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { CheckCircle2, ShieldCheck, Sparkles, ArrowRight } from 'lucide-react';
 import { ScrollReveal, StaggerContainer } from '../components/ScrollReveal';
-import { productsApi } from '../api/client';
+import { productsApi, sessionsApi } from '../api/client';
 
 export const Plans: React.FC = () => {
   const { openPaymentModal, openAuthModal, user } = useApp();
   const [products, setProducts] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<any[]>([]);
 
   useEffect(() => {
     productsApi.getActiveProducts().then(res => {
       const list = res.data || res || [];
       setProducts(list);
+    }).catch(() => {});
+
+    sessionsApi.getSessions().then(res => {
+      const list = res.data || res || [];
+      setSessions(list);
     }).catch(() => {});
   }, []);
 
@@ -20,9 +26,10 @@ export const Plans: React.FC = () => {
     return p ? Number(p.price) : fallback;
   };
 
-  const livePrice = getPrice('live-masterclass', 1111);
-  const extPrice = getPrice('recording-extension', 555);
-  const recPrice = getPrice('recordings-only', 1500);
+  const firstSession = sessions.length > 0 ? sessions[0] : null;
+  const livePrice = firstSession?.priceLive || getPrice('live-masterclass', 1111);
+  const extPrice = firstSession?.priceExtension || getPrice('recording-extension', 555);
+  const recPrice = firstSession?.priceRecordings || getPrice('recordings-only', 1500);
 
   const plans: Array<{
     id: string;
@@ -110,14 +117,14 @@ export const Plans: React.FC = () => {
     <div className="section-container py-10 space-y-12 animate-fadeIn text-[#2C2421]">
 
       {/* Short Page Header Band */}
-      <div className="rounded-3xl bg-gradient-to-r from-[#FAF7F0] via-[#F5EFE6] to-[#FAF7F0] mandala-bg border border-[#E6E0D2] py-10 px-6 sm:px-12 text-center shadow-xs">
+      <div className="card-spiritual bg-gradient-to-r from-[#FAF7F0] via-[#F5EFE6] to-[#FAF7F0] mandala-bg py-10 px-6 sm:px-12 text-center shadow-xs">
         <ScrollReveal animation="fade-up">
           <div className="section-header">
             <span className="section-eyebrow inline-flex items-center justify-center gap-1.5 mx-auto">
               <Sparkles className="w-3.5 h-3.5 text-[#8B5E34]" />
               <span>Transparent Spiritual Pathways</span>
             </span>
-            <h1 className="heading-section font-bold text-[#2C2421]">
+            <h1 className="heading-section text-[#2C2421]">
               Tripura Masterclass & Recording Offerings
             </h1>
             <p className="text-stone-600 text-sm sm:text-base font-light leading-relaxed max-w-2xl mx-auto">
@@ -132,14 +139,14 @@ export const Plans: React.FC = () => {
         {plans.map((plan) => (
           <div
             key={plan.id}
-            className={`rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 relative border ${
+            className={`card-spiritual p-8 flex flex-col justify-between transition-all duration-300 relative ${
               plan.popular
-                ? 'bg-gradient-to-b from-[#FAF7F0] via-white to-[#F5EFE6] border-[#3B234A] shadow-xl md:-translate-y-2'
-                : 'bg-white border-[#E6E0D2] shadow-sm hover:shadow-md'
+                ? 'bg-gradient-to-b from-[#FAF7F0] via-white to-[#F5EFE6] border-2 border-[#3B234A] shadow-xl md:-translate-y-2'
+                : 'shadow-sm hover:shadow-md'
             }`}
           >
             {plan.badge && (
-              <span className={`absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+              <span className={`absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                 plan.popular
                   ? 'bg-[#3B234A] text-white shadow-sm'
                   : 'bg-[#EFE9DD] text-[#3B234A] border border-[#D8CFBF]'
@@ -150,18 +157,18 @@ export const Plans: React.FC = () => {
 
             <div className="space-y-6">
               <div className="space-y-2 pt-2">
-                <h3 className="font-serif text-2xl font-bold text-[#2C2421]">{plan.name}</h3>
-                <p className="text-xs text-stone-700 font-mono font-medium">{plan.period}</p>
+                <h3 className="heading-card text-2xl text-[#2C2421]">{plan.name}</h3>
+                <p className="text-xs text-[#8B5E34] font-mono font-medium">{plan.period}</p>
                 <p className="text-xs text-stone-700 pt-1 leading-relaxed font-light">{plan.desc}</p>
               </div>
 
-              <div className="flex items-baseline gap-2 pt-2 border-t border-[#F2ECE1]">
+              <div className="flex items-baseline gap-2 pt-2 border-t border-[#E6E0D2]">
                 <span className="font-serif font-bold text-4xl text-[#2C2421]">₹{plan.price}</span>
-                <span className="text-xs text-stone-700 uppercase tracking-wider font-semibold">Taxes Included</span>
+                <span className="text-xs text-stone-600 uppercase tracking-wider font-semibold">Taxes Included</span>
               </div>
 
               {/* Feature List */}
-              <div className="space-y-2.5 pt-2 border-t border-[#F2ECE1]">
+              <div className="space-y-2.5 pt-2 border-t border-[#E6E0D2]">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#8B5E34] block">Included Features</span>
                 {plan.features.map((f, i) => (
                   <div key={i} className="flex items-start gap-2.5 text-xs text-stone-700">
@@ -173,11 +180,12 @@ export const Plans: React.FC = () => {
             </div>
 
             <button
+              type="button"
               onClick={() => handleSelectPlan(plan)}
-              className={`btn-spiritual w-full mt-8 py-3.5 rounded-full font-bold text-xs tracking-wider uppercase transition shadow-md flex items-center justify-center gap-2 cursor-pointer ${
+              className={`btn-spiritual w-full mt-8 py-3.5 font-bold text-xs tracking-wider uppercase transition shadow-md flex items-center justify-center gap-2 cursor-pointer min-h-[44px] ${
                 plan.popular
-                  ? 'bg-[#3B234A] hover:bg-[#2C1838] text-white'
-                  : 'bg-[#8B5E34] hover:bg-[#6e4623] text-white'
+                  ? 'btn-primary'
+                  : 'btn-secondary'
               }`}
             >
               <span>{plan.btnText}</span>
@@ -189,13 +197,13 @@ export const Plans: React.FC = () => {
 
       {/* Trust banner */}
       <ScrollReveal animation="fade-up">
-        <div className="p-8 rounded-3xl bg-[#FAF7F0] border border-[#E6E0D2] flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="card-spiritual p-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-[#EFE9DD] text-[#8B5E34] flex items-center justify-center shrink-0">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-serif text-lg font-bold text-[#2C2421]">Uncompromised Spiritual Value</h4>
+              <h4 className="heading-card text-lg text-[#2C2421]">Uncompromised Spiritual Value</h4>
               <p className="text-xs text-stone-600">All masterclasses are broadcast live and saved directly in your personal student sanctuary.</p>
             </div>
           </div>
@@ -205,3 +213,4 @@ export const Plans: React.FC = () => {
     </div>
   );
 };
+

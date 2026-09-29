@@ -19,8 +19,9 @@ import { OneToOne } from './pages/OneToOne';
 import { BookLibrary } from './pages/BookLibrary';
 import { Dashboard } from './pages/Dashboard';
 import { Profile } from './pages/Profile';
+import { Admin } from './pages/Admin';
 import { AdminPanel } from './components/AdminPanel';
-import { Shield, Lock, ArrowLeft } from 'lucide-react';
+import { Shield } from 'lucide-react';
 
 import { Login } from './pages/Login';
 import { SignUp } from './pages/SignUp';
@@ -30,8 +31,7 @@ const MainContent: React.FC = () => {
   const {
     isLoginTransitionActive,
     completeLoginSuccessTransition,
-    user,
-    openAuthModal
+    user
   } = useApp();
 
   const [activeTab, setActiveTabState] = useState<string>(() => {
@@ -114,7 +114,7 @@ const MainContent: React.FC = () => {
       {isAdmin && !previewPublicSite && !isLoginTransitionActive ? (
         <AdminPanel onPreviewSite={() => setPreviewPublicSite(true)} />
       ) : isLoginTransitionActive ? (
-        <div className="min-h-screen flex flex-col justify-between selection:bg-amber-200 selection:text-amber-900">
+        <div className="min-h-screen flex flex-col justify-between selection:bg-amber-200 selection:text-amber-900 bg-[#FAF8F5] text-[#2C2421]">
           <Header
             activeTab="home"
             setActiveTab={navigate}
@@ -134,11 +134,11 @@ const MainContent: React.FC = () => {
       ) : activeTab === 'signup' ? (
         <SignUp setActiveTab={navigate} />
       ) : (
-        <div className="min-h-screen flex flex-col justify-between selection:bg-amber-200 selection:text-amber-900">
+        <div className="min-h-screen flex flex-col justify-between selection:bg-amber-200 selection:text-amber-900 bg-[#FAF8F5] text-[#2C2421]">
           
           {/* Admin Preview Mode Banner */}
           {isAdmin && previewPublicSite && (
-            <div className="bg-[#191421] border-b border-purple-800/60 px-4 sm:px-8 py-2.5 flex items-center justify-between text-xs sticky top-0 z-50 shadow-xl">
+            <div className="bg-[#191421] border-b border-purple-800/60 px-4 sm:px-8 py-3 flex items-center justify-between text-xs sticky top-0 z-50 shadow-xl">
               <div className="flex items-center gap-2.5">
                 <div className="w-2 h-2 rounded-full bg-emerald-400 motion-safe:animate-pulse" />
                 <span className="font-bold tracking-wider text-amber-300 uppercase font-mono text-[11px]">Admin Preview Mode</span>
@@ -146,10 +146,10 @@ const MainContent: React.FC = () => {
               </div>
               <button
                 onClick={() => setPreviewPublicSite(false)}
-                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-700 to-amber-600 hover:from-purple-600 hover:to-amber-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-md hover:-translate-y-0.5 cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-700 to-amber-600 hover:from-purple-600 hover:to-amber-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-md hover:-translate-y-0.5 cursor-pointer min-h-[40px]"
               >
                 <Shield className="w-3.5 h-3.5 text-amber-200" />
-                <span>Return to Admin Dashboard</span>
+                <span>Return to Admin Workspace</span>
               </button>
             </div>
           )}
@@ -180,34 +180,7 @@ const MainContent: React.FC = () => {
             
             {/* Protected Admin Tab with Real Authorization Guard */}
             {activeTab === 'admin' && (
-              isAdmin ? (
-                <AdminPanel onPreviewSite={() => setPreviewPublicSite(true)} />
-              ) : (
-                <div className="section-container max-w-md mx-auto py-24 px-6 text-center space-y-5 animate-fadeIn">
-                  <div className="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto shadow-inner">
-                    <Lock className="w-8 h-8" />
-                  </div>
-                  <h2 className="heading-section font-bold text-stone-900">Access Restricted</h2>
-                  <p className="text-xs text-stone-600 leading-relaxed">
-                    This section requires Administrator privileges. {!user.isLoggedIn ? 'Please sign in with an administrator account.' : 'Your current account does not have permission to access the Tripura Spiritual administrative workspace.'}
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-3 pt-2">
-                    <button
-                      onClick={openAuthModal}
-                      className="btn-spiritual btn-primary px-6 py-3 rounded-full text-xs font-bold uppercase tracking-wider transition cursor-pointer"
-                    >
-                      Sign In as Admin
-                    </button>
-                    <button
-                      onClick={() => navigate('home')}
-                      className="btn-spiritual btn-outline inline-flex items-center gap-2 px-6 py-3 rounded-full text-xs font-bold uppercase tracking-wider transition cursor-pointer"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                      <span>Return to Home</span>
-                    </button>
-                  </div>
-                </div>
-              )
+              <Admin setActiveTab={navigate} />
             )}
           </main>
 

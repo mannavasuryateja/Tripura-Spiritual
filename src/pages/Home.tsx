@@ -128,23 +128,19 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
   };
 
   const handleFreePreviewClick = () => {
-    if (orientationUrl) {
-      openVideoModal({
-        day: 0,
-        title: t.demoSection.demoClassTitle,
-        duration: "45 mins",
-        streamUrl: orientationUrl
-      });
-    } else {
-      setActiveTab('demo');
-    }
+    openVideoModal({
+      day: 0,
+      title: t.demoSection?.demoClassTitle || "Orientation Class: Introduction to Inner Silence & Prana",
+      duration: "45 mins",
+      streamUrl: orientationUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+    });
   };
 
   return (
-    <div className="space-y-20 sm:space-y-28 pb-20 bg-[#FAF7F0] text-[#2C2421]">
+    <div className="space-y-20 sm:space-y-28 pb-20 bg-[#F8F5EE] text-[#2C2421]">
       
       {/* HERO SECTION — Slow Ken Burns + Mandala slow rotation + Staggered entrance */}
-      <section className="relative min-h-[620px] lg:min-h-[720px] flex items-center overflow-hidden bg-stone-900">
+      <section className="relative min-h-[640px] lg:min-h-[740px] flex items-center overflow-hidden bg-stone-900">
         
         {/* Background Landscape Photo with Ken Burns slow zoom */}
         <div 
@@ -152,11 +148,11 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
           style={{ backgroundImage: `url('/hero.jpg')` }}
         >
           {/* Subtle Warm Overlay for Contrast & Readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/35"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/65 to-black/40"></div>
         </div>
 
         {/* Right Faint Sacred Geometric Mandala Overlay with very slow rotation */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[520px] h-[520px] md:w-[680px] md:h-[680px] opacity-20 pointer-events-none text-amber-200 motion-safe:animate-[spin_120s_linear_infinite]">
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[520px] h-[520px] md:w-[680px] md:h-[680px] opacity-20 pointer-events-none text-[#D1A559] motion-safe:animate-[spin_120s_linear_infinite]">
           <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth="0.5" className="w-full h-full">
             <circle cx="100" cy="100" r="90" />
             <circle cx="100" cy="100" r="70" />
@@ -175,7 +171,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
             
             {/* 1. Tagline */}
             <ScrollReveal animation="fade-up" delay={60}>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-amber-200 text-xs font-semibold tracking-[0.2em] uppercase">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#D1A559] text-xs font-semibold tracking-[0.2em] uppercase">
                 <Sparkles className="w-3.5 h-3.5 text-[#D1A559]" />
                 <span>{t.hero.tagline}</span>
               </div>
@@ -183,7 +179,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
 
             {/* 2. Main Headline */}
             <ScrollReveal animation="fade-up" delay={140}>
-              <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-light text-white leading-[1.1] tracking-tight">
+              <h1 className="heading-hero text-white font-serif">
                 {t.hero.title}
               </h1>
             </ScrollReveal>
@@ -201,7 +197,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
                 <button
                   type="button"
                   onClick={() => setActiveTab('sessions')}
-                  className="btn-spiritual btn-gold px-8 py-4 font-semibold text-xs sm:text-sm tracking-[0.18em] uppercase shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                  className="btn-spiritual btn-gold px-8 py-4 font-semibold text-xs sm:text-sm tracking-[0.18em] uppercase shadow-lg flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
                 >
                   <span>{t.hero.exploreSessions}</span>
                   <ArrowRight className="w-4 h-4" />
@@ -210,7 +206,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
                 <button
                   type="button"
                   onClick={() => setActiveTab('demo')}
-                  className="btn-spiritual px-8 py-4 rounded-full bg-transparent hover:bg-white/10 text-white font-semibold text-xs sm:text-sm tracking-[0.18em] uppercase border border-white/80 flex items-center justify-center gap-2 cursor-pointer"
+                  className="btn-spiritual px-8 py-4 rounded-full bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm tracking-[0.18em] uppercase border border-white/40 backdrop-blur-xs flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
                 >
                   <Play className="w-4 h-4 text-[#D1A559] fill-[#D1A559]" />
                   <span>{t.hero.watchDemo}</span>
@@ -225,7 +221,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
         <button
           type="button"
           onClick={handleScrollToOfferings}
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 text-stone-300 hover:text-amber-200 flex flex-col items-center gap-1.5 text-xs font-semibold uppercase tracking-widest transition cursor-pointer z-10 group"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 text-stone-300 hover:text-[#D1A559] flex flex-col items-center gap-1.5 text-xs font-semibold uppercase tracking-widest transition cursor-pointer z-10 group"
           aria-label={t.hero.scrollCue || "Scroll to explore offerings"}
         >
           <span className="opacity-80 group-hover:opacity-100">{t.hero.scrollCue || "Scroll to explore"}</span>
@@ -243,7 +239,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
             <span className="section-eyebrow">
               {t.offeringsGrid.sectionTag}
             </span>
-            <h2 className="heading-serif text-3xl sm:text-4xl text-[#2C2421]">
+            <h2 className="heading-section text-[#2C2421]">
               {t.offeringsGrid.sectionTitle}
             </h2>
             <p className="text-stone-600 text-sm sm:text-base font-light">
@@ -277,12 +273,12 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
                   });
                 }
               }}
-              className="group bg-white rounded-2xl overflow-hidden border border-[#E6E0D2] shadow-xs hover:shadow-xl hover:-translate-y-2 transition-all duration-500 cursor-pointer flex flex-col justify-between text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8B5E34]"
+              className="card-spiritual card-interactive group overflow-hidden flex flex-col justify-between text-left focus-visible:outline-none min-h-[44px]"
               aria-label={`${item.title} — ${item.price}`}
             >
               <div>
                 {/* Image Container with Top Pill Overlay */}
-                <div className="relative aspect-[4/3] sm:aspect-square overflow-hidden bg-stone-100">
+                <div className="relative aspect-[4/3] sm:aspect-square overflow-hidden bg-stone-100 rounded-t-[1.5rem]">
                   <img
                     src={item.image}
                     alt={item.title}
@@ -308,7 +304,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
                   <span className="block text-[10px] font-bold tracking-wider uppercase text-[#8B5E34]">
                     {item.category}
                   </span>
-                  <h3 className="font-serif text-lg sm:text-xl font-bold text-[#2C2421] group-hover:text-[#8B5E34] transition-colors duration-300 line-clamp-2">
+                  <h3 className="heading-card text-[#2C2421] group-hover:text-[#8B5E34] transition-colors duration-300 line-clamp-2">
                     {item.title}
                   </h3>
                   <p className="text-xs text-stone-700 font-light leading-relaxed line-clamp-3">
@@ -318,7 +314,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
               </div>
 
               {/* Bottom Meta & Pricing Footer Line */}
-              <div className="px-5 sm:px-6 pb-5 pt-3 border-t border-[#F0EBE1] flex items-center justify-between text-[11px] font-semibold text-stone-700 tracking-wider">
+              <div className="px-5 sm:px-6 pb-5 pt-3 border-t border-[#E6E0D2] flex items-center justify-between text-[11px] font-semibold text-stone-700 tracking-wider">
                 <span>{item.meta}</span>
                 <span className="text-sm font-serif text-[#2C2421] font-bold">{item.price}</span>
               </div>
@@ -335,19 +331,19 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
             <span className="section-eyebrow">
               {t.upcomingSessions.featuredTag || "Featured Live Immersion"}
             </span>
-            <h2 className="heading-serif text-3xl sm:text-4xl text-[#2C2421]">
+            <h2 className="heading-section text-[#2C2421]">
               {t.upcomingSessions.title}
             </h2>
             <p className="text-stone-600 text-sm">{t.upcomingSessions.subtitle}</p>
           </div>
         </ScrollReveal>
 
-        <ScrollReveal animation="image-zoom" duration={800}>
-          <div className="bg-white rounded-3xl p-8 sm:p-12 border border-[#E6E0D2] shadow-sm">
+        <ScrollReveal animation="hero-zoom" duration={800}>
+          <div className="card-spiritual p-8 sm:p-12 shadow-md">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               
               <div className="lg:col-span-8 space-y-4">
-                <span className="inline-block px-3.5 py-1 rounded-full bg-[#F3EDE0] text-[#8B5E34] text-xs font-semibold tracking-wider uppercase">
+                <span className="badge-eyebrow bg-[#F8F5EE] text-[#8B5E34] border border-[#E6E0D2]">
                   {t.upcomingSessions.statusLive}
                 </span>
                 <h3 className="font-serif text-2xl sm:text-3xl font-normal text-[#2C2421]">
@@ -378,15 +374,15 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
                 </div>
               </div>
 
-              <div className="lg:col-span-4 bg-[#FAF7F0] p-6 rounded-2xl border border-[#E6E0D2] text-center space-y-4">
-                <span className="text-xs text-[#7A7067] uppercase tracking-wider font-semibold">{t.upcomingSessions.cardBadge}</span>
+              <div className="lg:col-span-4 bg-[#FAF8F5] p-6 rounded-2xl border border-[#E6E0D2] text-center space-y-4">
+                <span className="text-xs text-[#8B5E34] uppercase tracking-wider font-semibold">{t.upcomingSessions.cardBadge}</span>
                 <div className="text-3xl font-serif text-[#2C2421]">
                   ₹{getPrice('live-masterclass', 1111).toLocaleString('en-IN')} <span className="text-xs font-sans text-stone-500">{t.upcomingSessions.per11Days}</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setActiveTab('session-details')}
-                  className="btn-spiritual btn-primary w-full py-3.5 font-semibold text-xs tracking-[0.15em] uppercase shadow-sm cursor-pointer"
+                  className="btn-spiritual btn-primary w-full py-3.5 font-semibold text-xs tracking-[0.15em] uppercase shadow-sm cursor-pointer min-h-[44px]"
                 >
                   {t.upcomingSessions.viewDetails}
                 </button>
@@ -400,16 +396,16 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
       {/* SACRED BOOK LIBRARY & PODCAST SPOTLIGHT — Skeleton chips & retry on error */}
       <section className="section-container">
         <ScrollReveal animation="fade-up" duration={800}>
-          <div className="bg-radial from-[#3B234A] to-[#201526] text-white rounded-3xl p-8 sm:p-12 shadow-lg relative overflow-hidden">
+          <div className="bg-gradient-to-br from-[#3B234A] via-[#2A1836] to-[#1C0F24] text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               
               <div className="lg:col-span-7 space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#D1A559] text-xs font-semibold tracking-widest uppercase">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#D1A559] text-xs font-semibold tracking-widest uppercase border border-white/15">
                   <BookOpen className="w-3.5 h-3.5" />
                   <span>{t.bookLibrary.badge}</span>
                 </div>
 
-                <h2 className="font-serif text-3xl sm:text-4xl font-light">
+                <h2 className="heading-section text-white">
                   {t.bookLibrary.title}
                 </h2>
                 
@@ -432,7 +428,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
                       <button
                         type="button"
                         onClick={fetchBooks}
-                        className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold flex items-center gap-1 cursor-pointer"
+                        className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold flex items-center gap-1 cursor-pointer min-h-[44px]"
                       >
                         <RefreshCw className="w-3 h-3" />
                         <span>{t.common?.retry || "Retry"}</span>
@@ -445,9 +441,9 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
                           key={book.id}
                           type="button"
                           onClick={() => openBookDrawer(book)}
-                          className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 text-xs text-stone-200 transition flex items-center gap-1.5 cursor-pointer"
+                          className="px-3.5 py-2 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 text-xs text-stone-200 transition flex items-center gap-1.5 cursor-pointer min-h-[44px]"
                         >
-                          <Radio className="w-3 h-3 text-[#D1A559]" />
+                          <Radio className="w-3.5 h-3.5 text-[#D1A559]" />
                           <span>{book.title}</span>
                         </button>
                       ))}
@@ -456,12 +452,12 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
                 </div>
               </div>
 
-              <div className="lg:col-span-5 bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 text-center space-y-4">
+              <div className="lg:col-span-5 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/15 text-center space-y-4">
                 <div className="w-12 h-12 mx-auto rounded-full bg-[#D1A559]/20 text-[#D1A559] flex items-center justify-center">
                   <Radio className="w-6 h-6 motion-safe:animate-pulse" />
                 </div>
                 <div>
-                  <h3 className="font-serif text-xl text-white">
+                  <h3 className="heading-card text-white">
                     {t.bookLibrary.radioPlayerTitle || "Spiritual Radio Player"}
                   </h3>
                   <p className="text-stone-300 text-xs mt-1">
@@ -475,7 +471,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
                       if (books.length > 0) openBookAudioPlayer(books[0]);
                       else setActiveTab('book-library');
                     }}
-                    className="btn-spiritual btn-gold w-full py-3 font-semibold text-xs tracking-widest uppercase shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                    className="btn-spiritual btn-gold w-full py-3.5 font-semibold text-xs tracking-widest uppercase shadow-md flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
                   >
                     <Play className="w-3.5 h-3.5 fill-[#201812]" />
                     <span>{books.length > 0 ? `Listen to ${books[0].title}` : (t.bookLibrary.listenDiscourse || 'Listen to Audio Discourse')}</span>
@@ -483,7 +479,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
                   <button
                     type="button"
                     onClick={() => setActiveTab('book-library')}
-                    className="btn-spiritual w-full py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-xs tracking-widest uppercase cursor-pointer"
+                    className="btn-spiritual w-full py-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-xs tracking-widest uppercase cursor-pointer min-h-[44px]"
                   >
                     {t.bookLibrary.viewAllBooks || "View All Curated Books"}
                   </button>
@@ -498,15 +494,15 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
       {/* 100% FREE ORIENTATION CLASS PREVIEW — Using DemoClass orientation video source */}
       <section className="section-container">
         <ScrollReveal animation="fade-up">
-          <div className="bg-[#2C2421] text-white rounded-3xl p-8 sm:p-12 shadow-md relative overflow-hidden">
+          <div className="bg-[#2C2421] text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden border border-white/10">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
               <div className="md:col-span-8 space-y-3">
                 <span className="px-3 py-1 rounded-full bg-emerald-900/60 text-emerald-300 text-xs font-semibold tracking-widest uppercase border border-emerald-500/30">
                   {t.demoSection.freeBadge}
                 </span>
-                <h3 className="font-serif text-3xl font-light">{t.demoSection.demoClassTitle}</h3>
+                <h3 className="heading-section text-white">{t.demoSection.demoClassTitle}</h3>
                 <p className="text-stone-200 text-sm font-light leading-relaxed">{t.demoSection.subtitle}</p>
-                <div className="flex items-center gap-4 text-xs text-amber-200 font-mono pt-1">
+                <div className="flex items-center gap-4 text-xs text-[#D1A559] font-mono pt-1">
                   <span>⏱ {t.demoSection.duration}</span>
                   <span>•</span>
                   <span className="text-emerald-400 font-semibold">{t.demoSection.price}</span>
@@ -516,7 +512,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
                 <button
                   type="button"
                   onClick={handleFreePreviewClick}
-                  className="btn-spiritual btn-gold w-full py-3.5 font-semibold text-xs tracking-widest uppercase shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                  className="btn-spiritual btn-gold w-full py-3.5 font-semibold text-xs tracking-widest uppercase shadow-md flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
                 >
                   <Play className="w-4 h-4 fill-[#201812]" />
                   <span>{t.demoSection.watchPreview}</span>
@@ -524,7 +520,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
                 <button
                   type="button"
                   onClick={() => setActiveTab('demo')}
-                  className="btn-spiritual w-full py-3.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold text-xs tracking-widest uppercase cursor-pointer"
+                  className="btn-spiritual w-full py-3.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold text-xs tracking-widest uppercase cursor-pointer min-h-[44px]"
                 >
                   {t.demoSection.learnWhatsCovered || "Learn What's Covered"}
                 </button>
@@ -537,11 +533,11 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
       {/* ABOUT TRIPURA SPIRITUAL & MASTER */}
       <section className="section-container">
         <ScrollReveal animation="fade-up">
-          <div className="bg-[#FAF7F0] rounded-3xl p-8 sm:p-14 border border-[#E6E0D2] shadow-xs text-center max-w-3xl mx-auto space-y-6">
+          <div className="card-spiritual p-8 sm:p-14 text-center max-w-3xl mx-auto space-y-6">
             <span className="section-eyebrow">
               {t.aboutSection.motto}
             </span>
-            <h2 className="heading-serif text-3xl sm:text-4xl text-[#2C2421]">
+            <h2 className="heading-section text-[#2C2421]">
               {t.aboutSection.title}
             </h2>
             <p className="text-stone-700 text-base sm:text-lg leading-relaxed font-light">
@@ -551,7 +547,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
               <button
                 type="button"
                 onClick={() => setActiveTab('about')}
-                className="inline-flex items-center gap-2 font-semibold text-xs tracking-[0.15em] uppercase text-[#8B5E34] hover:text-[#5C3D1E] group cursor-pointer"
+                className="btn-spiritual text-xs tracking-[0.15em] uppercase text-[#8B5E34] hover:text-[#5C3D1E] group cursor-pointer gap-2 min-h-[44px]"
               >
                 <span>{t.aboutSection.learnMore}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
@@ -566,7 +562,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
         <ScrollReveal animation="fade-up">
           <div className="section-header">
             <span className="section-eyebrow">{t.testimonials?.tag || "Seeker Stories"}</span>
-            <h2 className="heading-serif text-3xl sm:text-4xl text-[#2C2421]">
+            <h2 className="heading-section text-[#2C2421]">
               {t.testimonials?.title || "Voices of Peace"}
             </h2>
           </div>
@@ -592,18 +588,18 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
           ].map((item, idx) => (
             <div 
               key={idx} 
-              className="min-w-[85vw] sm:min-w-[340px] md:min-w-0 snap-center bg-white rounded-2xl p-6 border border-[#E6E0D2] shadow-xs space-y-3 hover:shadow-md transition duration-300 flex flex-col justify-between"
+              className="card-spiritual min-w-[85vw] sm:min-w-[340px] md:min-w-0 snap-center p-6 space-y-4 flex flex-col justify-between"
             >
               <div className="space-y-3">
                 <div className="flex gap-1 text-[#D1A559]">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-[#D1A559]" />
+                    <Star key={i} className="w-4 h-4 fill-[#D1A559]" />
                   ))}
                 </div>
                 <p className="text-stone-700 text-sm font-light leading-relaxed italic">"{item.text}"</p>
               </div>
               <div className="pt-3 border-t border-[#E6E0D2]">
-                <span className="block font-serif text-[#2C2421] text-sm font-normal">{item.name}</span>
+                <span className="block font-serif text-[#2C2421] text-sm font-semibold">{item.name}</span>
                 <span className="text-xs text-stone-500">{item.city}</span>
               </div>
             </div>
@@ -617,5 +613,6 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
     </div>
   );
 };
+
 
 

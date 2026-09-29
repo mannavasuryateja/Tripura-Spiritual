@@ -84,7 +84,7 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
           {/* Header */}
           <div className="p-5 sm:p-6 bg-[#FAF8F5] border-b border-[#E6E0D2] flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#EFE9DD] text-[#3B234A] flex items-center justify-center shadow-xs">
+              <div className="w-11 h-11 rounded-2xl bg-[#EFE9DD] text-[#3B234A] flex items-center justify-center shadow-xs">
                 <BookOpen className="w-5 h-5 text-[#8B5E34]" />
               </div>
               <div>
@@ -101,7 +101,7 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
                     closeBookDrawer();
                     onNavigateToFullPage();
                   }}
-                  className="px-3 py-2 rounded-xl bg-[#EFE9DD] hover:bg-[#E2D9C8] text-[#3B234A] text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer min-h-[36px]"
+                  className="px-3.5 py-2 rounded-xl bg-[#EFE9DD] hover:bg-[#E2D9C8] text-[#3B234A] text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer min-h-[44px]"
                   title="Expand to Full Page"
                   aria-label="Expand to Full Page View"
                 >
@@ -112,7 +112,7 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
               <button
                 type="button"
                 onClick={closeBookDrawer}
-                className="w-10 h-10 rounded-full flex items-center justify-center text-stone-500 hover:text-stone-900 hover:bg-stone-200/70 transition cursor-pointer min-h-[44px] min-w-[44px]"
+                className="w-11 h-11 rounded-full flex items-center justify-center text-stone-500 hover:text-stone-900 hover:bg-stone-200/70 transition cursor-pointer min-h-[44px] min-w-[44px]"
                 aria-label="Close Drawer"
               >
                 <X className="w-5 h-5" />
@@ -150,7 +150,7 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
                       <button
                         key={b.id}
                         onClick={() => setActiveBook(b)}
-                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer min-h-[44px] ${
+                        className={`p-3 rounded-2xl border text-left transition-all cursor-pointer min-h-[48px] ${
                           currentBook.id === b.id
                             ? 'border-[#3B234A] bg-[#3B234A] text-white shadow-sm'
                             : 'border-[#E6E0D2] bg-white text-[#2C2421] hover:bg-[#F3EDE0]'
@@ -166,9 +166,9 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
                 </div>
 
                 {/* Active Book Hero Summary */}
-                <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#E6E0D2] shadow-xs space-y-4">
+                <div className="bg-white rounded-3xl p-5 border border-[#E6E0D2] shadow-xs space-y-4">
                   <div className="flex gap-4 items-center">
-                    <div className="w-20 h-28 sm:w-24 sm:h-32 rounded-xl overflow-hidden shadow-md shrink-0 bg-stone-900 relative">
+                    <div className="w-20 h-28 sm:w-24 sm:h-32 rounded-2xl overflow-hidden shadow-md shrink-0 bg-stone-900 relative">
                       <img 
                         src={currentBook.coverImage || '/card3.jpg'} 
                         alt={currentBook.title} 
@@ -181,7 +181,7 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
                     </div>
 
                     <div className="space-y-1 flex-1 min-w-0">
-                      <span className="inline-block px-2 py-0.5 rounded bg-[#EFE9DD] text-[#8B5E34] text-[10px] font-bold uppercase tracking-wider">
+                      <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#EFE9DD] text-[#8B5E34] text-[10px] font-bold uppercase tracking-wider">
                         {currentBook.tag || 'Sacred Text'}
                       </span>
                       <h4 className="font-serif font-bold text-base sm:text-lg text-[#2C2421] truncate">{currentBook.title}</h4>
@@ -196,10 +196,10 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
                   </div>
 
                   {/* Section Switcher Tabs */}
-                  <div className="flex rounded-xl bg-[#EFE9DD] p-1 border border-[#D8CFBF]">
+                  <div className="flex rounded-2xl bg-[#EFE9DD] p-1 border border-[#D8CFBF]">
                     <button
                       onClick={() => setActiveDrawerTab('episodes')}
-                      className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition cursor-pointer min-h-[36px] flex items-center justify-center gap-1.5 ${
+                      className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition cursor-pointer min-h-[40px] flex items-center justify-center gap-1.5 ${
                         activeDrawerTab === 'episodes'
                           ? 'bg-white text-[#2C2421] shadow-xs font-bold'
                           : 'text-stone-700 hover:text-stone-900'
@@ -210,7 +210,7 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
                     </button>
                     <button
                       onClick={() => setActiveDrawerTab('overview')}
-                      className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition cursor-pointer min-h-[36px] flex items-center justify-center gap-1.5 ${
+                      className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition cursor-pointer min-h-[40px] flex items-center justify-center gap-1.5 ${
                         activeDrawerTab === 'overview'
                           ? 'bg-white text-[#2C2421] shadow-xs font-bold'
                           : 'text-stone-700 hover:text-stone-900'
@@ -223,10 +223,10 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
 
                   {/* TAB 1: Episodes List */}
                   {activeDrawerTab === 'episodes' && (
-                    <div className="space-y-2 pt-1 animate-fadeIn">
+                    <div className="space-y-2.5 pt-1 animate-fadeIn">
                       <div className="flex justify-between items-center text-xs font-bold text-[#2C2421]">
                         <span>Audio Chapter Tracks</span>
-                        <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                           {isBookUnlocked ? '✓ Full Access Unlocked' : '5-Min Preview Free'}
                         </span>
                       </div>
@@ -257,9 +257,9 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
                             <div
                               key={idx}
                               onClick={handleEpisodeClick}
-                              className={`p-3 rounded-xl border text-xs flex items-center justify-between gap-3 transition cursor-pointer min-h-[48px] ${
+                              className={`p-3.5 rounded-2xl border text-xs flex items-center justify-between gap-3 transition cursor-pointer min-h-[52px] ${
                                 isAccessible
-                                  ? 'bg-amber-50/60 border-amber-200/80 text-stone-900 hover:bg-amber-100/70 hover:border-amber-300'
+                                  ? 'bg-amber-50/70 border-amber-200 text-stone-900 hover:bg-amber-100/70 hover:border-amber-300'
                                   : isFreeEpisode
                                   ? 'bg-[#FAF7F0] border-amber-200 text-stone-900 hover:bg-[#F3EDE0]'
                                   : 'bg-stone-50/80 border-stone-200 text-stone-700 hover:bg-stone-100'
@@ -272,7 +272,7 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
                                 <div className="min-w-0">
                                   <span className="truncate font-semibold block text-stone-900">{ch.title}</span>
                                   {ch.description && (
-                                    <span className="text-[10px] text-stone-600 truncate block font-light">
+                                    <span className="text-[10px] text-stone-600 truncate block font-normal">
                                       {ch.description}
                                     </span>
                                   )}
@@ -284,7 +284,7 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
                                 {isAccessible ? (
                                   <button
                                     type="button"
-                                    className="w-9 h-9 rounded-full text-white flex items-center justify-center transition shadow-xs cursor-pointer shrink-0 bg-[#8B5E34] hover:bg-[#6e4623]"
+                                    className="w-10 h-10 rounded-full text-white flex items-center justify-center transition shadow-xs cursor-pointer shrink-0 bg-[#8B5E34] hover:bg-[#6e4623] min-h-[40px] min-w-[40px]"
                                     title="Play Discourse"
                                     aria-label={`Play ${ch.title}`}
                                   >
@@ -293,7 +293,7 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
                                 ) : isFreeEpisode ? (
                                   <button
                                     type="button"
-                                    className="w-9 h-9 rounded-full text-white flex items-center justify-center transition shadow-xs cursor-pointer shrink-0 bg-amber-600 hover:bg-amber-700"
+                                    className="w-10 h-10 rounded-full text-white flex items-center justify-center transition shadow-xs cursor-pointer shrink-0 bg-amber-600 hover:bg-amber-700 min-h-[40px] min-w-[40px]"
                                     title="Listen to 5-Min Free Preview"
                                     aria-label={`Listen to Free Preview of ${ch.title}`}
                                   >
@@ -302,7 +302,7 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
                                 ) : (
                                   <button
                                     type="button"
-                                    className="px-3 py-1.5 rounded-full text-white flex items-center gap-1.5 transition shadow-xs cursor-pointer shrink-0 bg-[#3B234A] hover:bg-[#2C1838] text-[11px] font-semibold"
+                                    className="px-3.5 py-2 rounded-full text-white flex items-center gap-1.5 transition shadow-xs cursor-pointer shrink-0 bg-[#3B234A] hover:bg-[#2C1838] text-[11px] font-semibold min-h-[36px]"
                                     title={`Unlock Full Discourse (₹${currentBook.price})`}
                                     aria-label={`Unlock ${ch.title}`}
                                   >
@@ -322,19 +322,19 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
                   {activeDrawerTab === 'overview' && (
                     <div className="space-y-3 pt-1 animate-fadeIn text-xs text-stone-800">
                       {currentBook.problemStatement && (
-                        <div className="p-3.5 bg-amber-50 rounded-xl border border-amber-200 space-y-1">
+                        <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 space-y-1">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-amber-900 block">Life Challenges Addressed</span>
-                          <p className="text-stone-800 leading-relaxed font-light">"{currentBook.problemStatement}"</p>
+                          <p className="text-stone-800 leading-relaxed font-normal">"{currentBook.problemStatement}"</p>
                         </div>
                       )}
 
                       <div className="space-y-1.5">
                         <span className="text-[11px] font-bold uppercase tracking-wider text-stone-700 block">Core Synopsis</span>
-                        <p className="text-stone-700 leading-relaxed font-light">{currentBook.synopsis || currentBook.summaryStory}</p>
+                        <p className="text-stone-700 leading-relaxed font-normal">{currentBook.synopsis || currentBook.summaryStory}</p>
                       </div>
 
                       {currentBook.masterQuote && (
-                        <div className="p-3.5 bg-[#FAF7F0] rounded-xl border border-[#E6E0D2] space-y-1">
+                        <div className="p-4 bg-[#FAF7F0] rounded-2xl border border-[#E6E0D2] space-y-1">
                           <span className="text-[10px] font-bold text-[#8B5E34] uppercase tracking-wider block">Master's Living Quote</span>
                           <p className="italic text-stone-800 leading-relaxed font-serif">"{currentBook.masterQuote}"</p>
                         </div>
@@ -357,7 +357,7 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
                     closeBookDrawer();
                     openBookAudioPlayer(currentBook);
                   }}
-                  className="w-full py-3.5 rounded-full bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-xs tracking-widest uppercase shadow-md transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px]"
+                  className="btn-spiritual btn-primary w-full py-4 text-white font-bold text-xs tracking-widest uppercase shadow-md transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px]"
                 >
                   <Headphones className="w-4 h-4" />
                   <span>Listen to Full Discourses (Unlocked)</span>
@@ -365,7 +365,7 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
               ) : (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-stone-700 font-medium">Complete {currentBook.episodesCount}-Discourse Master Commentary:</span>
+                    <span className="text-stone-700 font-semibold">Complete {currentBook.episodesCount}-Discourse Master Commentary:</span>
                     <span className="text-base font-bold font-serif text-[#2C2421]">₹{currentBook.price}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2.5">
@@ -374,7 +374,7 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
                         closeBookDrawer();
                         openBookAudioPlayer(currentBook);
                       }}
-                      className="py-3 px-4 rounded-xl bg-white border border-[#D8CFBF] text-[#2C2421] font-bold text-xs hover:bg-[#EFE9DD] transition flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
+                      className="btn-spiritual btn-outline py-3.5 px-4 font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px]"
                     >
                       <Play className="w-3.5 h-3.5 text-[#8B5E34]" />
                       <span>Free Preview</span>
@@ -391,7 +391,7 @@ export const BookLibraryDrawer: React.FC<BookLibraryDrawerProps> = ({ onNavigate
                           bookId: Number(currentBook.id)
                         });
                       }}
-                      className="py-3 px-4 rounded-xl bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
+                      className="btn-spiritual btn-secondary py-3.5 px-4 font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px]"
                     >
                       <Sparkles className="w-3.5 h-3.5 text-amber-200" />
                       <span>Unlock for ₹{currentBook.price}</span>

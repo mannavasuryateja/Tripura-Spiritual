@@ -96,6 +96,7 @@ public class BookService {
     @Transactional
     public void deleteBook(Long id, String adminEmail) {
         Book book = getBookById(id);
+        userBookAccessRepository.deleteByBookId(id);
         bookRepository.delete(book);
         auditLogService.logAction(adminEmail, "BOOK_DELETED", "Book", id.toString(), "Deleted book: " + book.getTitle());
     }

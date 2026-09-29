@@ -58,13 +58,13 @@ export const LoginSuccessTransition: React.FC<LoginSuccessTransitionProps> = ({ 
       }}
       className={`fixed inset-0 z-50 flex items-center justify-center overflow-hidden cursor-pointer transition-opacity duration-300 select-none ${
         phase === 'fadeout' ? 'opacity-0 pointer-events-none' : 'opacity-100'
-      } bg-[#FAF8F3]`}
+      } bg-[#FAF8F5]`}
       aria-label="Tripura Login Transition"
       role="region"
     >
       {/* Warm Ambient Spiritual Radial Glow */}
       <div 
-        className={`absolute w-[700px] h-[700px] rounded-full bg-gradient-to-r from-[#D1A559]/25 via-[#A3733A]/20 to-transparent blur-3xl pointer-events-none transition-all duration-1200 ${
+        className={`absolute w-[700px] h-[700px] rounded-full bg-gradient-to-r from-[#D1A559]/30 via-[#8B5E34]/20 to-transparent blur-3xl pointer-events-none transition-all duration-1200 ${
           phase === 'zoom' ? 'scale-175 opacity-90' : 'scale-100 opacity-50'
         }`}
       />
@@ -105,10 +105,10 @@ export const LoginSuccessTransition: React.FC<LoginSuccessTransitionProps> = ({ 
             willChange: 'opacity, transform'
           }}
         >
-          <p className="font-serif italic text-sm sm:text-base text-[#8B5E34] tracking-widest uppercase">
+          <p className="font-serif italic text-sm sm:text-base text-[#8B5E34] tracking-widest uppercase font-semibold">
             Awakening Inner Presence
           </p>
-          <div className="w-16 h-0.5 bg-[#D1A559] mx-auto mt-3 rounded-full opacity-70" />
+          <div className="w-16 h-0.5 bg-[#D1A559] mx-auto mt-3 rounded-full opacity-80" />
         </div>
 
       </div>

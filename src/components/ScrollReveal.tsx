@@ -23,14 +23,17 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
 }) => {
   const activeAnimation = animation || variant || 'fade-up';
   const [isVisible, setIsVisible] = useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+    return false;
+  });
   const domRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Check user preference for reduced motion
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mediaQuery.matches);
-
     const handleChange = () => setPrefersReducedMotion(mediaQuery.matches);
     mediaQuery.addEventListener('change', handleChange);
 
@@ -82,7 +85,7 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
         case 'hero-zoom':
           return {
             opacity: 0,
-            transform: 'translateY(30px) scale(0.98)',
+            transform: 'translateY(24px) scale(0.98)',
             transition: transitionStr,
             transitionDelay: `${delay}ms`,
             willChange: 'opacity, transform',
@@ -106,7 +109,7 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
         default:
           return {
             opacity: 0,
-            transform: 'translateY(25px)',
+            transform: 'translateY(20px)',
             transition: transitionStr,
             transitionDelay: `${delay}ms`,
             willChange: 'opacity, transform',

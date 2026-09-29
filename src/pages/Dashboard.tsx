@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
-import { Play, Lock, User, Calendar, MessageCircle, Sparkles, Clock, LogOut, CreditCard, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Play, Lock, User, Calendar, MessageCircle, Sparkles, Clock, LogOut, CreditCard, Loader2, AlertCircle, RefreshCw, UserCheck } from 'lucide-react';
 import { ScrollReveal, StaggerContainer } from '../components/ScrollReveal';
 import { recordingsApi, sessionsApi, paymentsApi, mentorApi } from '../api/client';
 
@@ -96,26 +96,33 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
     return (
       <div className="section-container max-w-2xl py-20 text-center space-y-6 animate-fadeIn text-[#2C2421]">
         <ScrollReveal animation="hero-zoom">
-          <div className="w-16 h-16 rounded-full bg-[#EFE9DD] text-[#3B234A] flex items-center justify-center mx-auto mb-4">
-            <User className="w-8 h-8" />
-          </div>
-          <h2 className="heading-section font-bold text-[#2C2421]">Sign In to Access Your Portal</h2>
-          <p className="text-stone-600 text-sm max-w-lg mx-auto">
-            Please log in with your registered mobile number or email credentials to access your masterclass recordings and live classes.
-          </p>
-          <div className="flex flex-wrap justify-center gap-3 pt-4">
-            <button
-              onClick={openAuthModal}
-              className="btn-spiritual btn-primary px-8 py-3.5 rounded-full text-xs tracking-widest uppercase shadow-md transition"
-            >
-              Sign In with OTP
-            </button>
-            <button
-              onClick={() => setActiveTab('login')}
-              className="btn-spiritual btn-outline px-8 py-3.5 rounded-full text-[#3B234A] border-[#3B234A] hover:bg-[#3B234A]/10 text-xs tracking-widest uppercase transition"
-            >
-              Email & Password Sign In
-            </button>
+          <div className="card-spiritual glass-panel p-8 sm:p-12 text-center space-y-6 max-w-xl mx-auto border border-[#E6E0D2] shadow-xl">
+            <div className="w-16 h-16 rounded-full bg-[#FAF5EE] text-[#3B234A] flex items-center justify-center mx-auto border border-[#E6E0D2] shadow-inner">
+              <User className="w-8 h-8 text-[#8B5E34]" />
+            </div>
+            <div className="space-y-2">
+              <span className="section-eyebrow">Portal Access</span>
+              <h2 className="heading-section text-[#2C2421]">Sign In to Access Your Portal</h2>
+              <p className="text-stone-600 text-sm max-w-md mx-auto leading-relaxed">
+                Please log in with your registered mobile number or email credentials to access your masterclass recordings and live classes.
+              </p>
+            </div>
+            <div className="flex flex-wrap justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={openAuthModal}
+                className="btn-spiritual btn-primary px-8 py-3 rounded-full text-xs font-bold tracking-wider uppercase shadow-md transition cursor-pointer min-h-[44px]"
+              >
+                Sign In with OTP
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('login')}
+                className="btn-spiritual btn-outline px-8 py-3 rounded-full text-[#3B234A] border-[#3B234A] hover:bg-[#3B234A]/10 text-xs font-bold tracking-wider uppercase transition cursor-pointer min-h-[44px]"
+              >
+                Email & Password Sign In
+              </button>
+            </div>
           </div>
         </ScrollReveal>
       </div>
@@ -141,9 +148,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
   const currentRole = user.role || 'ROLE_SEEKER';
 
   const rolePillStyles: Record<string, { bg: string; text: string; label: string }> = {
-    'ROLE_ADMIN': { bg: 'bg-purple-600 text-white', text: 'text-purple-700', label: 'Platform Admin' },
-    'ROLE_MASTER': { bg: 'bg-amber-600 text-white', text: 'text-amber-700', label: 'Spiritual Master' },
-    'ROLE_ENROLLED': { bg: 'bg-emerald-600 text-white', text: 'text-emerald-700', label: 'Enrolled Seeker' },
+    'ROLE_ADMIN': { bg: 'bg-[#3B234A] text-white', text: 'text-[#3B234A]', label: 'Platform Admin' },
+    'ROLE_MASTER': { bg: 'bg-[#8B5E34] text-white', text: 'text-[#8B5E34]', label: 'Spiritual Master' },
+    'ROLE_ENROLLED': { bg: 'bg-emerald-700 text-white', text: 'text-emerald-700', label: 'Enrolled Seeker' },
     'ROLE_SEEKER': { bg: 'bg-stone-600 text-white', text: 'text-stone-700', label: 'Guest Seeker' }
   };
 
@@ -160,9 +167,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
       
       {/* 1. Welcome Banner & Active Enrollment Status */}
       <ScrollReveal animation="hero-zoom">
-        <div className="glass-panel p-8 sm:p-10 rounded-3xl border border-[#E6E0D2] shadow-lg space-y-6">
+        <div className="card-spiritual glass-panel p-6 sm:p-8 rounded-3xl border border-[#E6E0D2] shadow-xl space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <div className="flex items-center gap-2.5">
                 <span className="section-eyebrow">
                   {t.dashboard.welcome}
@@ -171,7 +178,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                   {rolePillStyles[currentRole]?.label || currentRole}
                 </span>
               </div>
-              <h1 className="heading-section font-bold text-[#2C2421]">
+              <h1 className="heading-section text-[#2C2421]">
                 {user.name}
               </h1>
               <p className="text-xs text-stone-500 font-mono">
@@ -181,14 +188,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
 
             <div className="flex items-center gap-3">
               <button
+                type="button"
                 onClick={() => setActiveTab('profile')}
-                className="btn-spiritual px-4 py-2 rounded-xl bg-white border border-stone-200 text-stone-700 text-xs font-semibold hover:bg-stone-50 transition"
+                className="btn-spiritual px-4 py-2.5 rounded-xl bg-white border border-stone-200 text-stone-700 text-xs font-semibold hover:bg-stone-50 transition cursor-pointer min-h-[44px] flex items-center gap-1.5 shadow-xs"
               >
-                Account Details
+                <UserCheck className="w-3.5 h-3.5 text-[#8B5E34]" />
+                <span>Account Details</span>
               </button>
               <button
+                type="button"
                 onClick={() => { logout(); setActiveTab('home'); }}
-                className="btn-spiritual px-4 py-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 text-xs font-semibold transition flex items-center gap-1.5"
+                className="btn-spiritual px-4 py-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer min-h-[44px]"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Log Out</span>
@@ -200,7 +210,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
           <div className={`p-6 rounded-2xl border flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${
             user.subscription.hasActivePlan
               ? 'bg-gradient-to-r from-emerald-500/10 via-amber-500/10 to-teal-500/10 border-emerald-300'
-              : 'bg-stone-100 border-stone-200'
+              : 'bg-[#FAF8F5] border-[#E6E0D2]'
           }`}>
             <div className="space-y-1.5">
               <span className="text-xs text-stone-500 uppercase font-bold tracking-wider">{t.dashboard.activePlan}</span>
@@ -225,15 +235,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
               {user.subscription.hasActivePlan ? (
                 <>
                   <button
+                    type="button"
                     onClick={handleJoinWhatsApp}
-                    className="btn-spiritual px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm"
+                    className="btn-spiritual px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer min-h-[44px]"
                   >
                     <MessageCircle className="w-4 h-4" />
                     <span>WhatsApp Community</span>
                   </button>
                   <button
+                    type="button"
                     onClick={handleBuyExtension}
-                    className="btn-spiritual px-4 py-2.5 rounded-xl bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm"
+                    className="btn-spiritual px-4 py-2.5 rounded-xl bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer min-h-[44px]"
                     title="Extend recordings for 30 days"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
@@ -242,8 +254,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                 </>
               ) : (
                 <button
+                  type="button"
                   onClick={() => setActiveTab('sessions')}
-                  className="btn-spiritual btn-primary px-6 py-3 rounded-xl font-bold text-xs shadow-md transition uppercase tracking-wider"
+                  className="btn-spiritual btn-primary px-6 py-3 rounded-xl font-bold text-xs shadow-md transition uppercase tracking-wider cursor-pointer min-h-[44px]"
                 >
                   Enroll in Masterclass (₹{sessionInfo?.priceLive || 1111})
                 </button>
@@ -257,20 +270,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
       <div className="space-y-6">
         
         {/* Navigation Switcher with ARIA Tablist Roles */}
-        <div role="tablist" aria-label="Seeker Portal Tabs" className="flex flex-wrap border-b border-[#E6E0D2] gap-1">
+        <div role="tablist" aria-label="Seeker Portal Tabs" className="tab-group flex flex-wrap w-full p-1.5 gap-1.5">
           <button
             role="tab"
             id="tab-recordings"
             aria-selected={activePortalTab === 'recordings'}
             aria-controls="panel-recordings"
             onClick={() => setActivePortalTab('recordings')}
-            className={`px-5 py-3 font-serif text-base sm:text-lg font-bold transition border-b-2 flex items-center gap-2 cursor-pointer ${
+            className={`tab-btn flex-1 min-h-[44px] ${
               activePortalTab === 'recordings'
-                ? 'border-[#3B234A] text-[#3B234A]'
-                : 'border-transparent text-stone-400 hover:text-stone-700'
+                ? 'tab-btn-active'
+                : ''
             }`}
           >
-            <Play className="w-4 h-4" />
+            <Play className="w-4 h-4 text-[#8B5E34]" />
             <span>Recorded Classes</span>
           </button>
 
@@ -280,13 +293,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
             aria-selected={activePortalTab === 'upcoming'}
             aria-controls="panel-upcoming"
             onClick={() => setActivePortalTab('upcoming')}
-            className={`px-5 py-3 font-serif text-base sm:text-lg font-bold transition border-b-2 flex items-center gap-2 cursor-pointer ${
+            className={`tab-btn flex-1 min-h-[44px] ${
               activePortalTab === 'upcoming'
-                ? 'border-[#3B234A] text-[#3B234A]'
-                : 'border-transparent text-stone-400 hover:text-stone-700'
+                ? 'tab-btn-active'
+                : ''
             }`}
           >
-            <Calendar className="w-4 h-4" />
+            <Calendar className="w-4 h-4 text-[#8B5E34]" />
             <span>Upcoming Live Classes</span>
           </button>
 
@@ -296,13 +309,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
             aria-selected={activePortalTab === 'purchases'}
             aria-controls="panel-purchases"
             onClick={() => setActivePortalTab('purchases')}
-            className={`px-5 py-3 font-serif text-base sm:text-lg font-bold transition border-b-2 flex items-center gap-2 cursor-pointer ${
+            className={`tab-btn flex-1 min-h-[44px] ${
               activePortalTab === 'purchases'
-                ? 'border-[#3B234A] text-[#3B234A]'
-                : 'border-transparent text-stone-400 hover:text-stone-700'
+                ? 'tab-btn-active'
+                : ''
             }`}
           >
-            <CreditCard className="w-4 h-4" />
+            <CreditCard className="w-4 h-4 text-[#8B5E34]" />
             <span>My Purchases ({myPurchases.length})</span>
           </button>
 
@@ -312,13 +325,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
             aria-selected={activePortalTab === 'bookings'}
             aria-controls="panel-bookings"
             onClick={() => setActivePortalTab('bookings')}
-            className={`px-5 py-3 font-serif text-base sm:text-lg font-bold transition border-b-2 flex items-center gap-2 cursor-pointer ${
+            className={`tab-btn flex-1 min-h-[44px] ${
               activePortalTab === 'bookings'
-                ? 'border-[#3B234A] text-[#3B234A]'
-                : 'border-transparent text-stone-400 hover:text-stone-700'
+                ? 'tab-btn-active'
+                : ''
             }`}
           >
-            <Clock className="w-4 h-4" />
+            <Clock className="w-4 h-4 text-[#8B5E34]" />
             <span>1-on-1 Bookings ({myBookings.length})</span>
           </button>
         </div>
@@ -329,9 +342,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
             
             {/* Policy Bar */}
             <ScrollReveal animation="fade-up">
-              <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs">
+              <div className="p-4 rounded-2xl bg-[#FAF5EE] border border-[#E6E0D2] flex flex-col sm:flex-row justify-between items-center gap-3 text-xs shadow-xs">
                 <div className="flex items-center gap-2 text-stone-700">
-                  <Clock className="w-4 h-4 text-amber-700 shrink-0" />
+                  <Clock className="w-4 h-4 text-[#8B5E34] shrink-0" />
                   <span>
                     <strong>Recording Policy:</strong> Available next day by 12:00 PM until the 13th day.
                   </span>
@@ -339,8 +352,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
 
                 {user.subscription.hasActivePlan && (
                   <button
+                    type="button"
                     onClick={handleBuyExtension}
-                    className="btn-spiritual px-4 py-1.5 rounded-lg bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs shadow-xs transition shrink-0 flex items-center gap-1 cursor-pointer"
+                    className="btn-spiritual px-4 py-2 rounded-lg bg-[#8B5E34] hover:bg-[#6e4623] text-white font-bold text-xs shadow-xs transition shrink-0 flex items-center gap-1 cursor-pointer min-h-[44px]"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Keep for 30 Days (₹{sessionInfo?.priceExtension || 555} Loyalty Upgrade)</span>
@@ -357,8 +371,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                   <span>{recordingsError}</span>
                 </div>
                 <button
+                  type="button"
                   onClick={fetchRecordings}
-                  className="btn-spiritual btn-primary px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer"
+                  className="btn-spiritual btn-primary px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer min-h-[44px]"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   <span>Retry Loading Recordings</span>
@@ -369,7 +384,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
             {/* Loading */}
             {isLoadingRecordings && (
               <div className="py-12 text-center">
-                <Loader2 className="w-8 h-8 text-amber-700 motion-safe:animate-spin mx-auto" />
+                <Loader2 className="w-8 h-8 text-[#8B5E34] motion-safe:animate-spin mx-auto" />
                 <p className="text-xs text-stone-500 mt-2 font-serif">Loading recordings...</p>
               </div>
             )}
@@ -383,30 +398,31 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                   return (
                     <div
                       key={rec.id || rec.dayNumber}
-                      className={`p-5 rounded-2xl border transition-all ${
+                      className={`card-spiritual p-5 rounded-2xl border transition-all ${
                         isUnlocked
                           ? 'bg-white border-[#E6E0D2] shadow-xs hover:shadow-md hover:border-[#8B5E34]'
-                          : 'bg-stone-50 border-stone-200 opacity-80'
+                          : 'bg-[#FAF8F5]/70 border-stone-200 opacity-80'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="space-y-1.5 flex-1">
                           <div className="flex items-center gap-2">
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider font-mono ${
-                              isUnlocked ? 'bg-amber-100 text-[#8B5E34]' : 'bg-stone-200 text-stone-600'
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider font-mono ${
+                              isUnlocked ? 'badge-spiritual' : 'bg-stone-200 text-stone-600'
                             }`}>
                               Day {rec.dayNumber}
                             </span>
-                            <span className="text-[11px] text-stone-400 font-mono">
-                              ⏱ {rec.duration || '50 mins'}
+                            <span className="text-[11px] text-stone-500 font-mono flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {rec.duration || '50 mins'}
                             </span>
                           </div>
 
-                          <h4 className="font-serif font-bold text-base text-stone-900 leading-snug">
+                          <h4 className="heading-card text-base text-stone-900 leading-snug">
                             {rec.title}
                           </h4>
 
-                          <p className="text-xs text-stone-500 line-clamp-2">
+                          <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed">
                             {rec.description || 'Sacred guided meditation, pranayama, and awakening inquiry.'}
                           </p>
                         </div>
@@ -414,6 +430,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                         <div className="shrink-0 self-center">
                           {isUnlocked ? (
                             <button
+                              type="button"
                               onClick={() => {
                                 openVideoModal({
                                   day: rec.dayNumber,
@@ -423,13 +440,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                                   streamUrl: rec.bunnyVideoId ? `/api/media/stream/${rec.bunnyVideoId}` : undefined
                                 });
                               }}
-                              className="btn-spiritual p-3 rounded-2xl bg-[#8B5E34] hover:bg-[#6e4623] text-white shadow-md transition transform hover:scale-105"
-                              title="Play Recording"
+                              className="btn-spiritual w-11 h-11 rounded-2xl bg-[#8B5E34] hover:bg-[#6e4623] text-white shadow-md transition transform hover:scale-105 flex items-center justify-center cursor-pointer min-h-[44px]"
+                              title={`Play Day ${rec.dayNumber} Recording`}
+                              aria-label={`Play Day ${rec.dayNumber} Recording`}
                             >
-                              <Play className="w-5 h-5 fill-white" />
+                              <Play className="w-5 h-5 fill-white ml-0.5" />
                             </button>
                           ) : (
                             <button
+                              type="button"
                               onClick={() => {
                                 openPaymentModal({
                                   id: 'hanuman-kriya-live-1111',
@@ -439,8 +458,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                                   details: "Unlock all 11 daily recordings & live zoom classes"
                                 });
                               }}
-                              className="btn-spiritual p-3 rounded-2xl bg-stone-200 hover:bg-stone-300 text-stone-500 transition"
+                              className="btn-spiritual w-11 h-11 rounded-2xl bg-stone-200 hover:bg-stone-300 text-stone-500 transition flex items-center justify-center cursor-pointer min-h-[44px]"
                               title="Locked - Enroll to Access"
+                              aria-label="Locked - Enroll to Access"
                             >
                               <Lock className="w-5 h-5" />
                             </button>
@@ -465,8 +485,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                   <span>{sessionError}</span>
                 </div>
                 <button
+                  type="button"
                   onClick={fetchSession}
-                  className="btn-spiritual btn-primary px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer"
+                  className="btn-spiritual btn-primary px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer min-h-[44px]"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   <span>Retry Loading Schedule</span>
@@ -476,23 +497,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
 
             {isLoadingSession ? (
               <div className="py-12 text-center">
-                <Loader2 className="w-8 h-8 text-amber-700 motion-safe:animate-spin mx-auto" />
+                <Loader2 className="w-8 h-8 text-[#8B5E34] motion-safe:animate-spin mx-auto" />
                 <p className="text-xs text-stone-500 mt-2 font-serif">Loading live schedule...</p>
               </div>
             ) : (
-              <div className="p-6 rounded-3xl bg-[#FAF7F0] border border-[#E6E0D2] space-y-4">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[#E6E0D2] pb-4">
+              <div className="card-spiritual glass-panel p-6 sm:p-8 rounded-3xl border border-[#E6E0D2] space-y-5">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[#E6E0D2] pb-5">
                   <div>
-                    <h3 className="font-serif text-xl font-bold text-[#2C2421]">
+                    <h3 className="heading-card text-xl text-[#2C2421]">
                       {sessionInfo?.title || 'Hanuman Kriya 11-Day Live Masterclass'}
                     </h3>
-                    <p className="text-xs text-stone-500">
+                    <p className="text-xs text-stone-600 mt-0.5">
                       Daily Schedule: 6:30 AM – 7:30 AM IST • Live on Zoom with Master Gorli Peddi Raju Garu
                     </p>
                   </div>
                   <button
+                    type="button"
                     onClick={handleJoinWhatsApp}
-                    className="btn-spiritual px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition"
+                    className="btn-spiritual px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition shadow-xs cursor-pointer min-h-[44px]"
                   >
                     <MessageCircle className="w-4 h-4" />
                     <span>Join Live Community</span>
@@ -501,18 +523,22 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
 
                 <div className="divide-y divide-[#E6E0D2]">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((dayNum) => (
-                    <div key={dayNum} className="py-3 flex justify-between items-center text-xs">
+                    <div key={dayNum} className="py-3.5 flex justify-between items-center text-xs">
                       <div className="flex items-center gap-3">
-                        <span className="w-7 h-7 rounded-full bg-[#EFE9DD] text-[#3B234A] font-mono font-bold flex items-center justify-center shrink-0">
+                        <span className="w-8 h-8 rounded-full bg-[#FAF5EE] text-[#3B234A] font-mono font-bold flex items-center justify-center shrink-0 border border-[#E6E0D2]">
                           {dayNum}
                         </span>
                         <div>
-                          <span className="font-bold text-stone-800 block">Day {dayNum} Live Guided Practice</span>
-                          <span className="text-[10px] text-stone-500 font-mono">6:30 AM – 7:30 AM IST</span>
+                          <span className="font-bold text-stone-900 block">Day {dayNum} Live Guided Practice</span>
+                          <span className="text-[11px] text-stone-500 font-mono">6:30 AM – 7:30 AM IST</span>
                         </div>
                       </div>
 
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                        user.subscription.hasActivePlan
+                          ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                          : 'bg-stone-100 text-stone-600 border border-stone-200'
+                      }`}>
                         {user.subscription.hasActivePlan ? 'Confirmed' : 'Enrollment Required'}
                       </span>
                     </div>
@@ -527,7 +553,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
         {activePortalTab === 'purchases' && (
           <div role="tabpanel" id="panel-purchases" aria-labelledby="tab-purchases" className="space-y-6 animate-fadeIn">
             <div>
-              <h3 className="font-serif text-xl font-bold text-[#2C2421]">My Purchases & Invoices</h3>
+              <h3 className="heading-card text-xl text-[#2C2421]">My Purchases & Invoices</h3>
               <p className="text-xs text-stone-500">Official ledger of your active entitlements and transactions.</p>
             </div>
 
@@ -538,8 +564,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                   <span>{purchasesError}</span>
                 </div>
                 <button
+                  type="button"
                   onClick={fetchPurchases}
-                  className="btn-spiritual btn-primary px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer"
+                  className="btn-spiritual btn-primary px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer min-h-[44px]"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   <span>Retry Loading Purchases</span>
@@ -549,13 +576,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
 
             {isLoadingPurchases ? (
               <div className="py-12 text-center">
-                <Loader2 className="w-8 h-8 text-amber-700 motion-safe:animate-spin mx-auto" />
+                <Loader2 className="w-8 h-8 text-[#8B5E34] motion-safe:animate-spin mx-auto" />
                 <p className="text-xs text-stone-500 mt-2 font-serif">Loading purchase history...</p>
               </div>
             ) : (
-              <div className="rounded-3xl bg-white border border-[#E6E0D2] overflow-hidden shadow-xs">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-[#FAF7F0] text-stone-500 uppercase tracking-wider text-[10px] border-b border-[#E6E0D2]">
+              <div className="card-spiritual rounded-3xl bg-white border border-[#E6E0D2] overflow-hidden shadow-xs">
+                <table className="table-spiritual w-full text-left text-xs">
+                  <thead className="bg-[#FAF7F0] text-stone-600 uppercase tracking-wider text-[10px] border-b border-[#E6E0D2]">
                     <tr>
                       <th className="p-4">Order ID</th>
                       <th className="p-4">Product / Purpose</th>
@@ -566,12 +593,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                   </thead>
                   <tbody className="divide-y divide-[#E6E0D2]">
                     {myPurchases.map((p, idx) => (
-                      <tr key={idx} className="hover:bg-amber-50/30">
-                        <td className="p-4 font-mono text-stone-500">{p.razorpayOrderId}</td>
+                      <tr key={idx} className="hover:bg-amber-50/30 transition-colors">
+                        <td className="p-4 font-mono text-stone-600">{p.razorpayOrderId}</td>
                         <td className="p-4 font-medium text-stone-900">{p.purpose}</td>
                         <td className="p-4 font-bold text-stone-900">₹{p.amount}</td>
                         <td className="p-4">
-                          <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                          <span className="badge-spiritual font-bold text-[10px]">
                             {p.status}
                           </span>
                         </td>
@@ -582,7 +609,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                     ))}
                     {myPurchases.length === 0 && (
                       <tr>
-                        <td colSpan={5} className="p-8 text-center text-stone-500">
+                        <td colSpan={5} className="p-8 text-center text-stone-500 italic">
                           No purchases found. Explore our sacred sessions or book library to enroll.
                         </td>
                       </tr>
@@ -597,14 +624,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
         {/* TAB 4: 1-ON-1 BOOKINGS */}
         {activePortalTab === 'bookings' && (
           <div role="tabpanel" id="panel-bookings" aria-labelledby="tab-bookings" className="space-y-6 animate-fadeIn">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div>
-                <h3 className="font-serif text-xl font-bold text-[#2C2421]">1-on-1 Guidance Appointments</h3>
+                <h3 className="heading-card text-xl text-[#2C2421]">1-on-1 Guidance Appointments</h3>
                 <p className="text-xs text-stone-500">Your direct mentoring inquiries with Master Gorli Peddi Raju Garu.</p>
               </div>
               <button
+                type="button"
                 onClick={() => setActiveTab('onetoone')}
-                className="btn-spiritual px-4 py-2 rounded-xl bg-[#3B234A] text-white font-bold text-xs uppercase tracking-wider"
+                className="btn-spiritual btn-primary px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider cursor-pointer min-h-[44px]"
               >
                 Book New Session
               </button>
@@ -617,8 +645,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                   <span>{bookingsError}</span>
                 </div>
                 <button
+                  type="button"
                   onClick={fetchBookings}
-                  className="btn-spiritual btn-primary px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer"
+                  className="btn-spiritual btn-primary px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer min-h-[44px]"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   <span>Retry Loading Bookings</span>
@@ -628,22 +657,22 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
 
             {isLoadingBookings ? (
               <div className="py-12 text-center">
-                <Loader2 className="w-8 h-8 text-amber-700 motion-safe:animate-spin mx-auto" />
+                <Loader2 className="w-8 h-8 text-[#8B5E34] motion-safe:animate-spin mx-auto" />
                 <p className="text-xs text-stone-500 mt-2 font-serif">Loading guidance bookings...</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {myBookings.map((b) => (
-                  <div key={b.id} className="p-5 rounded-2xl bg-white border border-[#E6E0D2] shadow-xs space-y-3">
+                  <div key={b.id} className="card-spiritual p-5 rounded-2xl bg-white border border-[#E6E0D2] shadow-xs space-y-3">
                     <div className="flex justify-between items-start">
                       <div>
                         <span className="text-[10px] font-bold text-[#8B5E34] uppercase tracking-wider font-mono">
                           Booking #{b.id}
                         </span>
-                        <h4 className="font-serif font-bold text-base text-stone-900">{b.category}</h4>
+                        <h4 className="heading-card text-base text-stone-900">{b.category}</h4>
                       </div>
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                        b.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                        b.status === 'CONFIRMED' ? 'badge-spiritual' : 'badge-plum'
                       }`}>
                         {b.status}
                       </span>
@@ -658,7 +687,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                   </div>
                 ))}
                 {myBookings.length === 0 && (
-                  <div className="col-span-2 p-8 text-center bg-stone-50 rounded-2xl border border-stone-200 text-stone-500 text-xs">
+                  <div className="col-span-2 p-8 text-center bg-[#FAF8F5] rounded-2xl border border-[#E6E0D2] text-stone-500 text-xs italic">
                     You have not scheduled any 1-on-1 guidance appointments yet.
                   </div>
                 )}

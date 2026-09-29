@@ -12,7 +12,7 @@ export const FloatingBookButton: React.FC = () => {
     <aside aria-label="Sacred Books & Audio Podcasts Quick Access">
       <button
         onClick={() => openBookDrawer()}
-        className="fixed right-2 sm:right-3 top-1/2 -translate-y-1/2 z-40 bg-[#FAF7F0]/95 hover:bg-[#3B234A] text-[#8B5E34] hover:text-white border border-[#D8CFBF] hover:border-[#3B234A] px-2.5 py-3.5 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col items-center gap-2 group backdrop-blur-md cursor-pointer transform hover:-translate-x-1.5 active:scale-95"
+        className="fixed right-2 sm:right-3 top-1/2 -translate-y-1/2 z-40 bg-[#FAF8F5]/95 hover:bg-[#3B234A] text-[#8B5E34] hover:text-white border border-[#D8CFBF] hover:border-[#3B234A] px-3 py-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col items-center gap-2 group backdrop-blur-md cursor-pointer transform hover:-translate-x-1.5 active:scale-95 min-h-[48px] min-w-[44px]"
         title="Sacred Book Library & Audio Podcasts"
         aria-label="Open Sacred Book Library & Audio Podcasts"
       >

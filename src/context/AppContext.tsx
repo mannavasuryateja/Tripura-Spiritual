@@ -87,6 +87,9 @@ interface AppContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: typeof en;
+  theme: 'light' | 'dark';
+  setTheme: (theme: 'light' | 'dark') => void;
+  toggleTheme: () => void;
   user: UserProfile;
   refreshUserProfile: () => Promise<void>;
   sendOtp: (phone: string) => Promise<{ success: boolean; message: string }>;
@@ -169,6 +172,40 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const t = getTranslation(language);
+
+  // 1b. Theme state (Light / Dark Mode)
+  const [theme, setThemeState] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('tripura_theme');
+    if (saved === 'dark' || saved === 'light') return saved;
+    return 'light';
+  });
+
+  const applyTheme = (newTheme: 'light' | 'dark') => {
+    if (typeof document !== 'undefined') {
+      if (newTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark');
+      }
+    }
+  };
+
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
+
+  const setTheme = (newTheme: 'light' | 'dark') => {
+    setThemeState(newTheme);
+    localStorage.setItem('tripura_theme', newTheme);
+    applyTheme(newTheme);
+  };
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+  };
 
   // 2. User Authentication State (Database & JWT Backed)
   const [user, setUser] = useState<UserProfile>(() => {
@@ -471,6 +508,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         language,
         setLanguage,
         t,
+        theme,
+        setTheme,
+        toggleTheme,
         user,
         refreshUserProfile,
         sendOtp,

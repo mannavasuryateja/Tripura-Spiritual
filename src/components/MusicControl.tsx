@@ -25,19 +25,20 @@ export const MusicControl: React.FC = () => {
       {/* Main Play/Pause Ambient Button */}
       <button
         onClick={toggleMusicPlay}
-        className={`px-3.5 py-1.5 rounded-full text-[11px] font-medium tracking-[0.15em] uppercase border transition-all duration-300 flex items-center gap-1.5 ${
+        className={`px-3.5 py-2 rounded-full text-[11px] font-semibold tracking-[0.15em] uppercase border transition-all duration-300 flex items-center gap-1.5 cursor-pointer min-h-[44px] ${
           isMusicPlaying
             ? 'bg-[#EFE9DD] text-[#2C2421] border-[#D1A559] shadow-xs'
             : 'bg-transparent text-[#5C534E] hover:text-[#2C2421] border-[#CFC5B6] hover:border-[#8B5E34]'
         }`}
         title={t.music.label}
+        aria-label={isMusicPlaying ? "Pause ambient sound" : "Play ambient sound"}
       >
         <span className="text-xs">♪</span>
         <span>{isMusicPlaying ? t.music.playing : 'AMBIENT'}</span>
         {isMusicPlaying ? (
-          <Pause className="w-3 h-3 text-[#8B5E34] ml-0.5" />
+          <Pause className="w-3.5 h-3.5 text-[#8B5E34] ml-0.5" />
         ) : (
-          <Play className="w-3 h-3 text-[#8B5E34] ml-0.5 fill-[#8B5E34]" />
+          <Play className="w-3.5 h-3.5 text-[#8B5E34] ml-0.5 fill-[#8B5E34]" />
         )}
       </button>
 
@@ -46,36 +47,36 @@ export const MusicControl: React.FC = () => {
         <div className="relative">
           <button
             onClick={() => setShowVolumePopover(!showVolumePopover)}
-            className={`p-1.5 rounded-full border transition-all ${
+            className={`p-2 rounded-full border transition-all cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center ${
               showVolumePopover
                 ? 'bg-[#3B234A] text-white border-[#3B234A]'
-                : 'bg-[#FAF7F0] text-[#5C534E] hover:text-[#2C2421] border-[#D8CFBF]'
+                : 'bg-[#FAF8F5] text-[#5C534E] hover:text-[#2C2421] border-[#D8CFBF]'
             }`}
             title="Adjust Ambient Volume"
             aria-label="Adjust Ambient Volume"
           >
             {isMusicMuted ? (
-              <VolumeX className="w-3.5 h-3.5 text-rose-500" />
+              <VolumeX className="w-4 h-4 text-rose-500" />
             ) : (
-              <Volume2 className="w-3.5 h-3.5 text-[#8B5E34]" />
+              <Volume2 className="w-4 h-4 text-[#8B5E34]" />
             )}
           </button>
 
           {/* Volume Control Popover */}
           {showVolumePopover && (
-            <div className="absolute right-0 top-10 bg-[#FAF7F0] p-4 rounded-2xl shadow-xl border border-[#D8CFBF] z-50 w-56 space-y-3 animate-fadeIn text-[#2C2421]">
+            <div className="absolute right-0 top-12 bg-[#FAF8F5] p-4 rounded-3xl shadow-2xl border border-[#D8CFBF] z-50 w-60 space-y-3.5 animate-fadeIn text-[#2C2421]">
               <div className="flex items-center justify-between text-xs font-semibold">
                 <span className="flex items-center gap-1.5 text-[#8B5E34]">
                   <Sliders className="w-3.5 h-3.5" />
                   <span>Ambient Volume</span>
                 </span>
-                <span className="font-mono text-[11px] px-2 py-0.5 rounded-full bg-[#EFE9DD] font-bold">
+                <span className="font-mono text-[11px] px-2.5 py-0.5 rounded-full bg-[#EFE9DD] font-bold">
                   {volumePercent}%
                 </span>
               </div>
 
               {/* Slider */}
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <input
                   type="range"
                   min="0"
@@ -86,9 +87,9 @@ export const MusicControl: React.FC = () => {
                     if (isMusicMuted) toggleMusicMute();
                     setMusicVolume(parseFloat(e.target.value));
                   }}
-                  className="w-full h-1.5 bg-[#D8CFBF] rounded-lg appearance-none cursor-pointer accent-[#8B5E34]"
+                  className="w-full h-2 bg-[#D8CFBF] rounded-lg appearance-none cursor-pointer accent-[#8B5E34]"
                 />
-                <div className="flex justify-between text-[10px] text-stone-400 font-mono">
+                <div className="flex justify-between text-[10px] text-stone-500 font-mono">
                   <span>Mute</span>
                   <span>50%</span>
                   <span>100%</span>
@@ -99,19 +100,19 @@ export const MusicControl: React.FC = () => {
               <div className="pt-2 border-t border-[#E6E0D2] flex justify-between items-center">
                 <button
                   onClick={toggleMusicMute}
-                  className={`text-xs font-semibold px-3 py-1 rounded-lg border transition flex items-center gap-1.5 ${
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-xl border transition flex items-center gap-1.5 cursor-pointer min-h-[36px] ${
                     isMusicMuted
                       ? 'bg-rose-50 border-rose-200 text-rose-700'
                       : 'bg-white border-[#D8CFBF] text-[#5C534E] hover:text-[#2C2421]'
                   }`}
                 >
-                  {isMusicMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
+                  {isMusicMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
                   <span>{isMusicMuted ? 'Unmute' : 'Mute'}</span>
                 </button>
 
                 <button
                   onClick={() => setShowVolumePopover(false)}
-                  className="text-[11px] text-stone-400 hover:text-stone-700 underline"
+                  className="text-xs text-stone-500 hover:text-stone-900 underline cursor-pointer min-h-[36px] px-2 py-1"
                 >
                   Done
                 </button>
@@ -123,4 +124,3 @@ export const MusicControl: React.FC = () => {
     </div>
   );
 };
-

@@ -11,13 +11,13 @@ export const About: React.FC = () => {
       <section className="relative py-16 sm:py-20 bg-gradient-to-b from-[#FAF7F0] via-[#F5EFE6] to-[#FAF8F5] border-b border-[#E6E0D2] overflow-hidden mandala-bg">
         <div className="section-container relative z-10 text-center space-y-4">
           <ScrollReveal animation="fade-up" delay={50}>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#EFE9DD] text-[#3B234A] text-xs font-bold uppercase tracking-widest border border-[#D8CFBF]">
+            <div className="badge-eyebrow bg-[#EFE9DD] text-[#3B234A] border border-[#D8CFBF] mx-auto">
               <Sparkles className="w-3.5 h-3.5 text-[#8B5E34]" />
               <span>Master's Direct Voice & Philosophy</span>
             </div>
           </ScrollReveal>
           <ScrollReveal animation="fade-up" delay={120}>
-            <h1 className="heading-serif text-4xl sm:text-5xl lg:text-6xl text-[#2C2421]">
+            <h1 className="heading-hero text-[#2C2421]">
               About Tripura Spiritual
             </h1>
           </ScrollReveal>
@@ -34,7 +34,7 @@ export const About: React.FC = () => {
         
         {/* Direct First-Person Master Showcase */}
         <ScrollReveal animation="hero-zoom" duration={850}>
-          <div className="glass-panel p-8 sm:p-14 rounded-3xl border border-[#E6E0D2] shadow-xl space-y-10">
+          <div className="card-spiritual glass-panel p-8 sm:p-14 shadow-xl space-y-10">
             
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
               
@@ -61,7 +61,7 @@ export const About: React.FC = () => {
                   <span className="section-eyebrow">
                     Spiritual Guide & Healer
                   </span>
-                  <h2 className="heading-serif text-3xl sm:text-4xl text-[#2C2421]">
+                  <h2 className="heading-section text-[#2C2421]">
                     "I am Gorli Peddi Raju"
                   </h2>
                   <p className="text-sm font-semibold text-[#8B5E34]">
@@ -83,7 +83,7 @@ export const About: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="p-4 bg-[#FAF7F0] rounded-2xl border border-[#E6E0D2] flex items-start gap-3 text-xs italic text-stone-800">
+                <div className="p-4 bg-[#FAF8F5] rounded-2xl border border-[#E6E0D2] flex items-start gap-3 text-xs italic text-stone-800">
                   <Quote className="w-5 h-5 text-[#8B5E34] shrink-0 mt-0.5" />
                   <span>
                     "Spiritual awakening is not about escaping your family or career. It is about bringing 100% awareness and joyful presence into every single breath you take."
@@ -94,32 +94,32 @@ export const About: React.FC = () => {
             </div>
 
             {/* 3 Core Pillars in Master's Words */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-[#F0EBE1]">
-              <div className="p-6 rounded-2xl bg-white border border-[#E6E0D2] shadow-xs space-y-2 text-center">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-[#E6E0D2]">
+              <div className="card-surface space-y-2 text-center">
                 <div className="w-12 h-12 rounded-xl bg-[#EFE9DD] text-[#3B234A] mx-auto flex items-center justify-center">
                   <BookOpen className="w-6 h-6" />
                 </div>
-                <h3 className="heading-serif text-lg font-bold text-[#2C2421]">1. Authentic Wisdom</h3>
+                <h3 className="heading-card text-[#2C2421]">1. Authentic Wisdom</h3>
                 <p className="text-stone-600 text-xs leading-relaxed font-light">
                   I break down the profound Sanskrit secrets of Tripura Rahasya, Gita, and Yoga Vasistha into crystal-clear actionable principles.
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl bg-white border border-[#E6E0D2] shadow-xs space-y-2 text-center">
+              <div className="card-surface space-y-2 text-center">
                 <div className="w-12 h-12 rounded-xl bg-[#EFE9DD] text-[#3B234A] mx-auto flex items-center justify-center">
                   <Sun className="w-6 h-6" />
                 </div>
-                <h3 className="heading-serif text-lg font-bold text-[#2C2421]">2. Daily Guided Practice</h3>
+                <h3 className="heading-card text-[#2C2421]">2. Guided Practice</h3>
                 <p className="text-stone-600 text-xs leading-relaxed font-light">
                   I guide you every morning at 6:30 AM in live pranayama, Kriya postures, and dhyana, answering your personal questions directly.
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl bg-white border border-[#E6E0D2] shadow-xs space-y-2 text-center">
+              <div className="card-surface space-y-2 text-center">
                 <div className="w-12 h-12 rounded-xl bg-[#EFE9DD] text-[#3B234A] mx-auto flex items-center justify-center">
                   <Compass className="w-6 h-6" />
                 </div>
-                <h3 className="heading-serif text-lg font-bold text-[#2C2421]">3. Permanent Transformation</h3>
+                <h3 className="heading-card text-[#2C2421]">3. Permanent Transformation</h3>
                 <p className="text-stone-600 text-xs leading-relaxed font-light">
                   I give you lifelong inner anchors so you remain calm, emotionally unshakable, and centered in joy amidst all life situations.
                 </p>
@@ -131,12 +131,12 @@ export const About: React.FC = () => {
 
         {/* Certifications & Healing Credentials with Images */}
         <ScrollReveal animation="fade-up">
-          <div className="glass-panel p-8 sm:p-12 rounded-3xl border border-[#E6E0D2] shadow-lg space-y-8">
+          <div className="card-spiritual p-8 sm:p-12 shadow-lg space-y-8">
             <div className="section-header">
               <span className="section-eyebrow">
                 My Training & Certifications
               </span>
-              <h2 className="heading-serif text-3xl font-bold text-[#2C2421]">
+              <h2 className="heading-section text-[#2C2421]">
                 Holistic Disciplines & Lineages
               </h2>
               <p className="text-stone-600 text-sm font-light">
@@ -153,7 +153,7 @@ export const About: React.FC = () => {
                 { title: "Advaita & Non-Dual Meditation", desc: "Direct lineage study of Tripura Rahasya and Nisargadatta Maharaj self-inquiry methods.", image: "/certificates/meditation-specialist.jpg" },
                 { title: "Aura & Energy Analysis", desc: "Specialized in subtle body aura prediction, vitality assessment, and spiritual roadmaps.", image: "/certificates/advanced-training.jpg" }
               ].map((cert, idx) => (
-                <div key={idx} className="bg-white rounded-2xl overflow-hidden border border-[#E6E0D2] shadow-xs hover:shadow-md transition flex flex-col justify-between group">
+                <div key={idx} className="card-spiritual card-interactive overflow-hidden flex flex-col justify-between group">
                   <div>
                     {/* Certificate Thumbnail */}
                     <div className="relative aspect-[16/10] overflow-hidden bg-stone-100 border-b border-[#E6E0D2]">
@@ -173,7 +173,7 @@ export const About: React.FC = () => {
                     </div>
 
                     <div className="p-5 space-y-2">
-                      <h4 className="heading-serif font-bold text-base text-[#2C2421] group-hover:text-[#8B5E34] transition-colors">{cert.title}</h4>
+                      <h4 className="heading-card text-base text-[#2C2421] group-hover:text-[#8B5E34] transition-colors">{cert.title}</h4>
                       <p className="text-xs text-stone-600 font-light leading-relaxed">{cert.desc}</p>
                     </div>
                   </div>
@@ -185,12 +185,12 @@ export const About: React.FC = () => {
 
         {/* Connect Directly With Master Gorli Peddi Raju Garu */}
         <ScrollReveal animation="fade-up">
-          <div className="p-8 sm:p-12 rounded-3xl bg-[#3B234A] text-white shadow-xl space-y-8 text-center">
+          <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-[#3B234A] via-[#2A1836] to-[#1C0F24] text-white shadow-xl space-y-8 text-center border border-white/10">
             <div className="max-w-2xl mx-auto space-y-3">
-              <span className="text-xs font-bold uppercase tracking-widest text-amber-300">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#D1A559]">
                 Open Avenues of Communication
               </span>
-              <h3 className="heading-serif text-3xl font-bold">
+              <h3 className="heading-section text-white">
                 Connect Directly With Me
               </h3>
               <p className="text-stone-300 text-sm font-light leading-relaxed">
@@ -200,24 +200,24 @@ export const About: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto text-left">
               {/* Email */}
-              <a href="mailto:g.peddiraju888@gmail.com" className="btn-spiritual flex items-center gap-4 p-4 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/20 transition">
+              <a href="mailto:g.peddiraju888@gmail.com" className="btn-spiritual flex items-center gap-4 p-4 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/20 transition min-h-[44px]">
                 <div className="h-12 w-12 rounded-xl bg-[#D1A559] text-stone-900 flex items-center justify-center shrink-0">
                   <Mail className="w-6 h-6" />
                 </div>
                 <div>
                   <p className="text-[11px] text-stone-300 uppercase tracking-wider font-semibold">Direct Email ID</p>
-                  <p className="text-amber-200 font-bold text-sm">g.peddiraju888@gmail.com</p>
+                  <p className="text-[#D1A559] font-bold text-sm">g.peddiraju888@gmail.com</p>
                 </div>
               </a>
 
               {/* Phone */}
-              <a href="tel:+918919307373" className="btn-spiritual flex items-center gap-4 p-4 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/20 transition">
+              <a href="tel:+918919307373" className="btn-spiritual flex items-center gap-4 p-4 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/20 transition min-h-[44px]">
                 <div className="h-12 w-12 rounded-xl bg-[#D1A559] text-stone-900 flex items-center justify-center shrink-0">
                   <Phone className="w-6 h-6" />
                 </div>
                 <div>
                   <p className="text-[11px] text-stone-300 uppercase tracking-wider font-semibold">Phone & WhatsApp</p>
-                  <p className="text-amber-200 font-bold text-sm">+91 891-9307373</p>
+                  <p className="text-[#D1A559] font-bold text-sm">+91 891-9307373</p>
                 </div>
               </a>
             </div>
@@ -228,7 +228,7 @@ export const About: React.FC = () => {
                 href="https://chat.whatsapp.com/GHY78TripuraMasterclassLive" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="btn-spiritual flex items-center gap-2 px-6 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-500 font-bold text-xs tracking-wider uppercase text-white shadow-md cursor-pointer"
+                className="btn-spiritual flex items-center gap-2 px-6 py-3.5 rounded-full bg-emerald-700 hover:bg-emerald-600 font-bold text-xs tracking-wider uppercase text-white shadow-md cursor-pointer min-h-[44px]"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>Join WhatsApp Community</span>
@@ -236,7 +236,7 @@ export const About: React.FC = () => {
 
               <a 
                 href="tel:+918919307373"
-                className="btn-spiritual btn-outline flex items-center gap-2 px-6 py-3.5 border-white/30 text-white hover:bg-white/20 font-bold text-xs tracking-wider uppercase cursor-pointer"
+                className="btn-spiritual btn-outline flex items-center gap-2 px-6 py-3.5 border-white/30 text-white hover:bg-white/20 font-bold text-xs tracking-wider uppercase cursor-pointer min-h-[44px]"
               >
                 <Phone className="w-4 h-4" />
                 <span>Call for Inquiries</span>
@@ -249,6 +249,7 @@ export const About: React.FC = () => {
     </div>
   );
 };
+
 
 
 

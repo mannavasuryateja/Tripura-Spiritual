@@ -3,6 +3,7 @@ import { AdminPanel } from '../components/AdminPanel';
 import { Shield } from 'lucide-react';
 import { RoleGuard } from '../components/RoleGuard';
 import { useApp } from '../context/AppContext';
+import { ScrollReveal } from '../components/ScrollReveal';
 
 interface AdminProps {
   setActiveTab?: (tab: string) => void;
@@ -16,31 +17,38 @@ export const Admin: React.FC<AdminProps> = ({ setActiveTab }) => {
       <RoleGuard
         allowedRoles={['ROLE_ADMIN']}
         fallback={
-          <div className="max-w-lg mx-auto p-8 bg-purple-50 rounded-3xl border border-purple-200 text-center space-y-4 my-12">
-            <Shield className="w-12 h-12 text-purple-700 mx-auto" />
-            <h2 className="font-serif text-2xl font-bold text-purple-950">Administrator Access Required</h2>
-            <p className="text-xs text-purple-700 leading-relaxed">
-              This portal is strictly restricted to platform administrators. Please sign in with your administrative credentials to access this matrix.
-            </p>
-            <div className="flex flex-wrap justify-center gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  if (setActiveTab) setActiveTab('login');
-                }}
-                className="btn-spiritual btn-primary px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
-              >
-                Sign In to Admin
-              </button>
-              <button
-                type="button"
-                onClick={openAuthModal}
-                className="btn-spiritual btn-outline px-6 py-2.5 rounded-full text-purple-900 border-purple-300 hover:bg-purple-100 text-xs font-bold uppercase tracking-wider cursor-pointer"
-              >
-                Sign In with OTP
-              </button>
+          <ScrollReveal animation="hero-zoom">
+            <div className="card-spiritual glass-panel max-w-lg mx-auto p-8 sm:p-10 rounded-3xl border border-[#E6E0D2] text-center space-y-5 my-12 shadow-xl">
+              <div className="w-16 h-16 rounded-full bg-[#FAF5EE] text-[#3B234A] flex items-center justify-center mx-auto border border-[#E6E0D2] shadow-inner">
+                <Shield className="w-8 h-8 text-[#8B5E34]" />
+              </div>
+              <div className="space-y-2">
+                <span className="section-eyebrow">Restricted Portal</span>
+                <h2 className="heading-section text-2xl text-[#2C2421]">Administrator Access Required</h2>
+                <p className="text-xs text-stone-600 leading-relaxed max-w-sm mx-auto">
+                  This portal is strictly restricted to platform administrators. Please sign in with your administrative credentials to access this matrix.
+                </p>
+              </div>
+              <div className="flex flex-wrap justify-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (setActiveTab) setActiveTab('login');
+                  }}
+                  className="btn-spiritual btn-primary px-7 py-3 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer min-h-[44px]"
+                >
+                  Sign In to Admin
+                </button>
+                <button
+                  type="button"
+                  onClick={openAuthModal}
+                  className="btn-spiritual btn-outline px-7 py-3 rounded-full text-[#3B234A] border-[#3B234A] hover:bg-[#3B234A]/10 text-xs font-bold uppercase tracking-wider cursor-pointer min-h-[44px]"
+                >
+                  Sign In with OTP
+                </button>
+              </div>
             </div>
-          </div>
+          </ScrollReveal>
         }
       >
         <AdminPanel />
@@ -50,4 +58,3 @@ export const Admin: React.FC<AdminProps> = ({ setActiveTab }) => {
 };
 
 export default Admin;
-

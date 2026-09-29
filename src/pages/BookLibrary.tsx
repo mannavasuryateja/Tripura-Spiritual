@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import type { BookItem } from '../context/AppContext';
 import { booksApi } from '../api/client';
-import { BookOpen, Play, Headphones, Sparkles, CheckCircle2, ShieldCheck, HelpCircle, AlertCircle } from 'lucide-react';
+import { BookOpen, Play, Headphones, Sparkles, CheckCircle2, ShieldCheck, HelpCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import { ScrollReveal, StaggerContainer } from '../components/ScrollReveal';
 
 export const BookLibrary: React.FC = () => {
@@ -37,33 +37,35 @@ export const BookLibrary: React.FC = () => {
   }, []);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16 animate-fadeIn text-[#2C2421]">
+    <div className="section-container py-10 space-y-14 animate-fadeIn text-[#2C2421]">
       
-      {/* Hero Header */}
-      <ScrollReveal animation="hero-zoom">
-        <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#EFE9DD] text-[#3B234A] text-xs font-bold uppercase tracking-widest border border-[#D8CFBF]">
-            <Headphones className="w-3.5 h-3.5 text-[#8B5E34]" />
-            <span>Master's Sacred Audio Discourses & Books</span>
+      {/* Short Page Header Band */}
+      <div className="card-spiritual bg-gradient-to-r from-[#FAF7F0] via-[#F5EFE6] to-[#FAF7F0] mandala-bg py-10 px-6 sm:px-12 text-center shadow-xs">
+        <ScrollReveal animation="hero-zoom">
+          <div className="section-header">
+            <div className="badge-eyebrow bg-[#EFE9DD] text-[#3B234A] border border-[#D8CFBF] mx-auto">
+              <Headphones className="w-3.5 h-3.5 text-[#8B5E34]" />
+              <span>Master's Sacred Audio Discourses & Books</span>
+            </div>
+            <h1 className="heading-section text-[#2C2421]">
+              Spiritual Book Library & Podcasts
+            </h1>
+            <p className="text-stone-600 text-sm sm:text-base font-light leading-relaxed max-w-2xl mx-auto">
+              Read the problem statement and narrative summary for <strong>100% Free</strong>. Listen to <strong>5 minutes of free preview</strong> on every audio discourse before unlocking the complete commentary package by <strong>Master Gorli Peddi Raju Garu</strong>.
+            </p>
           </div>
-          <h1 className="font-serif text-4xl sm:text-5xl font-bold text-[#2C2421]">
-            Spiritual Book Library & Podcasts
-          </h1>
-          <p className="text-base text-stone-600 leading-relaxed font-light">
-            Read the problem statement and narrative summary for <strong>100% Free</strong>. Listen to <strong>5 minutes of free preview</strong> on every audio discourse before unlocking the complete commentary package by <strong>Master Gorli Peddi Raju Garu</strong>.
-          </p>
-        </div>
-      </ScrollReveal>
+        </ScrollReveal>
+      </div>
 
       {/* Free Experience Policy Banner */}
       <ScrollReveal animation="fade-up" delay={80}>
-        <div className="p-6 rounded-3xl bg-gradient-to-r from-amber-900 via-stone-900 to-[#3B234A] text-white shadow-xl max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-[#3B234A] via-[#2A1836] to-[#1C0F24] text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-white/10">
           <div className="space-y-1.5">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-amber-300">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#D1A559]">
               <Sparkles className="w-4 h-4" />
               <span>Zero-Risk Discovery Model</span>
             </div>
-            <h3 className="font-serif text-xl font-bold">5-Minute Free Preview on All Audio Chapters</h3>
+            <h3 className="heading-card text-xl font-bold text-white">5-Minute Free Preview on All Audio Chapters</h3>
             <p className="text-xs text-stone-300 max-w-xl leading-relaxed">
               Explore the core existential problem, read the master’s summary, and listen to the first 5 minutes of any chapter for free. Purchase only when deeply aligned with the teaching.
             </p>
@@ -71,10 +73,11 @@ export const BookLibrary: React.FC = () => {
 
           {books.length > 0 && (
             <button
+              type="button"
               onClick={() => openBookAudioPlayer(books[0])}
-              className="px-6 py-3 rounded-full bg-amber-400 hover:bg-amber-300 text-stone-950 font-bold text-xs uppercase tracking-widest shadow-lg transition flex items-center gap-2 shrink-0"
+              className="btn-spiritual btn-gold px-6 py-3.5 font-bold text-xs uppercase tracking-widest shadow-lg flex items-center gap-2 shrink-0 cursor-pointer min-h-[44px]"
             >
-              <Play className="w-3.5 h-3.5 fill-stone-950" />
+              <Play className="w-3.5 h-3.5 fill-[#201812]" />
               <span>Play Sample Discourse</span>
             </button>
           )}
@@ -85,7 +88,7 @@ export const BookLibrary: React.FC = () => {
       {isLoading && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 motion-safe:animate-pulse">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white rounded-3xl overflow-hidden border border-[#E6E0D2] shadow-xs space-y-4">
+            <div key={i} className="card-spiritual overflow-hidden shadow-xs space-y-4">
               <div className="aspect-[16/10] bg-[#EFE9DD]"></div>
               <div className="p-6 space-y-3">
                 <div className="w-24 h-4 bg-[#EFE9DD] rounded-full"></div>
@@ -100,15 +103,17 @@ export const BookLibrary: React.FC = () => {
 
       {/* Error State */}
       {error && !isLoading && (
-        <div className="p-8 rounded-3xl bg-rose-50 border border-rose-200 max-w-xl mx-auto text-center space-y-4">
+        <div className="card-spiritual p-8 bg-rose-50 border-rose-200 max-w-xl mx-auto text-center space-y-4 shadow-sm">
           <AlertCircle className="w-10 h-10 text-rose-600 mx-auto" />
-          <h4 className="font-serif font-bold text-lg text-rose-900">Unable to load library</h4>
+          <h4 className="heading-card text-rose-900">Unable to load library</h4>
           <p className="text-xs text-rose-700">{error}</p>
           <button
+            type="button"
             onClick={fetchBooks}
-            className="px-6 py-2.5 rounded-full bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs uppercase tracking-wider transition cursor-pointer"
+            className="btn-spiritual btn-primary px-6 py-2.5 text-xs uppercase tracking-wider transition cursor-pointer min-h-[44px] gap-2"
           >
-            Retry Loading
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Retry Loading</span>
           </button>
         </div>
       )}
@@ -119,7 +124,7 @@ export const BookLibrary: React.FC = () => {
           <div className="w-16 h-16 rounded-full bg-[#EFE9DD] text-[#8B5E34] flex items-center justify-center mx-auto shadow-inner">
             <BookOpen className="w-8 h-8" />
           </div>
-          <h3 className="font-serif text-xl font-bold text-[#2C2421]">No Discourses Currently Published</h3>
+          <h3 className="heading-card text-xl text-[#2C2421]">No Discourses Currently Published</h3>
           <p className="text-xs text-stone-700 leading-relaxed font-light">Check back soon for Master Gorli Peddi Raju Garu's upcoming audio commentaries and sacred discourses.</p>
         </div>
       )}
@@ -133,25 +138,25 @@ export const BookLibrary: React.FC = () => {
             return (
               <div
                 key={book.id}
-                className="bg-white rounded-3xl overflow-hidden border border-[#E6E0D2] shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+                className="card-spiritual card-interactive overflow-hidden flex flex-col justify-between group"
               >
                 <div>
                   {/* Book Cover Banner */}
-                  <div className="relative aspect-[16/10] overflow-hidden bg-stone-900">
+                  <div className="relative aspect-[16/10] overflow-hidden bg-stone-900 rounded-t-[1.5rem]">
                     <img
                       src={book.coverImage || '/card3.jpg'}
                       alt={book.title}
                       onError={(e) => { e.currentTarget.src = '/card3.jpg'; }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-85"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-between p-5">
-                      <span className="self-start px-3 py-1 rounded-full bg-white/95 backdrop-blur-md text-[#2C2421] text-[10px] font-bold uppercase tracking-wider shadow-xs">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-between p-5">
+                      <span className="self-start px-3 py-1 rounded-full bg-white/95 backdrop-blur-md text-[#2C2421] text-[10px] font-bold uppercase tracking-wider shadow-xs border border-[#E6E0D2]">
                         {book.tag || 'Sacred Text'}
                       </span>
 
                       <div className="text-white space-y-1">
-                        <span className="text-[10px] font-mono text-amber-300 font-semibold">🎙 {book.duration || 'Discourses'} • {book.episodesCount} Chapters</span>
-                        <h3 className="font-serif text-xl font-bold">{book.title}</h3>
+                        <span className="text-[10px] font-mono text-[#D1A559] font-semibold">🎙 {book.duration || 'Discourses'} • {book.episodesCount} Chapters</span>
+                        <h3 className="heading-card text-xl text-white font-bold">{book.title}</h3>
                       </div>
                     </div>
                   </div>
@@ -159,15 +164,15 @@ export const BookLibrary: React.FC = () => {
                   {/* Details & Problem Statement */}
                   <div className="p-6 space-y-4">
                     {book.teluguTitle && (
-                      <span className="text-xs font-bold text-[#8B5E34] block">{book.teluguTitle}</span>
+                      <span className="text-xs font-bold text-[#8B5E34] block font-telugu">{book.teluguTitle}</span>
                     )}
                     <p className="text-xs text-stone-700 font-medium">Original Author: {book.author}</p>
                     
                     {/* Problem Statement Box */}
                     {book.problemStatement && (
-                      <div className="p-3.5 bg-amber-50 rounded-2xl border border-amber-200 text-xs space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-900 flex items-center gap-1">
-                          <HelpCircle className="w-3.5 h-3.5 text-amber-700" />
+                      <div className="p-3.5 bg-[#FAF8F5] rounded-2xl border border-[#E6E0D2] text-xs space-y-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#8B5E34] flex items-center gap-1">
+                          <HelpCircle className="w-3.5 h-3.5 text-[#8B5E34]" />
                           <span>Problem Solved:</span>
                         </span>
                         <p className="text-stone-800 italic leading-snug">
@@ -184,7 +189,7 @@ export const BookLibrary: React.FC = () => {
                 </div>
 
                 {/* Footer Actions */}
-                <div className="p-6 pt-0 border-t border-[#F2ECE1] mt-4 space-y-3">
+                <div className="p-6 pt-0 border-t border-[#E6E0D2] mt-4 space-y-3">
                   <div className="flex items-center justify-between pt-4">
                     <div>
                       <span className="text-[10px] text-stone-500 uppercase tracking-wider block font-bold">
@@ -204,8 +209,9 @@ export const BookLibrary: React.FC = () => {
 
                     <div className="flex items-center gap-2">
                       <button
+                        type="button"
                         onClick={() => openBookAudioPlayer(book)}
-                        className="px-4 py-2.5 rounded-xl bg-[#EFE9DD] hover:bg-[#E2D9C8] text-[#3B234A] text-xs font-bold uppercase tracking-wider transition flex items-center gap-1.5"
+                        className="btn-spiritual btn-outline px-4 py-2.5 text-[#3B234A] text-xs font-bold uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer min-h-[44px]"
                       >
                         <Play className="w-3.5 h-3.5 fill-[#3B234A]" />
                         <span>{isUnlocked ? 'Listen Now' : 'Free Preview'}</span>
@@ -213,6 +219,7 @@ export const BookLibrary: React.FC = () => {
 
                       {!isUnlocked && (
                         <button
+                          type="button"
                           onClick={() => {
                             openPaymentModal({
                               id: `book-${book.id}`,
@@ -223,7 +230,7 @@ export const BookLibrary: React.FC = () => {
                               bookId: Number(book.id)
                             });
                           }}
-                          className="px-4 py-2.5 rounded-xl bg-[#3B234A] hover:bg-[#2C1838] text-white text-xs font-bold uppercase tracking-wider transition shadow-sm"
+                          className="btn-spiritual btn-primary px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition shadow-sm cursor-pointer min-h-[44px]"
                         >
                           Unlock
                         </button>
@@ -240,12 +247,12 @@ export const BookLibrary: React.FC = () => {
 
       {/* Master Guarantee Card */}
       <ScrollReveal animation="fade-up">
-        <div className="p-8 rounded-3xl bg-[#FAF7F0] border border-[#E6E0D2] flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+        <div className="card-spiritual p-8 flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
           <div className="w-16 h-16 rounded-full bg-[#EFE9DD] text-[#8B5E34] flex items-center justify-center shrink-0 shadow-inner">
             <ShieldCheck className="w-8 h-8" />
           </div>
           <div className="space-y-1">
-            <h4 className="font-serif text-lg font-bold text-[#2C2421]">
+            <h4 className="heading-card text-lg text-[#2C2421]">
               Tripura Spiritual Sacred Transmission Guarantee
             </h4>
             <p className="text-xs text-stone-600 leading-relaxed font-light">

@@ -86,13 +86,13 @@ export const OneToOne: React.FC = () => {
     <div className="section-container py-10 space-y-12 text-[#2C2421]">
       
       {/* Short Page Header Band */}
-      <div className="rounded-3xl bg-gradient-to-r from-[#FAF7F0] via-[#F5EFE6] to-[#FAF7F0] mandala-bg border border-[#E6E0D2] py-10 px-6 sm:px-12 text-center shadow-xs">
+      <div className="card-spiritual bg-gradient-to-r from-[#FAF7F0] via-[#F5EFE6] to-[#FAF7F0] mandala-bg py-10 px-6 sm:px-12 text-center shadow-xs">
         <ScrollReveal animation="fade-up">
           <div className="section-header">
             <span className="section-eyebrow">
               Direct Mentorship with Gorli Peddi Raju Garu
             </span>
-            <h1 className="heading-section font-bold text-[#2C2421]">
+            <h1 className="heading-section text-[#2C2421]">
               {t.oneToOne.title}
             </h1>
             <p className="text-stone-600 text-sm sm:text-base font-light max-w-2xl mx-auto leading-relaxed">
@@ -104,16 +104,18 @@ export const OneToOne: React.FC = () => {
 
       {/* IMPORTANT CALENDAR LOCK NOTICE BANNER */}
       <ScrollReveal animation="fade-up" delay={100}>
-        <div className="p-5 rounded-2xl bg-amber-50 border border-amber-300 flex items-start gap-3.5 text-xs text-amber-950">
-          <Lock className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+        <div className="card-spiritual bg-[#FAF8F5] p-6 border-2 border-[#D1A559] flex items-start gap-4 text-xs shadow-xs">
+          <div className="w-10 h-10 rounded-full bg-[#EFE9DD] text-[#8B5E34] flex items-center justify-center shrink-0">
+            <Lock className="w-5 h-5" />
+          </div>
           <div className="space-y-1">
-            <p className="font-bold text-sm text-amber-900">
+            <p className="heading-card text-base text-[#2C2421]">
               Monthly Masterclass Schedule Notice (1st – 12th Locked)
             </p>
-            <p className="leading-relaxed text-amber-800">
+            <p className="leading-relaxed text-stone-700 font-light">
               Master Gorli Peddi Raju Garu conducts the 11-Day Live Immersion from the <strong>1st to the 11th</strong> of every month, with culmination & reviews on the <strong>12th</strong>. Therefore, 1-on-1 slots are open between the <strong>13th and the end of each month</strong>.
             </p>
-            <p className="font-semibold text-amber-900 pt-1">
+            <p className="font-semibold text-[#8B5E34] pt-1">
               *Requirement: Please pick at least 2 convenient dates (Primary & Alternative) of your free time.
             </p>
           </div>
@@ -124,7 +126,7 @@ export const OneToOne: React.FC = () => {
         
         {/* Category & Duration Selection Form */}
         <ScrollReveal animation="hero-zoom" className="lg:col-span-8">
-          <form onSubmit={handleBooking} className="glass-panel p-6 sm:p-8 rounded-3xl border border-[#E6E0D2] shadow-xl space-y-6">
+          <form onSubmit={handleBooking} className="card-spiritual glass-panel p-6 sm:p-8 shadow-xl space-y-6">
             
             {/* Step 1: Category */}
             <div className="space-y-3">
@@ -137,14 +139,14 @@ export const OneToOne: React.FC = () => {
                     type="button"
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`p-4 rounded-2xl border text-left transition ${
+                    className={`p-4 rounded-2xl border text-left transition cursor-pointer min-h-[44px] ${
                       selectedCategory === cat.id
-                        ? 'border-[#3B234A] bg-[#EFE9DD] text-[#3B234A] font-semibold shadow-xs'
-                        : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50'
+                        ? 'border-[#3B234A] bg-[#EFE9DD] text-[#3B234A] font-semibold shadow-xs ring-1 ring-[#3B234A]'
+                        : 'border-[#E6E0D2] bg-white text-stone-700 hover:bg-[#FAF8F5]'
                     }`}
                   >
-                    <span className="block text-sm font-serif font-bold text-stone-900 mb-1">{cat.label}</span>
-                    <span className="text-xs text-stone-700 block leading-snug font-light">{cat.desc}</span>
+                    <span className="block text-sm font-serif font-bold text-[#2C2421] mb-1">{cat.label}</span>
+                    <span className="text-xs text-stone-600 block leading-snug font-light">{cat.desc}</span>
                   </button>
                 ))}
               </div>
@@ -162,7 +164,7 @@ export const OneToOne: React.FC = () => {
                   className={`p-4 rounded-2xl border text-center font-bold text-sm transition cursor-pointer min-h-[44px] ${
                     selectedDuration === 30
                       ? 'border-[#3B234A] bg-[#3B234A] text-white shadow-md'
-                      : 'border-stone-200 bg-white text-stone-800 hover:bg-stone-50'
+                      : 'border-[#E6E0D2] bg-white text-[#2C2421] hover:bg-[#FAF8F5]'
                   }`}
                 >
                   <span>30 Minutes</span>
@@ -175,7 +177,7 @@ export const OneToOne: React.FC = () => {
                   className={`p-4 rounded-2xl border text-center font-bold text-sm transition cursor-pointer min-h-[44px] ${
                     selectedDuration === 60
                       ? 'border-[#3B234A] bg-[#3B234A] text-white shadow-md'
-                      : 'border-stone-200 bg-white text-stone-800 hover:bg-stone-50'
+                      : 'border-[#E6E0D2] bg-white text-[#2C2421] hover:bg-[#FAF8F5]'
                   }`}
                 >
                   <span>60 Minutes (Intensive)</span>
@@ -190,7 +192,7 @@ export const OneToOne: React.FC = () => {
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#8B5E34]">
                   3. Pick 2 Preferred Dates (13th to 31st)
                 </label>
-                <span className="text-[11px] text-stone-700 font-medium">Days 1–12 Disabled</span>
+                <span className="text-[11px] text-stone-500 font-medium">Days 1–12 Disabled</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -203,10 +205,10 @@ export const OneToOne: React.FC = () => {
                     value={primaryDate}
                     min="2026-10-13"
                     onChange={(e) => setPrimaryDate(e.target.value)}
-                    className={`w-full px-4 py-2.5 rounded-xl border text-sm font-semibold outline-none ${
+                    className={`w-full px-4 py-2.5 rounded-xl border text-sm font-semibold outline-none transition min-h-[44px] ${
                       isDateLocked(primaryDate)
-                        ? 'border-rose-500 bg-rose-50 text-rose-800'
-                        : 'border-stone-300 focus:border-[#3B234A]'
+                        ? 'border-rose-400 bg-rose-50 text-rose-800'
+                        : 'border-[#E6E0D2] bg-white text-[#2C2421] focus:border-[#3B234A]'
                     }`}
                   />
                   {isDateLocked(primaryDate) && (
@@ -225,10 +227,10 @@ export const OneToOne: React.FC = () => {
                     value={secondaryDate}
                     min="2026-10-13"
                     onChange={(e) => setSecondaryDate(e.target.value)}
-                    className={`w-full px-4 py-2.5 rounded-xl border text-sm font-semibold outline-none ${
+                    className={`w-full px-4 py-2.5 rounded-xl border text-sm font-semibold outline-none transition min-h-[44px] ${
                       isDateLocked(secondaryDate)
-                        ? 'border-rose-500 bg-rose-50 text-rose-800'
-                        : 'border-stone-300 focus:border-[#3B234A]'
+                        ? 'border-rose-400 bg-rose-50 text-rose-800'
+                        : 'border-[#E6E0D2] bg-white text-[#2C2421] focus:border-[#3B234A]'
                     }`}
                   />
                   {isDateLocked(secondaryDate) && (
@@ -244,7 +246,7 @@ export const OneToOne: React.FC = () => {
                 <select
                   value={preferredTime}
                   onChange={(e) => setPreferredTime(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm font-semibold focus:border-[#3B234A] outline-none"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#E6E0D2] text-sm font-semibold focus:border-[#3B234A] outline-none bg-white text-[#2C2421] min-h-[44px]"
                 >
                   <option>08:00 AM – 09:00 AM (Morning Stillness)</option>
                   <option>10:00 AM – 11:00 AM (Mid-Day Clarity)</option>
@@ -256,8 +258,8 @@ export const OneToOne: React.FC = () => {
             </div>
 
             {error && (
-              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-semibold flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
+              <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-semibold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
                 <span>{error}</span>
               </div>
             )}
@@ -266,9 +268,9 @@ export const OneToOne: React.FC = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="btn-spiritual w-full py-4 rounded-2xl bg-[#3B234A] hover:bg-[#2C1838] text-white font-bold text-sm tracking-wider uppercase shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+              className="btn-spiritual btn-primary w-full py-4 font-bold text-sm tracking-wider uppercase shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer min-h-[44px]"
             >
-              <Sparkles className="w-5 h-5 text-amber-300" />
+              <Sparkles className="w-5 h-5 text-[#D1A559]" />
               <span>{isSubmitting ? 'Scheduling Booking...' : `Book Consultation (₹${price})`}</span>
             </button>
           </form>
@@ -276,31 +278,31 @@ export const OneToOne: React.FC = () => {
 
         {/* Right Info Sidebar */}
         <ScrollReveal animation="fade-up" delay={150} className="lg:col-span-4 space-y-6">
-          <div className="glass-card p-6 rounded-3xl border border-[#E6E0D2] space-y-4">
-            <h4 className="font-serif font-bold text-stone-900 text-lg">What to Expect</h4>
-            <ul className="space-y-3 text-xs text-stone-600">
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+          <div className="card-spiritual p-6 space-y-4 shadow-sm">
+            <h4 className="heading-card text-lg text-[#2C2421]">What to Expect</h4>
+            <ul className="space-y-3 text-xs text-stone-600 font-light">
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
                 <span>Private 1-on-1 HD Zoom video consultation directly with Master Peddi Raju Garu.</span>
               </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
                 <span>Personalized pranayama and meditation roadmap tailored to your energy.</span>
               </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
                 <span>Confidential environment for personal questions and emotional release.</span>
               </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
                 <span>WhatsApp confirmation sent within 24 hours of slot booking.</span>
               </li>
             </ul>
           </div>
 
-          <div className="p-5 rounded-2xl bg-[#FAF7F0] border border-[#E6E0D2] text-xs text-stone-700 space-y-2">
-            <span className="font-bold text-[#8B5E34] uppercase tracking-wider block">Master's Promise</span>
-            <p className="italic">
+          <div className="card-surface text-xs text-stone-700 space-y-2">
+            <span className="section-eyebrow block">Master's Promise</span>
+            <p className="italic leading-relaxed font-light">
               "In our 1-on-1 time, I meet you wherever you are on your path. No dogma, no rush — just pure presence and practical spiritual tools for your life."
             </p>
           </div>
@@ -311,5 +313,6 @@ export const OneToOne: React.FC = () => {
     </div>
   );
 };
+
 
 
